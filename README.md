@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# lipefxo — portfolio
 
-## Getting Started
+A minimalist, single-page portfolio built with Next.js 16, React 19, Tailwind v4,
+and TypeScript. It pulls public GitHub repositories live and showcases selected
+private/work projects from hand-authored content.
 
-First, run the development server:
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Editing content
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Almost everything you'll want to change lives in **`src/config/site.ts`**:
 
-## Learn More
+- `name`, `tagline`, `bio` — hero + about copy.
+- `socials` — email, GitHub, X, LinkedIn (replace the LinkedIn placeholder URL).
+- `skills` — the tags shown in the Skills section.
+- `featured` — curated copy for public repos, keyed by repo name. Repos not listed
+  here fall back to their GitHub description.
+- `work` — private/work projects shown as description-only cards (no source links).
 
-To learn more about Next.js, take a look at the following resources:
+Search the file for `TODO: edit` to find placeholder copy.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Résumé
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The Contact section links to `/resume.pdf`. Drop your PDF at `public/resume.pdf`.
 
-## Deploy on Vercel
+### GitHub data
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Public repos for the user in `site.githubUser` are fetched server-side and cached
+hourly (ISR), so we stay under GitHub's unauthenticated rate limit. Forks and
+archived repos are excluded. To raise the rate limit (optional), set a token in
+`.env.local`:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+GITHUB_TOKEN=ghp_xxx
+```
+
+Private/work repos are **never** fetched — their content is static in `site.ts`.
+
+## Build & deploy
+
+```bash
+pnpm build   # production build (type-checks + lints data fetching)
+```
+
+Deploy to [Vercel](https://vercel.com/new) — it picks up the Next.js config
+automatically. Add `GITHUB_TOKEN` as an environment variable if you set one.
