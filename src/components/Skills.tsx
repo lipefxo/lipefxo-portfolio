@@ -1,4 +1,5 @@
 import { site } from "@/config/site";
+import { TechTag } from "./TechTag";
 
 export function Skills() {
   return (
@@ -25,11 +26,11 @@ function TagGroup({ items }: { items: string[] }) {
   return (
     <ul className="flex flex-wrap gap-2">
       {items.map((item) => (
-        <li
-          key={item}
-          className="rounded-md border border-zinc-200 px-3.5 py-1.5 text-sm text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"
-        >
-          {item}
+        <li key={item}>
+          <TechTag
+            label={item}
+            className="h-8 px-3.5 text-sm text-zinc-700 dark:text-zinc-300"
+          />
         </li>
       ))}
     </ul>

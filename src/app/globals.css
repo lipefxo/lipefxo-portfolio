@@ -6,6 +6,39 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --stagger-dur: 500ms;
+  --stagger-distance: 12px;
+  --stagger-stagger: 40ms;
+  --stagger-blur: 3px;
+  --stagger-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --intro-dur: 560ms;
+  --intro-distance: 14px;
+  --intro-stagger: 55ms;
+  --intro-blur: 3px;
+  --intro-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --reveal-dur: 620ms;
+  --reveal-distance: 18px;
+  --reveal-blur: 3px;
+  --reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --panel-open-dur: 400ms;
+  --panel-close-dur: 350ms;
+  --panel-translate-y: calc(187px * 0.5);
+  --panel-blur: 2px;
+  --panel-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --tt-in-dur: 150ms;
+  --tt-out-dur: 50ms;
+  --tt-scale: 0.98;
+  --tt-delay: 80ms;
+  --tt-in-ease: ease-out;
+  --tt-out-ease: ease-out;
+  --tt-bg: #222222;
+  --tt-fg: #f0f0f0;
+  --avatar-lift: -4px;
+  --avatar-dur: 320ms;
+  --avatar-scale: 1.05;
+  --avatar-falloff: 0.45;
+  --avatar-ease-in: cubic-bezier(0.22, 1, 0.36, 1);
+  --avatar-ease-out: cubic-bezier(0.34, 3.85, 0.64, 1);
 }
 
 .dark {
@@ -26,8 +59,265 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+:root.route-fade-out body {
+  opacity: 0;
+  filter: blur(2px);
+  pointer-events: none;
+  transition:
+    opacity 180ms var(--intro-ease),
+    filter 180ms var(--intro-ease);
+  will-change: opacity, filter;
+}
+
+button:not(:disabled),
+a[href],
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+.t-stagger-line {
+  display: block;
+  opacity: 0;
+  transform: translateY(var(--stagger-distance));
+  filter: blur(var(--stagger-blur));
+  transition:
+    opacity var(--stagger-dur) var(--stagger-ease),
+    transform var(--stagger-dur) var(--stagger-ease),
+    filter var(--stagger-dur) var(--stagger-ease);
+  will-change: transform, opacity, filter;
+}
+
+.t-stagger-line--2 {
+  transition-delay: var(--stagger-stagger);
+}
+
+.t-stagger.is-shown .t-stagger-line {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+.t-stagger.is-hiding .t-stagger-line {
+  opacity: 0;
+  transform: translateY(0);
+  filter: blur(0);
+  transition:
+    opacity 200ms ease,
+    transform 0s linear,
+    filter 0s linear;
+  transition-delay: 0s;
+}
+
+.t-intro .t-intro-item {
+  opacity: 0;
+  transform: translateY(var(--intro-distance));
+  filter: blur(var(--intro-blur));
+  transition:
+    opacity var(--intro-dur) var(--intro-ease),
+    transform var(--intro-dur) var(--intro-ease),
+    filter var(--intro-dur) var(--intro-ease);
+  transition-delay: calc(var(--intro-index, 0) * var(--intro-stagger));
+  will-change: transform, opacity, filter;
+}
+
+.t-intro.is-shown .t-intro-item {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* Scroll-triggered reveal: animates in the first time it enters the viewport
+   (driven by the Reveal component toggling data-visible). */
+.t-reveal {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance));
+  filter: blur(var(--reveal-blur));
+  transition:
+    opacity var(--reveal-dur) var(--reveal-ease),
+    transform var(--reveal-dur) var(--reveal-ease),
+    filter var(--reveal-dur) var(--reveal-ease);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: transform, opacity, filter;
+}
+
+.t-reveal[data-visible="true"] {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+.t-panel-slide {
+  transform: translateY(var(--panel-translate-y));
+  opacity: 0;
+  filter: blur(var(--panel-blur));
+  pointer-events: none;
+  transition:
+    transform var(--panel-close-dur) var(--panel-ease),
+    opacity var(--panel-close-dur) var(--panel-ease),
+    filter var(--panel-close-dur) var(--panel-ease);
+  will-change: transform, opacity, filter;
+}
+
+.t-panel-slide[data-open="true"] {
+  transform: translateY(0);
+  opacity: 1;
+  filter: blur(0);
+  pointer-events: auto;
+  transition:
+    transform var(--panel-open-dur) var(--panel-ease),
+    opacity var(--panel-open-dur) var(--panel-ease),
+    filter var(--panel-open-dur) var(--panel-ease);
+}
+
+/* Per-project background tint on the case-study pages (dark mode only). The
+   gradient itself is set inline from the project's glow palette; this rule only
+   reveals it in dark mode. */
+.work-tint {
+  opacity: 0;
+  transition: opacity 800ms var(--intro-ease);
+}
+
+.dark .work-tint {
+  opacity: 1;
+}
+
+.t-tt-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.t-tt {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translate(-50%, 0) scale(var(--tt-scale));
+  transform-origin: 50% 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--tt-bg);
+  color: var(--tt-fg);
+  white-space: nowrap;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 2px 6px 0 rgba(0, 0, 0, 0.05),
+    0 4px 42px 0 rgba(0, 0, 0, 0.06);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--tt-out-dur) var(--tt-out-ease),
+    transform var(--tt-out-dur) var(--tt-out-ease);
+}
+
+.t-tt-wrap:hover .t-tt,
+.t-tt-trigger:focus-visible + .t-tt {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+  transition-duration: var(--tt-in-dur);
+  transition-timing-function: var(--tt-in-ease);
+  transition-delay: var(--tt-delay);
+}
+
+.t-avatar {
+  transform-origin: center;
+  transform: translateY(var(--shift, 0px)) scale(var(--scale-active, 1));
+  transition: transform var(--avatar-dur) var(--avatar-ease-in);
+  will-change: transform;
+}
+
+/* Page navigations (Next's experimental viewTransition wraps each route change
+   in a view transition): dissolve the outgoing page over the incoming one. The
+   incoming page sits solid underneath while the old snapshot fades out on top,
+   so there is no mid-fade dip and the scroll-to-top of the new page is hidden
+   behind the dissolve. The destination skips its intro (see TransitionLink), so
+   what's revealed is settled content. */
+::view-transition-old(root) {
+  animation: vt-nav-out 520ms var(--intro-ease) both;
+  z-index: 2;
+}
+
+::view-transition-new(root) {
+  animation: none;
+  z-index: 1;
+}
+
+@keyframes vt-nav-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Liquid theme reveal: while the theme toggle drives its own clip-path flood
+   (ThemeToggle adds `.theme-vt` to <html> for the duration), drop the dissolve
+   so only the WAAPI clip-path runs, and keep the incoming layer painting on top
+   of the outgoing one. */
+:root.theme-vt::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+
+:root.theme-vt::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+  z-index: 2;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-stagger-line {
+    transition: none !important;
+  }
+
+  .t-intro .t-intro-item {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+    transition: none !important;
+  }
+
+  .t-reveal {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+    transition: none !important;
+  }
+
+  .t-panel-slide {
+    transition: none !important;
+  }
+
+  .work-tint {
+    transition: none !important;
+  }
+
+  .t-tt {
+    transition: none !important;
+  }
+
+  .t-avatar {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  :root.route-fade-out body {
+    opacity: 1;
+    filter: none;
+    transition: none !important;
+  }
+
+  /* Belt-and-suspenders: the JS already skips the transition under reduced
+     motion, but ensure the pseudo-elements never animate either. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
   }
 }

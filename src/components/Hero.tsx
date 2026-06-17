@@ -1,62 +1,30 @@
+import type { CSSProperties } from "react";
 import { site } from "@/config/site";
+import { ProfileAvatar } from "./ProfileAvatar";
+import { SocialIconLinks } from "./SocialIconLinks";
 
 export function Hero() {
   return (
-    <header className="flex flex-col gap-6 pt-8 sm:pt-16">
-      <h1 className="text-4xl font-semibold tracking-tight text-zinc-950 sm:text-5xl dark:text-zinc-50">
+    <header id="hero" className="flex flex-col gap-6 pt-8 sm:pt-16">
+      <h1
+        className="t-intro-item flex items-center gap-3 text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl dark:text-zinc-50"
+        style={{ "--intro-index": 0 } as CSSProperties}
+      >
+        <ProfileAvatar size={34} className="sm:size-9" />
         {site.name}
       </h1>
-      <p className="max-w-xl text-lg leading-8 text-zinc-600 dark:text-zinc-400">
+      <p
+        className="t-intro-item max-w-xl text-base leading-7 text-zinc-600 dark:text-zinc-400"
+        style={{ "--intro-index": 1 } as CSSProperties}
+      >
         {site.tagline}
       </p>
-      <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-500 dark:text-zinc-400">
-        <a className="transition-colors hover:text-zinc-950 dark:hover:text-zinc-50" href="#work">
-          Work
-        </a>
-        <a className="transition-colors hover:text-zinc-950 dark:hover:text-zinc-50" href="#open-source">
-          Open source
-        </a>
-        <a className="transition-colors hover:text-zinc-950 dark:hover:text-zinc-50" href="#experience">
-          Experience
-        </a>
-        <a className="transition-colors hover:text-zinc-950 dark:hover:text-zinc-50" href="#skills">
-          Skills
-        </a>
-        <a
-          className="transition-colors hover:text-zinc-950 dark:hover:text-zinc-50"
-          href={site.resumeUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Resume
-        </a>
-        <a className="transition-colors hover:text-zinc-950 dark:hover:text-zinc-50" href="#contact">
-          Contact
-        </a>
-        <a
-          className="inline-flex items-center transition-colors hover:text-zinc-950 dark:hover:text-zinc-50"
-          href={`https://github.com/${site.socials.github}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="GitHub profile"
-        >
-          <GitHubIcon />
-        </a>
-      </nav>
+      <div
+        className="t-intro-item"
+        style={{ "--intro-index": 2 } as CSSProperties}
+      >
+        <SocialIconLinks />
+      </div>
     </header>
-  );
-}
-
-function GitHubIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2.14c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.17 1.18A11 11 0 0 1 12 6.04c.98 0 1.96.13 2.88.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.14c0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
-    </svg>
   );
 }
