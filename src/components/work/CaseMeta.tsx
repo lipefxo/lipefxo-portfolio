@@ -43,14 +43,14 @@ export function CaseMeta({ meta }: { meta: CaseStudy["meta"] }) {
       {meta.liveUrl && (
         <div className="col-span-2 space-y-1.5">
           <dt className="text-[11px] font-medium tracking-wide text-zinc-400 uppercase dark:text-zinc-500">
-            Live
+            Website
           </dt>
           <dd>
             <a
               href={meta.liveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm text-zinc-800 underline-offset-4 hover:underline dark:text-zinc-200"
+              className="inline-flex items-center gap-1.5 text-sm text-zinc-800 underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 hover:decoration-zinc-600 dark:text-zinc-200 dark:decoration-zinc-700 dark:hover:text-zinc-50 dark:hover:decoration-zinc-400"
             >
               {meta.liveUrl.replace(/^https?:\/\//, "")}
               <svg
