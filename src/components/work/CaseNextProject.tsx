@@ -15,7 +15,10 @@ export function CaseNextProject({ project }: { project: WorkProject }) {
       </p>
       <TransitionLink href={`/work/${project.slug}`} className="group block space-y-4">
         <div className="transition-opacity duration-200 group-hover:opacity-90">
-          <ImagePlaceholder image={{ ...thumb, ratio: "16/9" }} />
+          <ImagePlaceholder
+            image={{ ...thumb, ratio: "32/9" }}
+            expandable={false}
+          />
         </div>
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1.5">

@@ -6,6 +6,7 @@ import { Hero } from "@/components/Hero";
 import { About } from "@/components/About";
 import { Experience } from "@/components/Experience";
 import { Projects } from "@/components/Projects";
+import { Currently } from "@/components/Currently";
 import { DarkVeil } from "@/components/DarkVeil";
 import { IntroReveal } from "@/components/IntroReveal";
 
@@ -33,9 +34,10 @@ export default async function Home() {
         <About />
         <Projects work={workDetails} />
         <Experience />
+        <Currently />
         <footer
           className="t-intro-item pt-8 text-xs text-zinc-400 dark:text-zinc-600"
-          style={{ "--intro-index": 12 } as CSSProperties}
+          style={{ "--intro-index": 13 } as CSSProperties}
         >
           © {site.name}
         </footer>

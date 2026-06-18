@@ -63,6 +63,46 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
     </>
   );
 
+  if (project.locked) {
+    return (
+      <Reveal delay={revealDelay} className="group/card h-full w-full">
+        <div className="relative h-full w-full overflow-hidden rounded-lg">
+          <div
+            className={`${cardClassName} pointer-events-none select-none transition-[filter] duration-200 ease-out group-hover/card:blur-[2px]`}
+            aria-hidden="true"
+          >
+            {content}
+          </div>
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2.5 rounded-lg bg-white/55 text-center opacity-0 backdrop-blur-[1px] transition-opacity duration-200 ease-out group-hover/card:opacity-100 dark:bg-zinc-950/55">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 bg-white/80 text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-400">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            </span>
+            <span
+              className="text-xs font-medium tracking-wide text-zinc-500 uppercase dark:text-zinc-400"
+              aria-hidden="true"
+            >
+              Coming soon
+            </span>
+            <span className="sr-only">{project.title} — case study coming soon</span>
+          </div>
+        </div>
+      </Reveal>
+    );
+  }
+
   return (
     <Reveal delay={revealDelay} className="group/card h-full w-full">
       <BorderGlow

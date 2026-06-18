@@ -26,10 +26,6 @@ Almost everything you'll want to change lives in **`src/config/site.ts`**:
 
 Search the file for `TODO: edit` to find placeholder copy.
 
-### Résumé
-
-The Contact section links to `/resume.pdf`. Drop your PDF at `public/resume.pdf`.
-
 ### GitHub data
 
 Public repos for the user in `site.githubUser` are fetched server-side and cached

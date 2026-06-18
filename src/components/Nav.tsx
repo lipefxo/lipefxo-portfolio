@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { site } from "@/config/site";
 import { TransitionLink } from "./TransitionLink";
 import { ProfileAvatar } from "./ProfileAvatar";
@@ -15,11 +16,16 @@ import { ThemeToggle } from "./ThemeToggle";
  * same left edge as the hero heading to keep the handoff continuous.
  */
 export function Nav() {
+  const pathname = usePathname();
+  const isProjectPage = pathname.startsWith("/work/");
   const [scrolled, setScrolled] = useState(false);
+  const active = isProjectPage || scrolled;
 
   useEffect(() => {
+    if (isProjectPage) return;
+
     // On the home page the bar reveals as the hero leaves the top of the
-    // viewport. On pages without a hero (case studies) it reveals once the user
+    // viewport. On other pages without a hero it reveals once the user
     // scrolls a touch past the top.
     const hero = document.getElementById("hero");
     if (hero) {
@@ -35,15 +41,15 @@ export function Nav() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [isProjectPage]);
 
   const reveal = "transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none";
 
   return (
     <div
-      data-scrolled={scrolled}
+      data-scrolled={active}
       className={`pointer-events-none fixed inset-x-0 top-0 z-40 border-b transition-[background-color,border-color,backdrop-filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
-        scrolled
+        active
           ? "border-zinc-200/70 bg-white/70 backdrop-blur-md dark:border-zinc-800/70 dark:bg-black/50"
           : "border-transparent bg-transparent"
       }`}
@@ -52,18 +58,20 @@ export function Nav() {
         <TransitionLink
           href="/"
           className={`inline-flex items-center gap-2 justify-self-start text-sm font-semibold tracking-tight text-zinc-950 dark:text-zinc-50 ${reveal} ${
-            scrolled
+            active
               ? "pointer-events-auto translate-x-0 opacity-100"
               : "pointer-events-none -translate-x-1 opacity-0"
           }`}
         >
           <ProfileAvatar size={20} tooltip={false} />
-          {site.name}
+          <span className="font-brand text-lg leading-none font-normal tracking-normal">
+            {site.name}
+          </span>
         </TransitionLink>
 
         <ul
           className={`flex items-center justify-self-center gap-4 text-zinc-500 delay-75 dark:text-zinc-400 ${reveal} ${
-            scrolled
+            active
               ? "pointer-events-auto translate-y-0 opacity-100"
               : "pointer-events-none -translate-y-1 opacity-0"
           }`}
