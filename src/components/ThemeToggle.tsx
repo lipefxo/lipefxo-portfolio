@@ -13,7 +13,7 @@ function subscribe(callback: () => void) {
 }
 
 const getSnapshot = () => document.documentElement.classList.contains("dark");
-const getServerSnapshot = () => false;
+const getServerSnapshot = () => true;
 
 // Flip the theme: toggle the class, sync color-scheme, and persist the choice.
 function applyTheme(next: boolean) {

@@ -125,6 +125,8 @@ export interface WorkProject {
   tech: string[];
   /** Optional accent colors for the hover border glow. */
   glow?: GlowPalette;
+  /** Optional cover image used for subtle homepage card reveals. */
+  cover?: CaseImage;
   /** Optional full case study shown at /work/<slug>. */
   caseStudy?: CaseStudy;
   /**
@@ -186,7 +188,7 @@ export const site: SiteConfig = {
   // Display name. Switch to "Luis Felipe Lins" if you'd rather use your full name.
   name: "lipefxo",
   tagline: "Senior Product Design Engineer",
-  bio: "Pushing pixels around until they feel just right, while talking at screens until the whole thing ships. Somewhere between product design, systems thinking, and front-end implementation, turning fuzzy ideas into working software while obsessing over the details.",
+  bio: "Pushing pixels around until they feel just right, while talking at screens. Somewhere between product design, systems thinking, and front-end implementation, turning fuzzy ideas into working software while obsessing over the details.",
   githubUser: "lipefxo",
   socials: {
     email: "lipefxo@gmail.com",
@@ -337,6 +339,12 @@ export const site: SiteConfig = {
         colors: ["#166534", "#15803d", "#34d399"],
         glowColor: "142 58 34",
       },
+      cover: {
+        label: "Bags cover image",
+        ratio: "48/17",
+        src: "/work/bags/cover.png",
+        alt: "Bags branded cover image with the Bags logo over a florist workspace.",
+      },
       tech: [
         "Product Design",
         "UI Design",
@@ -364,13 +372,13 @@ export const site: SiteConfig = {
         summary:
           "A financial platform I helped build so business owners can finally make sense of their money, keep their books clean, and find funding to grow.",
         hero: {
-          label: "Bags financial overview dashboard",
-          ratio: "16/9",
-          src: "/work/bags/hero-financial-dashboard-v2.webp",
-          alt: "Bags financial dashboard showing income, COGS, gross profit, expenses, and profit and loss data.",
+          label: "Bags cover image",
+          ratio: "48/17",
+          src: "/work/bags/cover.png",
+          alt: "Bags branded cover image with the Bags logo over a florist workspace.",
         },
         meta: {
-          role: "Senior Product Designer & Design Engineer",
+          role: "Senior Product Design Engineer",
           year: "2023 - 2026",
           timeline: "Ongoing",
           platform: "Web platform",
@@ -484,6 +492,12 @@ export const site: SiteConfig = {
         colors: ["#c2410c", "#57534e", "#9a3412"],
         glowColor: "20 80 44",
       },
+      cover: {
+        label: "Cello cover image",
+        ratio: "48/17",
+        src: "/work/cello/cover.png",
+        alt: "Cello branded cover image with the Cello logo over a dark timeline interface.",
+      },
       tech: [
         "Product Design",
         "UI Design",
@@ -502,10 +516,10 @@ export const site: SiteConfig = {
         summary:
           "A little Mac app I built to lay my day out on a timeline, and finally see where my time actually goes.",
         hero: {
-          label: "Cello daily timeline",
-          ratio: "16/9",
-          src: "/work/cello/hero-v3.png",
-          alt: "Cello daily timeline interface showing planned tasks across the week.",
+          label: "Cello cover image",
+          ratio: "48/17",
+          src: "/work/cello/cover.png",
+          alt: "Cello branded cover image with the Cello logo over a dark timeline interface.",
         },
         meta: {
           role: "Product Design Engineer",
@@ -679,6 +693,12 @@ export const site: SiteConfig = {
         colors: ["#84cc16", "#f97316", "#bef264"],
         glowColor: "84 74 48",
       },
+      cover: {
+        label: "AlphaDeal cover image",
+        ratio: "48/17",
+        src: "/work/alphadeal/cover.png",
+        alt: "AlphaDeal branded cover image with the AlphaDeal logo over a textured city skyline.",
+      },
       tech: [
         "Product Design",
         "UI Design",
@@ -703,7 +723,12 @@ export const site: SiteConfig = {
         headline: "Getting real estate teams from a first look to a confident decision",
         summary:
           "A shared workspace where real estate teams size up deals and get from a first look to a confident decision, without the scattered handoffs.",
-        hero: { label: "AlphaDeal deal workspace", ratio: "16/9" },
+        hero: {
+          label: "AlphaDeal cover image",
+          ratio: "48/17",
+          src: "/work/alphadeal/cover.png",
+          alt: "AlphaDeal branded cover image with the AlphaDeal logo over a textured city skyline.",
+        },
         meta: {
           role: "Product Designer & Design Engineer",
           year: "2026",
@@ -788,6 +813,12 @@ export const site: SiteConfig = {
         colors: ["#9ca3af", "#eab308", "#d1d5db"],
         glowColor: "46 78 54",
       },
+      cover: {
+        label: "Panorama cover image",
+        ratio: "48/17",
+        src: "/work/panorama/cover.png",
+        alt: "Panorama branded cover image with the Panorama logo over a dark floral illustration.",
+      },
       tech: [
         "Product Design",
         "UI Design",
@@ -810,7 +841,12 @@ export const site: SiteConfig = {
         headline: "Making a complicated advisory offer feel simple and trustworthy",
         summary:
           "A marketing site and private client portal I built solo, turning a dense advisory offer into something clear and easy to trust.",
-        hero: { label: "Panorama homepage", ratio: "16/9" },
+        hero: {
+          label: "Panorama cover image",
+          ratio: "48/17",
+          src: "/work/panorama/cover.png",
+          alt: "Panorama branded cover image with the Panorama logo over a dark floral illustration.",
+        },
         meta: {
           role: "Designer & Developer",
           year: "2026",

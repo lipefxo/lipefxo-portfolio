@@ -26,6 +26,8 @@ export interface ProjectDetail {
   slug?: string;
   /** Optional accent colors for the hover border glow. */
   glow?: GlowPalette;
+  /** Optional decorative cover image for homepage card reveals. */
+  coverImage?: { src: string };
   /** When true, the card is shown as a non-clickable "Coming soon" locked card. */
   locked?: boolean;
 }
@@ -64,6 +66,7 @@ export function workToDetail(work: WorkProject): ProjectDetail {
     // Only expose a slug when there's a case study to link to AND it isn't locked.
     slug: work.caseStudy && !work.locked ? work.slug : undefined,
     glow: work.glow,
+    coverImage: work.cover?.src ? { src: work.cover.src } : undefined,
     locked: work.locked,
   };
 }

@@ -29,7 +29,7 @@ export default async function Home() {
       </div>
       <div className="pointer-events-none fixed inset-0 z-0 dark:bg-[radial-gradient(circle_at_50%_34%,rgba(0,0,0,0.38),rgba(0,0,0,0.48)_48%,rgba(0,0,0,0.68)_100%)]" />
       <Nav />
-      <IntroReveal className="relative z-10 w-full max-w-3xl space-y-20 px-6 py-16 sm:px-10 sm:py-24">
+      <IntroReveal className="relative z-10 w-full max-w-3xl space-y-16 px-6 py-16 sm:px-10 sm:py-24">
         <Hero />
         <About />
         <Projects work={workDetails} />

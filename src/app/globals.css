@@ -41,6 +41,11 @@
   --card-shake-dur: 180ms;
   --card-shake-distance: 2px;
   --card-shake-ease: ease-in-out;
+  --card-reveal-dur: 220ms;
+  --card-reveal-size: 178px;
+  --card-reveal-core: 20px;
+  --card-reveal-opacity: 0.085;
+  --card-reveal-opacity-dark: 0.11;
   --avatar-lift: -4px;
   --avatar-dur: 320ms;
   --avatar-scale: 1.05;
@@ -52,6 +57,12 @@
   --shimmer-highlight: #0f766e;
   --shimmer-band: 320%;
   --shimmer-ease: linear;
+  /* Neutral, faster shimmer for the cycling words (no color tint). Base is
+     the text's own color (currentColor); only the gleam is defined here. */
+  --text-shimmer-highlight: #a1a1aa;
+  --text-shimmer-dur: 1200ms;
+  --text-shimmer-band: 220%;
+  --text-shimmer-ease: linear;
 }
 
 .dark {
@@ -59,6 +70,7 @@
   --foreground: #ededed;
   --shimmer-base: #d4d4d8;
   --shimmer-highlight: #5eead4;
+  --text-shimmer-highlight: #ffffff;
 }
 
 @theme inline {
@@ -66,7 +78,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-brand: var(--font-freehand);
+  --font-brand: var(--font-caveat);
 }
 
 body {
@@ -76,7 +88,7 @@ body {
 }
 
 .font-brand {
-  font-family: var(--font-freehand), cursive;
+  font-family: var(--font-caveat), cursive;
 }
 
 * {
@@ -297,9 +309,131 @@ button:disabled,
   }
 }
 
+/* Transitions.dev — text states swap (driven by TextSwap.tsx) */
+.t-text-swap {
+  /* Exit is quick and accelerating; enter is slower and heavier, with a soft
+     settle and a touch of scale so the swap reads as deliberate and weighty
+     rather than snappy. */
+  --text-swap-exit-dur: 160ms;
+  --text-swap-enter-dur: 360ms;
+  --text-swap-exit-ease: cubic-bezier(0.4, 0, 1, 1);
+  --text-swap-enter-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --text-swap-translate-y: 10px;
+  --text-swap-blur: 4px;
+  --text-swap-scale: 0.96;
+
+  display: inline-block;
+  transform-origin: left center;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  opacity: 1;
+  /* Default transition is the "enter" settle (applied when the new word
+     animates from below to rest). */
+  transition:
+    transform var(--text-swap-enter-dur) var(--text-swap-enter-ease),
+    filter var(--text-swap-enter-dur) var(--text-swap-enter-ease),
+    opacity var(--text-swap-enter-dur) var(--text-swap-enter-ease);
+  will-change: transform, filter, opacity;
+}
+
+.t-text-swap.is-exit {
+  transform: translateY(calc(var(--text-swap-translate-y) * -1))
+    scale(var(--text-swap-scale));
+  filter: blur(var(--text-swap-blur));
+  opacity: 0;
+  transition:
+    transform var(--text-swap-exit-dur) var(--text-swap-exit-ease),
+    filter var(--text-swap-exit-dur) var(--text-swap-exit-ease),
+    opacity var(--text-swap-exit-dur) var(--text-swap-exit-ease);
+}
+
+.t-text-swap.is-enter-start {
+  transform: translateY(var(--text-swap-translate-y))
+    scale(var(--text-swap-scale));
+  filter: blur(var(--text-swap-blur));
+  opacity: 0;
+  transition: none;
+}
+
+/* Neutral gleam that sweeps across the cycling words. Uses currentColor as the
+   base so it inherits each token's color; only the mid-band brightens. Keeping
+   `color` intact (only the fill is transparent) lets currentColor resolve. */
+.t-text-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    currentColor 0%,
+    currentColor 38%,
+    var(--text-shimmer-highlight) 50%,
+    currentColor 62%,
+    currentColor 100%
+  );
+  background-size: var(--text-shimmer-band) 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: t-text-shimmer var(--text-shimmer-dur) var(--text-shimmer-ease)
+    infinite;
+}
+
+@keyframes t-text-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: 0% 0;
+  }
+}
+
 .t-project-card-shake[data-shaking="true"] {
   animation: t-project-card-shake var(--card-shake-dur)
     var(--card-shake-ease);
+}
+
+.t-project-card-cover-reveal {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: saturate(0.95) contrast(1.05);
+  opacity: 0;
+  transition: opacity var(--card-reveal-dur) ease-out;
+  will-change: opacity, mask-position;
+  mask-repeat: no-repeat;
+  mask-size: calc(var(--card-reveal-size) * 2)
+    calc(var(--card-reveal-size) * 2);
+  mask-position: calc(var(--card-reveal-x, 50%) - var(--card-reveal-size))
+    calc(var(--card-reveal-y, 50%) - var(--card-reveal-size));
+  mask-image: radial-gradient(
+    circle,
+    #000 0,
+    #000 var(--card-reveal-core),
+    transparent var(--card-reveal-size)
+  );
+  -webkit-mask-image: radial-gradient(
+    circle,
+    #000 0,
+    #000 var(--card-reveal-core),
+    transparent var(--card-reveal-size)
+  );
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: calc(var(--card-reveal-size) * 2)
+    calc(var(--card-reveal-size) * 2);
+  -webkit-mask-position: calc(var(--card-reveal-x, 50%) - var(--card-reveal-size))
+    calc(var(--card-reveal-y, 50%) - var(--card-reveal-size));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .t-project-card-reveal-host[data-reveal-active="true"]
+    .t-project-card-cover-reveal {
+    opacity: var(--card-reveal-opacity);
+  }
+
+  .dark
+    .t-project-card-reveal-host[data-reveal-active="true"]
+    .t-project-card-cover-reveal {
+    opacity: var(--card-reveal-opacity-dark);
+  }
 }
 
 @keyframes t-project-card-shake {
@@ -348,11 +482,21 @@ button:disabled,
 
 @media (prefers-reduced-motion: reduce) {
   .t-modal,
+  .t-project-card-cover-reveal,
   .t-image-expand-button {
     transition: none !important;
   }
 
   .t-shimmer::before {
+    animation: none !important;
+  }
+
+  .t-text-swap {
+    transition: none !important;
+  }
+
+  .t-text-shimmer {
+    -webkit-text-fill-color: currentColor;
     animation: none !important;
   }
 

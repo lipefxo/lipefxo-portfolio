@@ -5,7 +5,6 @@ import { CaseSection } from "./CaseSection";
 import { CaseQuote } from "./CaseQuote";
 import { CaseOutcome } from "./CaseOutcome";
 import { CaseNextProject } from "./CaseNextProject";
-import { CaseCTA } from "./CaseCTA";
 
 interface CaseStoryProps {
   cs: CaseStudy;
@@ -42,9 +41,6 @@ export function CaseStory({ cs, next }: CaseStoryProps) {
           <CaseNextProject project={next} />
         </Reveal>
       )}
-      <Reveal>
-        <CaseCTA />
-      </Reveal>
     </div>
   );
 }
