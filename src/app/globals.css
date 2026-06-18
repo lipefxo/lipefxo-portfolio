@@ -71,7 +71,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-brand: var(--font-freehand);
+  --font-brand: var(--font-caveat);
 }
 
 body {
@@ -81,7 +81,7 @@ body {
 }
 
 .font-brand {
-  font-family: var(--font-freehand), cursive;
+  font-family: var(--font-caveat), cursive;
 }
 
 * {

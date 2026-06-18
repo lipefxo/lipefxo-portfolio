@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Freehand, Geist, Geist_Mono } from "next/font/google";
+import { Caveat, Geist, Geist_Mono } from "next/font/google";
 import { site } from "@/config/site";
 import "./globals.css";
 
@@ -13,10 +13,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const freehand = Freehand({
-  variable: "--font-freehand",
+const caveat = Caveat({
+  variable: "--font-caveat",
   subsets: ["latin"],
-  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -44,7 +43,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${freehand.variable} dark h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} dark h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
