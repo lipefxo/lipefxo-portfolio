@@ -33,6 +33,11 @@
   --tt-out-ease: ease-out;
   --tt-bg: #222222;
   --tt-fg: #f0f0f0;
+  --modal-open-dur: 250ms;
+  --modal-close-dur: 150ms;
+  --modal-scale: 0.96;
+  --modal-scale-close: 0.96;
+  --modal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --avatar-lift: -4px;
   --avatar-dur: 320ms;
   --avatar-scale: 1.05;
@@ -51,12 +56,54 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-brand: var(--font-freehand);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.font-brand {
+  font-family: var(--font-freehand), cursive;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(113 113 122 / 0.32) transparent;
+}
+
+.dark * {
+  scrollbar-color: rgb(161 161 170 / 0.28) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-color: rgb(113 113 122 / 0.32);
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(113 113 122 / 0.48);
+}
+
+.dark *::-webkit-scrollbar-thumb {
+  background-color: rgb(161 161 170 / 0.28);
+}
+
+.dark *::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(161 161 170 / 0.44);
 }
 
 :root.route-fade-out body {
@@ -172,6 +219,64 @@ button:disabled,
     transform var(--panel-open-dur) var(--panel-ease),
     opacity var(--panel-open-dur) var(--panel-ease),
     filter var(--panel-open-dur) var(--panel-ease);
+}
+
+.t-modal {
+  transform-origin: center;
+  transform: scale(var(--modal-scale));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--modal-open-dur) var(--modal-ease),
+    opacity var(--modal-open-dur) var(--modal-ease);
+  will-change: transform, opacity;
+}
+
+.t-modal.is-open {
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.t-modal.is-closing {
+  transform: scale(var(--modal-scale-close));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--modal-close-dur) var(--modal-ease),
+    opacity var(--modal-close-dur) var(--modal-ease);
+}
+
+.t-image-expand-button {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  transition:
+    opacity 150ms ease-out,
+    transform 150ms ease-out,
+    background-color 150ms ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .t-case-image .t-image-expand-button {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+    pointer-events: none;
+  }
+
+  .t-case-image:hover .t-image-expand-button,
+  .t-case-image:focus-within .t-image-expand-button {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-modal,
+  .t-image-expand-button {
+    transition: none !important;
+  }
 }
 
 /* Per-project background tint on the case-study pages (dark mode only). The

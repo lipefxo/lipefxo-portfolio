@@ -44,11 +44,11 @@ export async function generateMetadata({
 export default async function WorkCaseStudyPage({ params }: { params: Params }) {
   const { slug } = await params;
   const project = getWorkBySlug(slug);
-  if (!project?.caseStudy) notFound();
+  if (!project?.caseStudy || project.locked) notFound();
   const cs = project.caseStudy;
 
-  // Next case study, wrapping around to the first.
-  const studies = site.work.filter((w) => w.caseStudy);
+  // Next case study, wrapping around to the first. Locked projects are skipped.
+  const studies = site.work.filter((w) => w.caseStudy && !w.locked);
   const i = studies.findIndex((w) => w.slug === slug);
   const next = studies.length > 1 ? studies[(i + 1) % studies.length] : undefined;
 

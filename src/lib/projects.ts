@@ -26,6 +26,8 @@ export interface ProjectDetail {
   slug?: string;
   /** Optional accent colors for the hover border glow. */
   glow?: GlowPalette;
+  /** When true, the card is shown as a non-clickable "Coming soon" locked card. */
+  locked?: boolean;
 }
 
 /** Map a public GitHub repo into the unified detail shape. */
@@ -58,9 +60,10 @@ export function workToDetail(work: WorkProject): ProjectDetail {
     tech: work.tech,
     year: work.caseStudy?.meta.year,
     isWork: true,
-    // Only expose a slug when there's a case study to link to.
-    slug: work.caseStudy ? work.slug : undefined,
+    // Only expose a slug when there's a case study to link to AND it isn't locked.
+    slug: work.caseStudy && !work.locked ? work.slug : undefined,
     glow: work.glow,
+    locked: work.locked,
   };
 }
 
@@ -69,7 +72,7 @@ export function getWorkBySlug(slug: string): WorkProject | undefined {
   return site.work.find((w) => w.slug === slug);
 }
 
-/** Slugs of all work projects that have a case study — used for static params. */
+/** Slugs of all navigable work projects (have a case study, not locked) — used for static params. */
 export function workSlugs(): string[] {
-  return site.work.filter((w) => w.caseStudy).map((w) => w.slug);
+  return site.work.filter((w) => w.caseStudy && !w.locked).map((w) => w.slug);
 }

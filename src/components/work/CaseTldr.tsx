@@ -13,7 +13,11 @@ export function CaseTldr({ cs }: CaseTldrProps) {
   const intro = cs.sections.find(
     (section) => !section.heading && section.body?.length,
   );
-  const highlights = cs.sections.filter((section) => section.heading);
+  const highlights = cs.tldr?.length
+    ? cs.tldr
+    : cs.sections
+        .filter((section) => section.heading)
+        .map((section) => section.heading as string);
 
   return (
     <div className="space-y-12">
@@ -38,16 +42,16 @@ export function CaseTldr({ cs }: CaseTldrProps) {
                   Highlights
                 </h2>
                 <ul className="space-y-3">
-                  {highlights.map((section) => (
+                  {highlights.map((highlight) => (
                     <li
-                      key={section.heading}
+                      key={highlight}
                       className="flex gap-3 text-[15px] leading-7 text-zinc-700 dark:text-zinc-300"
                     >
                       <span
                         className="mt-[0.7em] h-1.5 w-1.5 shrink-0 rounded-full bg-zinc-400 dark:bg-zinc-600"
                         aria-hidden="true"
                       />
-                      <span>{section.heading}</span>
+                      <span>{highlight}</span>
                     </li>
                   ))}
                 </ul>
