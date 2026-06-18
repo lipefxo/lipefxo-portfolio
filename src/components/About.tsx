@@ -3,6 +3,7 @@ import { site } from "@/config/site";
 import { getSvglIcon } from "@/lib/svgl-icons";
 import { CyclingTokens } from "./CyclingTokens";
 import { SvglInlineIcon } from "./SvglInlineIcon";
+import { TypingDots } from "./TypingDots";
 
 /* The bio renders as two paragraphs. The first sentence turns "talking at
    screens" into two independent, cycling tokens — "<action> <tool>". Each
@@ -121,6 +122,12 @@ export function About() {
                 className: "t-text-shimmer",
               }}
               tool={{ items: toolItems, interval: 4100, offset: 4000 }}
+              separator={
+                <>
+                  {" "}
+                  <TypingDots />{" "}
+                </>
+              }
             />
             {afterPhrase}
           </span>

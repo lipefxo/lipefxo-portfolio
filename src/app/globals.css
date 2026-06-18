@@ -392,6 +392,50 @@ button:disabled,
   }
 }
 
+/* Typographic ellipsis (driven by TypingDots.tsx). Three small dots sized and
+   set on the baseline like a real "...", fading in sequence so they read as
+   text mid-thought. Sits between the action and the tool tokens. */
+.t-typing-dots {
+  --typing-dot-size: 0.16em;
+  --typing-dot-gap: 0.12em;
+  --typing-dot-dur: 1400ms;
+
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--typing-dot-gap);
+  /* Drop the dots to the text baseline so they sit like periods, not centered. */
+  vertical-align: baseline;
+}
+
+.t-typing-dot {
+  width: var(--typing-dot-size);
+  height: var(--typing-dot-size);
+  border-radius: 50%;
+  background-color: currentColor;
+  opacity: 0.25;
+  animation: t-typing-dot var(--typing-dot-dur) ease-in-out infinite;
+}
+
+.t-typing-dot:nth-child(2) {
+  animation-delay: 220ms;
+}
+
+.t-typing-dot:nth-child(3) {
+  animation-delay: 440ms;
+}
+
+@keyframes t-typing-dot {
+  0%,
+  65%,
+  100% {
+    opacity: 0.25;
+  }
+
+  30% {
+    opacity: 0.95;
+  }
+}
+
 .t-project-card-shake[data-shaking="true"] {
   animation: t-project-card-shake var(--card-shake-dur)
     var(--card-shake-ease);
@@ -504,6 +548,11 @@ button:disabled,
   .t-text-shimmer {
     -webkit-text-fill-color: currentColor;
     animation: none !important;
+  }
+
+  .t-typing-dot {
+    animation: none !important;
+    opacity: 0.55;
   }
 
   .t-project-card-shake[data-shaking="true"] {

@@ -23,7 +23,16 @@ const MIN_GAP_MS = 750;
  * land within MIN_GAP_MS of each other, the later one is nudged just past the
  * gap, so the two tokens never swap simultaneously.
  */
-export function CyclingTokens({ action, tool }: { action: Cycle; tool: Cycle }) {
+export function CyclingTokens({
+  action,
+  tool,
+  separator,
+}: {
+  action: Cycle;
+  tool: Cycle;
+  /** Rendered between the two tokens (e.g. an animated ellipsis). */
+  separator?: ReactNode;
+}) {
   const [signals, setSignals] = useState<[number, number]>([0, 0]);
 
   useEffect(() => {
@@ -71,7 +80,8 @@ export function CyclingTokens({ action, tool }: { action: Cycle; tool: Cycle }) 
 
   return (
     <>
-      <TextSwap items={action.items} signal={signals[0]} className={action.className} />{" "}
+      <TextSwap items={action.items} signal={signals[0]} className={action.className} />
+      {separator ? separator : " "}
       <TextSwap items={tool.items} signal={signals[1]} className={tool.className} />
     </>
   );
