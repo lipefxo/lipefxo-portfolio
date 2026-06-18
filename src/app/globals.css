@@ -376,6 +376,12 @@ button:disabled,
     infinite;
 }
 
+.t-app-logo {
+  background: none;
+  -webkit-text-fill-color: initial;
+  animation: none;
+}
+
 @keyframes t-text-shimmer {
   0% {
     background-position: 100% 0;

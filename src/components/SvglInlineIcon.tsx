@@ -3,7 +3,7 @@ import type { SvglRoute } from "@/lib/svgl-icons";
 
 /* Sized to the surrounding text (1em) and nudged onto its baseline. */
 const ICON_BASE =
-  "size-[0.95em] shrink-0 align-[-0.13em] object-contain";
+  "t-app-logo size-[0.95em] shrink-0 align-[-0.13em] object-contain";
 
 const imgProps = {
   "aria-hidden": true,
