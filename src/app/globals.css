@@ -38,17 +38,27 @@
   --modal-scale: 0.96;
   --modal-scale-close: 0.96;
   --modal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --card-shake-dur: 180ms;
+  --card-shake-distance: 2px;
+  --card-shake-ease: ease-in-out;
   --avatar-lift: -4px;
   --avatar-dur: 320ms;
   --avatar-scale: 1.05;
   --avatar-falloff: 0.45;
   --avatar-ease-in: cubic-bezier(0.22, 1, 0.36, 1);
   --avatar-ease-out: cubic-bezier(0.34, 3.85, 0.64, 1);
+  --shimmer-dur: 1800ms;
+  --shimmer-base: #3f3f46;
+  --shimmer-highlight: #0f766e;
+  --shimmer-band: 320%;
+  --shimmer-ease: linear;
 }
 
 .dark {
   --background: #0a0a0a;
   --foreground: #ededed;
+  --shimmer-base: #d4d4d8;
+  --shimmer-highlight: #5eead4;
 }
 
 @theme inline {
@@ -247,6 +257,70 @@ button:disabled,
     opacity var(--modal-close-dur) var(--modal-ease);
 }
 
+.t-shimmer {
+  position: relative;
+  display: inline-block;
+  color: var(--shimmer-base);
+}
+
+.t-shimmer::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 34%,
+    color-mix(in oklab, var(--shimmer-highlight), transparent 22%) 44%,
+    var(--shimmer-highlight) 50%,
+    color-mix(in oklab, var(--shimmer-highlight), transparent 22%) 56%,
+    transparent 66%,
+    transparent 100%
+  );
+  background-size: var(--shimmer-band) 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: t-shimmer var(--shimmer-dur) var(--shimmer-ease) infinite;
+}
+
+@keyframes t-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+.t-project-card-shake[data-shaking="true"] {
+  animation: t-project-card-shake var(--card-shake-dur)
+    var(--card-shake-ease);
+}
+
+@keyframes t-project-card-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(calc(var(--card-shake-distance) * -1));
+  }
+
+  50% {
+    transform: translateX(var(--card-shake-distance));
+  }
+
+  75% {
+    transform: translateX(calc(var(--card-shake-distance) * -0.5));
+  }
+}
+
 .t-image-expand-button {
   opacity: 1;
   transform: translateY(0) scale(1);
@@ -276,6 +350,14 @@ button:disabled,
   .t-modal,
   .t-image-expand-button {
     transition: none !important;
+  }
+
+  .t-shimmer::before {
+    animation: none !important;
+  }
+
+  .t-project-card-shake[data-shaking="true"] {
+    animation: none !important;
   }
 }
 

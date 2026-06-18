@@ -117,9 +117,33 @@ export function ProjectModal({ project, onClose }: Props) {
                 href={project.demoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-9 items-center justify-center rounded-md border border-zinc-300 px-4 text-xs font-medium text-zinc-800 transition-colors hover:border-zinc-400 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:border-zinc-500 dark:hover:text-zinc-50"
+                className={
+                  project.isWork
+                    ? "inline-flex items-center gap-1.5 text-xs font-medium text-zinc-800 underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 hover:decoration-zinc-600 dark:text-zinc-200 dark:decoration-zinc-700 dark:hover:text-zinc-50 dark:hover:decoration-zinc-400"
+                    : "inline-flex h-9 items-center justify-center rounded-md border border-zinc-300 px-4 text-xs font-medium text-zinc-800 transition-colors hover:border-zinc-400 hover:text-zinc-950 dark:border-zinc-700 dark:text-zinc-200 dark:hover:border-zinc-500 dark:hover:text-zinc-50"
+                }
               >
-                Live demo
+                {project.isWork ? (
+                  <>
+                    {project.demoUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M7 7h10v10" />
+                      <path d="M7 17 17 7" />
+                    </svg>
+                  </>
+                ) : (
+                  "Live demo"
+                )}
               </a>
             )}
           </div>

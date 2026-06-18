@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { removeScopeTechLabels, type ProjectDetail } from "@/lib/projects";
 import { TransitionLink } from "./TransitionLink";
 import { BorderGlow } from "./BorderGlow";
@@ -20,9 +20,47 @@ const cardClassName =
   "flex h-full w-full flex-col rounded-lg border border-zinc-200 bg-white p-5 text-left shadow-sm shadow-zinc-950/[0.015] transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out group-hover/card:border-transparent group-hover/card:bg-zinc-50/70 group-hover/card:shadow-md group-hover/card:shadow-zinc-950/[0.035] group-focus-within/card:-translate-y-px group-focus-within/card:border-zinc-300 group-focus-within/card:bg-zinc-50/70 group-focus-within/card:shadow-md group-focus-within/card:shadow-zinc-950/[0.035] dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-black/10 dark:group-hover/card:border-transparent dark:group-hover/card:bg-zinc-900/40 dark:group-hover/card:shadow-black/20 dark:group-focus-within/card:border-zinc-700 dark:group-focus-within/card:bg-zinc-900/40 dark:group-focus-within/card:shadow-black/20";
 
 export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
+  const [isShaking, setIsShaking] = useState(false);
+  const [isLockedHintVisible, setIsLockedHintVisible] = useState(false);
+  const shakeTimeoutRef = useRef<number | null>(null);
+  const hintTimeoutRef = useRef<number | null>(null);
   const stack = removeScopeTechLabels(project.tech);
   const visibleTech = stack.slice(0, 4);
   const hiddenTechCount = Math.max(stack.length - visibleTech.length, 0);
+
+  useEffect(() => {
+    return () => {
+      if (shakeTimeoutRef.current !== null) {
+        window.clearTimeout(shakeTimeoutRef.current);
+      }
+      if (hintTimeoutRef.current !== null) {
+        window.clearTimeout(hintTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  function shakeLockedCard() {
+    if (shakeTimeoutRef.current !== null) {
+      window.clearTimeout(shakeTimeoutRef.current);
+    }
+    if (hintTimeoutRef.current !== null) {
+      window.clearTimeout(hintTimeoutRef.current);
+    }
+
+    setIsShaking(false);
+    setIsLockedHintVisible(true);
+    window.requestAnimationFrame(() => {
+      setIsShaking(true);
+      shakeTimeoutRef.current = window.setTimeout(() => {
+        setIsShaking(false);
+        shakeTimeoutRef.current = null;
+      }, 180);
+    });
+    hintTimeoutRef.current = window.setTimeout(() => {
+      setIsLockedHintVisible(false);
+      hintTimeoutRef.current = null;
+    }, 1400);
+  }
 
   const content: ReactNode = (
     <>
@@ -37,11 +75,11 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
         )}
       </div>
 
-      <p className="mt-2 max-w-[58ch] flex-1 text-[13px] leading-5 text-zinc-600 dark:text-zinc-400">
+      <p className="mt-2 max-w-[48ch] flex-1 text-[13px] leading-5 text-zinc-600 dark:text-zinc-400">
         {project.blurb}
       </p>
 
-      <div className="mt-4 flex flex-wrap items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-500">
+      <div className="mt-4 flex flex-wrap items-center gap-1.5 pr-10 text-[11px] text-zinc-500 dark:text-zinc-500">
         {project.language && (
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-500" />
@@ -66,38 +104,27 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
   if (project.locked) {
     return (
       <Reveal delay={revealDelay} className="group/card h-full w-full">
-        <div className="relative h-full w-full overflow-hidden rounded-lg">
-          <div
-            className={`${cardClassName} pointer-events-none select-none transition-[filter] duration-200 ease-out group-hover/card:blur-[2px]`}
-            aria-hidden="true"
-          >
+        <div
+          className="t-project-card-shake relative h-full w-full overflow-hidden rounded-lg"
+          data-shaking={isShaking ? "true" : undefined}
+        >
+          <div className={`${cardClassName} relative pb-12 select-none`}>
             {content}
           </div>
-          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2.5 rounded-lg bg-white/55 text-center opacity-0 backdrop-blur-[1px] transition-opacity duration-200 ease-out group-hover/card:opacity-100 dark:bg-zinc-950/55">
-            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 bg-white/80 text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-400">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-            </span>
-            <span
-              className="text-xs font-medium tracking-wide text-zinc-500 uppercase dark:text-zinc-400"
-              aria-hidden="true"
-            >
-              Coming soon
-            </span>
-            <span className="sr-only">{project.title} — case study coming soon</span>
-          </div>
+          <button
+            type="button"
+            onClick={shakeLockedCard}
+            aria-label={`${project.title} case study coming soon`}
+            className="absolute inset-0 z-10 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:focus-visible:outline-zinc-100"
+          />
+          {project.demoUrl && (
+            <WebsiteLink
+              href={project.demoUrl}
+              label={`Visit ${project.title} website`}
+              className="absolute bottom-5 left-5 z-20"
+            />
+          )}
+          <CardStatusIcon locked showHint={isLockedHintVisible} />
         </div>
       </Reveal>
     );
@@ -113,20 +140,141 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
         colors={project.glow?.colors}
         glowColor={project.glow?.glowColor}
       >
-        {href ? (
-          <TransitionLink href={href} className={cardClassName}>
+        {href && project.demoUrl ? (
+          <div className={`${cardClassName} relative`}>
+            <TransitionLink
+              href={href}
+              aria-label={`View ${project.title} case study`}
+              className="absolute inset-0 z-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:focus-visible:outline-zinc-100"
+            />
+            <div className="pointer-events-none relative z-10 flex h-full flex-col">
+              {content}
+              <WebsiteLink
+                href={project.demoUrl}
+                label={`Visit ${project.title} website`}
+                className="pointer-events-auto mt-4 self-start"
+              />
+            </div>
+            <CardStatusIcon />
+          </div>
+        ) : href ? (
+          <TransitionLink href={href} className={`${cardClassName} relative`}>
             {content}
+            <CardStatusIcon />
           </TransitionLink>
         ) : (
           <button
             type="button"
             onClick={() => onOpen(project)}
-            className={cardClassName}
+            className={`${cardClassName} relative`}
           >
             {content}
+            <CardStatusIcon />
           </button>
         )}
       </BorderGlow>
     </Reveal>
   );
+}
+
+function WebsiteLink({
+  href,
+  label,
+  className = "",
+}: {
+  href: string;
+  label: string;
+  className?: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      onClick={(event) => event.stopPropagation()}
+      className={`inline-flex items-center gap-1 text-[11px] font-medium text-zinc-500 underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 hover:decoration-zinc-600 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-900 dark:text-zinc-400 dark:decoration-zinc-700 dark:hover:text-zinc-50 dark:hover:decoration-zinc-400 dark:focus-visible:outline-zinc-100 ${className}`}
+    >
+      {formatUrl(href)}
+    </a>
+  );
+}
+
+function CardStatusIcon({
+  locked = false,
+  showHint = false,
+}: {
+  locked?: boolean;
+  showHint?: boolean;
+}) {
+  if (locked) {
+    return (
+      <span
+        className="pointer-events-none absolute right-5 bottom-5 z-20 inline-flex h-6 items-center justify-end gap-2 text-zinc-400 transition-colors duration-200 ease-out group-hover/card:text-zinc-700 group-focus-within/card:text-zinc-700 dark:text-zinc-500 dark:group-hover/card:text-zinc-200 dark:group-focus-within/card:text-zinc-200"
+        aria-hidden="true"
+      >
+        <span
+          className={`whitespace-nowrap text-[11px] font-medium text-zinc-500 transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none dark:text-zinc-400 ${
+            showHint
+              ? "translate-x-0 opacity-100"
+              : "translate-x-1 opacity-0"
+          }`}
+        >
+          Coming Soon
+        </span>
+        <LockIcon />
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className="pointer-events-none absolute right-5 bottom-5 z-20 inline-flex h-6 w-6 items-center justify-center text-zinc-400 transition-colors duration-200 ease-out group-hover/card:text-zinc-700 group-focus-within/card:text-zinc-700 dark:text-zinc-500 dark:group-hover/card:text-zinc-200 dark:group-focus-within/card:text-zinc-200"
+      aria-hidden="true"
+    >
+      <ArrowUpRightIcon />
+    </span>
+  );
+}
+
+function ArrowUpRightIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M7 7h10v10" />
+      <path d="M7 17 17 7" />
+    </svg>
+  );
+}
+
+function LockIcon() {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  );
+}
+
+function formatUrl(url: string) {
+  return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
 }

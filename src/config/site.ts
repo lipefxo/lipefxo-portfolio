@@ -185,8 +185,8 @@ export interface SiteConfig {
 export const site: SiteConfig = {
   // Display name. Switch to "Luis Felipe Lins" if you'd rather use your full name.
   name: "lipefxo",
-  tagline: "Senior Product Designer & Design Engineer.",
-  bio: "Pushing pixels around until they feel just right, while talking at screens until the whole thing ships. Somewhere between product design, systems thinking, and front-end implementation, turning fuzzy ideas into working software with a suspicious amount of polish.",
+  tagline: "Senior Product Design Engineer",
+  bio: "Pushing pixels around until they feel just right, while talking at screens until the whole thing ships. Somewhere between product design, systems thinking, and front-end implementation, turning fuzzy ideas into working software while obsessing over the details.",
   githubUser: "lipefxo",
   socials: {
     email: "lipefxo@gmail.com",
@@ -389,6 +389,7 @@ export const site: SiteConfig = {
             "Analytics (PostHog)",
             "Internal tooling",
           ],
+          liveUrl: "https://www.securebags.com",
         },
         git: { prs: 98, additions: 17800, deletions: 7950, files: 797 },
         sections: [
@@ -720,6 +721,7 @@ export const site: SiteConfig = {
             "Design Systems",
             "Front-end (React, TypeScript)",
           ],
+          liveUrl: "https://www.alphadeal.ai",
         },
         git: { prs: 25, additions: 26355, deletions: 14552, files: 635 },
         sections: [
@@ -823,7 +825,7 @@ export const site: SiteConfig = {
             "Auth (Clerk)",
             "Analytics & SEO",
           ],
-          liveUrl: "https://panorama.cash",
+          liveUrl: "https://www.panorama.cash",
         },
         git: { prs: 17, additions: 10494, deletions: 906, files: 155 },
         sections: [

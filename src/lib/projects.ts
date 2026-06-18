@@ -51,7 +51,7 @@ export function repoToDetail(repo: Repo): ProjectDetail {
   };
 }
 
-/** Map a private/work project into the unified detail shape (no links). */
+/** Map a private/work project into the unified detail shape. */
 export function workToDetail(work: WorkProject): ProjectDetail {
   return {
     title: work.name,
@@ -59,6 +59,7 @@ export function workToDetail(work: WorkProject): ProjectDetail {
     description: work.longDescription,
     tech: work.tech,
     year: work.caseStudy?.meta.year,
+    demoUrl: work.caseStudy?.meta.liveUrl,
     isWork: true,
     // Only expose a slug when there's a case study to link to AND it isn't locked.
     slug: work.caseStudy && !work.locked ? work.slug : undefined,
