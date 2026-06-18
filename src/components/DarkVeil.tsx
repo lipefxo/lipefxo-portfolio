@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Mesh, Program, Renderer, Triangle, Vec2 } from "ogl";
 
 const vertex = `
 attribute vec2 position;
@@ -104,72 +103,115 @@ export function DarkVeil({
 
     if (!canvas || !parent) return;
 
-    const renderer = new Renderer({
-      dpr: Math.min(window.devicePixelRatio, 2),
-      canvas,
+    let disposed = false;
+    let activeCleanup: (() => void) | undefined;
+    let initializing = false;
+    let startToken = 0;
+
+    const isDark = () => document.documentElement.classList.contains("dark");
+
+    const stop = () => {
+      startToken += 1;
+      initializing = false;
+      activeCleanup?.();
+      activeCleanup = undefined;
+    };
+
+    const start = () => {
+      if (activeCleanup || initializing || !isDark()) return;
+
+      const token = startToken;
+      initializing = true;
+
+      void import("ogl").then(({ Mesh, Program, Renderer, Triangle, Vec2 }) => {
+        initializing = false;
+        if (disposed || token !== startToken || !isDark()) return;
+
+        const renderer = new Renderer({
+          dpr: Math.min(window.devicePixelRatio, 2),
+          canvas,
+        });
+
+        const gl = renderer.gl;
+        const geometry = new Triangle(gl);
+        const program = new Program(gl, {
+          vertex,
+          fragment,
+          uniforms: {
+            uTime: { value: 0 },
+            uResolution: { value: new Vec2() },
+            uHueShift: { value: hueShift },
+            uNoise: { value: noiseIntensity },
+            uScan: { value: scanlineIntensity },
+            uScanFreq: { value: scanlineFrequency },
+            uWarp: { value: warpAmount },
+          },
+        });
+        const mesh = new Mesh(gl, { geometry, program });
+        const reduceMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
+
+        const resize = () => {
+          const width = parent.clientWidth;
+          const height = parent.clientHeight;
+
+          renderer.setSize(width * resolutionScale, height * resolutionScale);
+          program.uniforms.uResolution.value.set(width, height);
+        };
+
+        window.addEventListener("resize", resize);
+        resize();
+
+        const startedAt = performance.now();
+        let frame = 0;
+
+        const render = () => {
+          program.uniforms.uTime.value =
+            ((performance.now() - startedAt) / 1000) * speed;
+          program.uniforms.uHueShift.value = hueShift;
+          program.uniforms.uNoise.value = noiseIntensity;
+          program.uniforms.uScan.value = scanlineIntensity;
+          program.uniforms.uScanFreq.value = scanlineFrequency;
+          program.uniforms.uWarp.value = warpAmount;
+          renderer.render({ scene: mesh });
+        };
+
+        const loop = () => {
+          render();
+          frame = requestAnimationFrame(loop);
+        };
+
+        activeCleanup = () => {
+          cancelAnimationFrame(frame);
+          window.removeEventListener("resize", resize);
+          gl.clear(gl.COLOR_BUFFER_BIT);
+        };
+
+        if (reduceMotion) {
+          render();
+        } else {
+          loop();
+        }
+      });
+    };
+
+    const sync = () => {
+      if (isDark()) start();
+      else stop();
+    };
+
+    const observer = new MutationObserver(sync);
+    observer.observe(document.documentElement, {
+      attributeFilter: ["class"],
+      attributes: true,
     });
-
-    const gl = renderer.gl;
-    const geometry = new Triangle(gl);
-
-    const program = new Program(gl, {
-      vertex,
-      fragment,
-      uniforms: {
-        uTime: { value: 0 },
-        uResolution: { value: new Vec2() },
-        uHueShift: { value: hueShift },
-        uNoise: { value: noiseIntensity },
-        uScan: { value: scanlineIntensity },
-        uScanFreq: { value: scanlineFrequency },
-        uWarp: { value: warpAmount },
-      },
-    });
-
-    const mesh = new Mesh(gl, { geometry, program });
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
-    const resize = () => {
-      const width = parent.clientWidth;
-      const height = parent.clientHeight;
-
-      renderer.setSize(width * resolutionScale, height * resolutionScale);
-      program.uniforms.uResolution.value.set(width, height);
-    };
-
-    window.addEventListener("resize", resize);
-    resize();
-
-    const start = performance.now();
-    let frame = 0;
-
-    const render = () => {
-      program.uniforms.uTime.value =
-        ((performance.now() - start) / 1000) * speed;
-      program.uniforms.uHueShift.value = hueShift;
-      program.uniforms.uNoise.value = noiseIntensity;
-      program.uniforms.uScan.value = scanlineIntensity;
-      program.uniforms.uScanFreq.value = scanlineFrequency;
-      program.uniforms.uWarp.value = warpAmount;
-      renderer.render({ scene: mesh });
-    };
-
-    const loop = () => {
-      render();
-      frame = requestAnimationFrame(loop);
-    };
-
-    if (reduceMotion) {
-      render();
-    } else {
-      loop();
-    }
+    sync();
 
     return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("resize", resize);
+      disposed = true;
+      observer.disconnect();
+      stop();
     };
   }, [
     hueShift,
