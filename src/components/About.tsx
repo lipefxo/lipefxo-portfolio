@@ -46,9 +46,8 @@ const SHIMMER_TEXT = "details";
 const paragraphClass =
   "max-w-[48ch] text-base leading-7 text-zinc-700 dark:text-zinc-300";
 
-/* The first sentence stays on a single line (no width cap, never wraps). */
 const introParagraphClass =
-  "text-base leading-7 text-zinc-700 dark:text-zinc-300 whitespace-nowrap";
+  "text-base leading-7 text-zinc-700 dark:text-zinc-300";
 
 const toolItems: ReactNode[] = TOOLS.map(({ label, iconKey }) => {
   const icon = getSvglIcon(iconKey);
@@ -112,7 +111,7 @@ export function About() {
       <p className={introParagraphClass}>
         {leadIn}
         {hasPhrase && (
-          <span className="whitespace-nowrap">
+          <span className="block whitespace-nowrap sm:inline">
             {connective}
             <CyclingTokens
               action={{
