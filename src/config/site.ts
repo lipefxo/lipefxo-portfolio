@@ -188,7 +188,7 @@ export const site: SiteConfig = {
   // Display name. Switch to "Luis Felipe Lins" if you'd rather use your full name.
   name: "lipefxo",
   tagline: "Senior Product Design Engineer",
-  bio: "Pushing pixels around until they feel just right, while talking at screens until the whole thing ships. Somewhere between product design, systems thinking, and front-end implementation, turning fuzzy ideas into working software while obsessing over the details.",
+  bio: "Pushing pixels around until they feel just right, while talking at screens. Somewhere between product design, systems thinking, and front-end implementation, turning fuzzy ideas into working software while obsessing over the details.",
   githubUser: "lipefxo",
   socials: {
     email: "lipefxo@gmail.com",

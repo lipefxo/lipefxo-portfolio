@@ -102,6 +102,7 @@ const ICONS = {
 } satisfies Record<string, SvglIcon>;
 
 const ALIASES: Record<string, keyof typeof ICONS> = {
+  claude: "claude code",
   "claude ai": "claude code",
   html: "html5",
   macos: "apple",
