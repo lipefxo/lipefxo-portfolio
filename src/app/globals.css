@@ -41,6 +41,11 @@
   --card-shake-dur: 180ms;
   --card-shake-distance: 2px;
   --card-shake-ease: ease-in-out;
+  --card-reveal-dur: 220ms;
+  --card-reveal-size: 178px;
+  --card-reveal-core: 20px;
+  --card-reveal-opacity: 0.085;
+  --card-reveal-opacity-dark: 0.11;
   --avatar-lift: -4px;
   --avatar-dur: 320ms;
   --avatar-scale: 1.05;
@@ -302,6 +307,51 @@ button:disabled,
     var(--card-shake-ease);
 }
 
+.t-project-card-cover-reveal {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: saturate(0.95) contrast(1.05);
+  opacity: 0;
+  transition: opacity var(--card-reveal-dur) ease-out;
+  will-change: opacity, mask-position;
+  mask-repeat: no-repeat;
+  mask-size: calc(var(--card-reveal-size) * 2)
+    calc(var(--card-reveal-size) * 2);
+  mask-position: calc(var(--card-reveal-x, 50%) - var(--card-reveal-size))
+    calc(var(--card-reveal-y, 50%) - var(--card-reveal-size));
+  mask-image: radial-gradient(
+    circle,
+    #000 0,
+    #000 var(--card-reveal-core),
+    transparent var(--card-reveal-size)
+  );
+  -webkit-mask-image: radial-gradient(
+    circle,
+    #000 0,
+    #000 var(--card-reveal-core),
+    transparent var(--card-reveal-size)
+  );
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: calc(var(--card-reveal-size) * 2)
+    calc(var(--card-reveal-size) * 2);
+  -webkit-mask-position: calc(var(--card-reveal-x, 50%) - var(--card-reveal-size))
+    calc(var(--card-reveal-y, 50%) - var(--card-reveal-size));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .t-project-card-reveal-host[data-reveal-active="true"]
+    .t-project-card-cover-reveal {
+    opacity: var(--card-reveal-opacity);
+  }
+
+  .dark
+    .t-project-card-reveal-host[data-reveal-active="true"]
+    .t-project-card-cover-reveal {
+    opacity: var(--card-reveal-opacity-dark);
+  }
+}
+
 @keyframes t-project-card-shake {
   0%,
   100% {
@@ -348,6 +398,7 @@ button:disabled,
 
 @media (prefers-reduced-motion: reduce) {
   .t-modal,
+  .t-project-card-cover-reveal,
   .t-image-expand-button {
     transition: none !important;
   }

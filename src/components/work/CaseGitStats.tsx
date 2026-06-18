@@ -10,9 +10,9 @@ export function CaseGitStats({ git }: { git: CaseGitStatsData }) {
   // Lead metric: merged PRs (branch icon) or, for PR-less repos, commits (commit icon).
   const lead =
     typeof prs === "number"
-      ? { value: prs, label: "PRs merged", icon: "branch" as const }
+      ? { value: prs, icon: "branch" as const }
       : typeof commits === "number"
-        ? { value: commits, label: "commits", icon: "commit" as const }
+        ? { value: commits, icon: "commit" as const }
         : null;
 
   return (
@@ -36,7 +36,6 @@ export function CaseGitStats({ git }: { git: CaseGitStatsData }) {
           <span className="font-medium text-zinc-700 dark:text-zinc-300">
             {fmt(lead.value)}
           </span>
-          <span>{lead.label}</span>
         </span>
       )}
 

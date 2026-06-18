@@ -2,10 +2,10 @@ import type { CaseStudy } from "@/config/site";
 import type { MouseEvent } from "react";
 import { ProfileAvatar } from "@/components/ProfileAvatar";
 
-/** Project meta row: avatar stack, year (+ optional live link). */
-export function CaseMeta({ meta }: { meta: CaseStudy["meta"] }) {
+/** Cover meta row: avatar stack and year above the project cover image. */
+export function CaseCoverMeta({ meta }: { meta: CaseStudy["meta"] }) {
   return (
-    <dl className="grid grid-cols-2 items-center gap-x-8 gap-y-6 border-t border-zinc-200 pt-8 dark:border-zinc-800">
+    <dl className="flex items-center justify-between gap-4">
       <div>
         <dt className="sr-only">Project team</dt>
         <dd
@@ -39,39 +39,37 @@ export function CaseMeta({ meta }: { meta: CaseStudy["meta"] }) {
           {meta.year}
         </dd>
       </div>
-
-      {meta.liveUrl && (
-        <div className="col-span-2 space-y-1.5">
-          <dt className="text-[11px] font-medium tracking-wide text-zinc-400 uppercase dark:text-zinc-500">
-            Website
-          </dt>
-          <dd>
-            <a
-              href={meta.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm text-zinc-800 underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 hover:decoration-zinc-600 dark:text-zinc-200 dark:decoration-zinc-700 dark:hover:text-zinc-50 dark:hover:decoration-zinc-400"
-            >
-              {meta.liveUrl.replace(/^https?:\/\//, "")}
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M7 7h10v10" />
-                <path d="M7 17 17 7" />
-              </svg>
-            </a>
-          </dd>
-        </div>
-      )}
     </dl>
+  );
+}
+
+/** Project meta links shown below the hero. */
+export function CaseMeta({ meta }: { meta: CaseStudy["meta"] }) {
+  if (!meta.liveUrl) return null;
+
+  return (
+    <a
+      href={meta.liveUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1.5 text-sm text-zinc-800 underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 hover:decoration-zinc-600 dark:text-zinc-200 dark:decoration-zinc-700 dark:hover:text-zinc-50 dark:hover:decoration-zinc-400"
+    >
+      {meta.liveUrl.replace(/^https?:\/\//, "")}
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M7 7h10v10" />
+        <path d="M7 17 17 7" />
+      </svg>
+    </a>
   );
 }
 

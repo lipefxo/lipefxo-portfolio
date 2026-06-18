@@ -29,8 +29,7 @@ const themeScript = `
 (function () {
   try {
     var stored = localStorage.getItem('theme');
-    var dark = stored ? stored === 'dark'
-      : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var dark = stored ? stored === 'dark' : true;
     document.documentElement.classList.toggle('dark', dark);
     document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
   } catch (e) {}
@@ -45,7 +44,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${freehand.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${freehand.variable} dark h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

@@ -33,9 +33,11 @@ export function CaseStudyView({ cs, tech, next }: CaseStudyViewProps) {
 
         <Reveal className="mt-8">
           <div className="space-y-4">
-            <CaseMeta meta={cs.meta} />
+            <section className="space-y-4 border-b border-zinc-200 pb-6 dark:border-zinc-800">
+              <CaseTechStack items={tech} />
 
-            <CaseTechStack items={tech} />
+              <CaseMeta meta={cs.meta} />
+            </section>
 
             <div className="flex justify-end">
               <CaseViewToggle mode={mode} onChange={setMode} />
@@ -50,7 +52,7 @@ export function CaseStudyView({ cs, tech, next }: CaseStudyViewProps) {
           {mode === "story" ? (
             <CaseStory cs={cs} next={next} />
           ) : (
-            <CaseTldr cs={cs} />
+            <CaseTldr cs={cs} next={next} />
           )}
         </div>
       </div>
@@ -64,13 +66,13 @@ function CaseTechStack({ items }: { items: string[] }) {
   if (stack.length === 0) return null;
 
   return (
-    <section className="border-b border-zinc-200 pb-6 dark:border-zinc-800">
+    <div>
       <h2 className="sr-only">Stack</h2>
       <div className="flex flex-wrap gap-2">
         {stack.map((item) => (
           <TechTag key={item} label={item} />
         ))}
       </div>
-    </section>
+    </div>
   );
 }

@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from "react";
 import { removeScopeTechLabels, type ProjectDetail } from "@/lib/projects";
 import { TransitionLink } from "./TransitionLink";
 import { BorderGlow } from "./BorderGlow";
@@ -19,14 +26,27 @@ interface Props {
 const cardClassName =
   "flex h-full w-full flex-col rounded-lg border border-zinc-200 bg-white p-5 text-left shadow-sm shadow-zinc-950/[0.015] transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out group-hover/card:border-transparent group-hover/card:bg-zinc-50/70 group-hover/card:shadow-md group-hover/card:shadow-zinc-950/[0.035] group-focus-within/card:-translate-y-px group-focus-within/card:border-zinc-300 group-focus-within/card:bg-zinc-50/70 group-focus-within/card:shadow-md group-focus-within/card:shadow-zinc-950/[0.035] dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-black/10 dark:group-hover/card:border-transparent dark:group-hover/card:bg-zinc-900/40 dark:group-hover/card:shadow-black/20 dark:group-focus-within/card:border-zinc-700 dark:group-focus-within/card:bg-zinc-900/40 dark:group-focus-within/card:shadow-black/20";
 
+const revealInitialStyle = {
+  "--card-reveal-x": "50%",
+  "--card-reveal-y": "50%",
+} as CSSProperties;
+
 export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
   const [isShaking, setIsShaking] = useState(false);
   const [isLockedHintVisible, setIsLockedHintVisible] = useState(false);
   const shakeTimeoutRef = useRef<number | null>(null);
   const hintTimeoutRef = useRef<number | null>(null);
+  const revealFrameRef = useRef<number | null>(null);
+  const revealRectRef = useRef<DOMRect | null>(null);
+  const revealTargetRef = useRef<HTMLElement | null>(null);
+  const revealPointerRef = useRef({ x: 0, y: 0 });
   const stack = removeScopeTechLabels(project.tech);
   const visibleTech = stack.slice(0, 4);
   const hiddenTechCount = Math.max(stack.length - visibleTech.length, 0);
+  const hasCoverReveal = Boolean(project.coverImage?.src);
+  const revealHostClassName = hasCoverReveal
+    ? " t-project-card-reveal-host"
+    : "";
 
   useEffect(() => {
     return () => {
@@ -35,6 +55,9 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
       }
       if (hintTimeoutRef.current !== null) {
         window.clearTimeout(hintTimeoutRef.current);
+      }
+      if (revealFrameRef.current !== null) {
+        window.cancelAnimationFrame(revealFrameRef.current);
       }
     };
   }, []);
@@ -60,6 +83,44 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
       setIsLockedHintVisible(false);
       hintTimeoutRef.current = null;
     }, 1400);
+  }
+
+  function handleRevealPointerMove(e: ReactPointerEvent<HTMLElement>) {
+    if (!hasCoverReveal) return;
+
+    const card = e.currentTarget;
+    revealTargetRef.current = card;
+    revealPointerRef.current = { x: e.clientX, y: e.clientY };
+
+    if (revealFrameRef.current !== null) return;
+    revealFrameRef.current = window.requestAnimationFrame(() => {
+      const target = revealTargetRef.current;
+      const rect = revealRectRef.current;
+      const pointer = revealPointerRef.current;
+      if (target && rect) {
+        target.style.setProperty("--card-reveal-x", `${pointer.x - rect.left}px`);
+        target.style.setProperty("--card-reveal-y", `${pointer.y - rect.top}px`);
+      }
+      revealFrameRef.current = null;
+    });
+  }
+
+  function handleRevealPointerEnter(e: ReactPointerEvent<HTMLElement>) {
+    if (!hasCoverReveal) return;
+    revealRectRef.current = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.dataset.revealActive = "true";
+    handleRevealPointerMove(e);
+  }
+
+  function handleRevealPointerLeave(e: ReactPointerEvent<HTMLElement>) {
+    if (!hasCoverReveal) return;
+    delete e.currentTarget.dataset.revealActive;
+    revealRectRef.current = null;
+    revealTargetRef.current = null;
+    if (revealFrameRef.current !== null) {
+      window.cancelAnimationFrame(revealFrameRef.current);
+      revealFrameRef.current = null;
+    }
   }
 
   const content: ReactNode = (
@@ -105,11 +166,16 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
     return (
       <Reveal delay={revealDelay} className="group/card h-full w-full">
         <div
-          className="t-project-card-shake relative h-full w-full overflow-hidden rounded-lg"
+          className={`t-project-card-shake relative h-full w-full overflow-hidden rounded-lg${revealHostClassName}`}
           data-shaking={isShaking ? "true" : undefined}
+          onPointerEnter={hasCoverReveal ? handleRevealPointerEnter : undefined}
+          onPointerMove={hasCoverReveal ? handleRevealPointerMove : undefined}
+          onPointerLeave={hasCoverReveal ? handleRevealPointerLeave : undefined}
+          style={hasCoverReveal ? revealInitialStyle : undefined}
         >
           <div className={`${cardClassName} relative pb-12 select-none`}>
-            {content}
+            <CardCoverReveal coverImage={project.coverImage} />
+            <div className="relative z-10 flex h-full flex-col">{content}</div>
           </div>
           <button
             type="button"
@@ -141,7 +207,14 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
         glowColor={project.glow?.glowColor}
       >
         {href && project.demoUrl ? (
-          <div className={`${cardClassName} relative`}>
+          <div
+            className={`${cardClassName} relative${revealHostClassName}`}
+            onPointerEnter={hasCoverReveal ? handleRevealPointerEnter : undefined}
+            onPointerMove={hasCoverReveal ? handleRevealPointerMove : undefined}
+            onPointerLeave={hasCoverReveal ? handleRevealPointerLeave : undefined}
+            style={hasCoverReveal ? revealInitialStyle : undefined}
+          >
+            <CardCoverReveal coverImage={project.coverImage} />
             <TransitionLink
               href={href}
               aria-label={`View ${project.title} case study`}
@@ -158,22 +231,53 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
             <CardStatusIcon />
           </div>
         ) : href ? (
-          <TransitionLink href={href} className={`${cardClassName} relative`}>
-            {content}
+          <TransitionLink
+            href={href}
+            className={`${cardClassName} relative${revealHostClassName}`}
+            onPointerEnter={hasCoverReveal ? handleRevealPointerEnter : undefined}
+            onPointerMove={hasCoverReveal ? handleRevealPointerMove : undefined}
+            onPointerLeave={hasCoverReveal ? handleRevealPointerLeave : undefined}
+            style={hasCoverReveal ? revealInitialStyle : undefined}
+          >
+            <CardCoverReveal coverImage={project.coverImage} />
+            <div className="relative z-10 flex h-full flex-col">{content}</div>
             <CardStatusIcon />
           </TransitionLink>
         ) : (
           <button
             type="button"
             onClick={() => onOpen(project)}
-            className={`${cardClassName} relative`}
+            className={`${cardClassName} relative${revealHostClassName}`}
+            onPointerEnter={hasCoverReveal ? handleRevealPointerEnter : undefined}
+            onPointerMove={hasCoverReveal ? handleRevealPointerMove : undefined}
+            onPointerLeave={hasCoverReveal ? handleRevealPointerLeave : undefined}
+            style={hasCoverReveal ? revealInitialStyle : undefined}
           >
-            {content}
+            <CardCoverReveal coverImage={project.coverImage} />
+            <div className="relative z-10 flex h-full flex-col">{content}</div>
             <CardStatusIcon />
           </button>
         )}
       </BorderGlow>
     </Reveal>
+  );
+}
+
+function CardCoverReveal({
+  coverImage,
+}: {
+  coverImage?: ProjectDetail["coverImage"];
+}) {
+  if (!coverImage?.src) return null;
+
+  return (
+    <span
+      aria-hidden="true"
+      className="t-project-card-cover-reveal pointer-events-none absolute inset-0 z-0 rounded-[inherit]"
+      style={{
+        backgroundImage: `url(${JSON.stringify(coverImage.src)})`,
+      }}
+    />
   );
 }
 

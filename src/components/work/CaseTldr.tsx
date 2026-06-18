@@ -1,14 +1,15 @@
-import type { CaseStudy } from "@/config/site";
+import type { CaseStudy, WorkProject } from "@/config/site";
 import { Reveal } from "@/components/Reveal";
-import { CaseCTA } from "./CaseCTA";
+import { CaseNextProject } from "./CaseNextProject";
 import { CaseOutcome } from "./CaseOutcome";
 import { CaseStats } from "./CaseStats";
 
 interface CaseTldrProps {
   cs: CaseStudy;
+  next?: WorkProject;
 }
 
-export function CaseTldr({ cs }: CaseTldrProps) {
+export function CaseTldr({ cs, next }: CaseTldrProps) {
   const hasStats = Boolean(cs.stats?.length);
   const intro = cs.sections.find(
     (section) => !section.heading && section.body?.length,
@@ -67,9 +68,11 @@ export function CaseTldr({ cs }: CaseTldrProps) {
         </Reveal>
       )}
 
-      <Reveal>
-        <CaseCTA />
-      </Reveal>
+      {next && (
+        <Reveal>
+          <CaseNextProject project={next} />
+        </Reveal>
+      )}
     </div>
   );
 }
