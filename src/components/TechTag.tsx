@@ -45,9 +45,13 @@ function TechIcon({ route }: { route: SvglRoute }) {
       <img
         src={route}
         alt=""
+        width={14}
+        height={14}
         aria-hidden="true"
         className="h-3.5 w-3.5 shrink-0 object-contain"
+        decoding="async"
         loading="lazy"
+        referrerPolicy="no-referrer"
       />
     );
   }
@@ -57,16 +61,24 @@ function TechIcon({ route }: { route: SvglRoute }) {
       <img
         src={route.light}
         alt=""
+        width={14}
+        height={14}
         aria-hidden="true"
         className="h-3.5 w-3.5 shrink-0 object-contain dark:hidden"
+        decoding="async"
         loading="lazy"
+        referrerPolicy="no-referrer"
       />
       <img
         src={route.dark}
         alt=""
+        width={14}
+        height={14}
         aria-hidden="true"
         className="hidden h-3.5 w-3.5 shrink-0 object-contain dark:block"
+        decoding="async"
         loading="lazy"
+        referrerPolicy="no-referrer"
       />
     </>
   );

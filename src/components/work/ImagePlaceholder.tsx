@@ -1,6 +1,5 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -134,12 +133,14 @@ export function ImagePlaceholder({
               className="pointer-events-none relative z-10 flex h-dvh min-h-screen w-screen items-center justify-center p-4 sm:p-8"
             >
               <div
-                className={`t-modal ${lightboxVisible ? "is-open" : ""}`}
+                className={`t-modal relative h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] sm:h-[calc(100dvh-4rem)] sm:w-[calc(100vw-4rem)] ${lightboxVisible ? "is-open" : ""}`}
               >
-                <img
+                <Image
                   src={image.src}
                   alt={alt}
-                  className="max-h-[calc(100dvh-2rem)] max-w-[calc(100vw-2rem)] rounded-lg object-contain shadow-2xl shadow-black/50 sm:max-h-[calc(100dvh-4rem)] sm:max-w-[calc(100vw-4rem)]"
+                  fill
+                  sizes="100vw"
+                  className="object-contain drop-shadow-2xl"
                 />
               </div>
             </div>

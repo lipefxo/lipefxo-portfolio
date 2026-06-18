@@ -36,7 +36,7 @@ export function Currently() {
                     width={72}
                     height={72}
                     sizes="72px"
-                    quality={95}
+                    quality={80}
                     className="h-full w-full object-cover"
                   />
                 ) : (
