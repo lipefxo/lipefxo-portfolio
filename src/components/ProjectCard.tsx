@@ -11,6 +11,7 @@ import {
 import { removeScopeTechLabels, type ProjectDetail } from "@/lib/projects";
 import { TransitionLink } from "./TransitionLink";
 import { BorderGlow } from "./BorderGlow";
+import { ProjectTextLink } from "./ProjectTextLink";
 import { Reveal } from "./Reveal";
 import { TechTag } from "./TechTag";
 
@@ -291,16 +292,14 @@ function WebsiteLink({
   className?: string;
 }) {
   return (
-    <a
+    <ProjectTextLink
       href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={label}
+      ariaLabel={label}
       onClick={(event) => event.stopPropagation()}
-      className={`inline-flex items-center gap-1 text-[11px] font-medium text-zinc-500 underline decoration-zinc-300 underline-offset-4 transition-colors hover:text-zinc-950 hover:decoration-zinc-600 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-900 dark:text-zinc-400 dark:decoration-zinc-700 dark:hover:text-zinc-50 dark:hover:decoration-zinc-400 dark:focus-visible:outline-zinc-100 ${className}`}
+      className={`gap-1 text-[11px] font-medium text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50 ${className}`}
     >
       {formatUrl(href)}
-    </a>
+    </ProjectTextLink>
   );
 }
 
