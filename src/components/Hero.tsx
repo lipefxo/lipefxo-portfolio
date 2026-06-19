@@ -23,6 +23,9 @@ export function Hero() {
         style={{ "--intro-index": 1 } as CSSProperties}
       >
         {site.tagline}
+        <span className="mt-1.5 block text-sm leading-6 text-zinc-500 dark:text-zinc-500">
+          {site.location}
+        </span>
       </p>
       <div
         className="t-intro-item col-start-2 row-start-1 justify-self-end pt-1"
