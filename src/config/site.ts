@@ -168,6 +168,7 @@ export interface CurrentlyItem {
 export interface SiteConfig {
   name: string;
   tagline: string;
+  location: string;
   bio: string;
   githubUser: string;
   socials: SocialLinks;
@@ -187,7 +188,8 @@ export interface SiteConfig {
 export const site: SiteConfig = {
   // Display name. Switch to "Luis Felipe Lins" if you'd rather use your full name.
   name: "lipefxo",
-  tagline: "Senior Product Design Engineer",
+  tagline: "Product Design Engineer",
+  location: "Based in 🇧🇷 Brazil",
   bio: "Pushing pixels around until they feel just right, while talking at screens. Somewhere between product design, systems thinking, and front-end implementation, turning fuzzy ideas into working software while obsessing over the details.",
   githubUser: "lipefxo",
   socials: {
@@ -250,12 +252,12 @@ export const site: SiteConfig = {
   experience: [
     {
       company: "SecureBags",
-      role: "Senior Product Designer / Design Engineer",
+      role: "Product Designer / Design Engineer",
       period: "Mar 2023 — Present",
       summary:
         "I lead product design and front-end execution for a fintech SaaS platform, turning complex lending and operations workflows into clear, reusable product experiences. The role spans product strategy, UX, design systems, React implementation, and internal tooling, with a focus on shortening the distance between design decisions and shipped software.",
       highlights: [
-        "Promoted from Senior Product Designer to Design Engineer for shipping production-quality code alongside design.",
+        "Promoted from Product Designer to Design Engineer for shipping production-quality code alongside design.",
         "Pioneered a Figma-to-production workflow with Cursor, React, Chakra UI, and MCP, partnering with AI tools end to end.",
         "Built a modular Figma design system, cutting design-to-development delivery time by 40%.",
         "Owned end-to-end UX/UI for a new SaaS platform — onboarding, dashboards, lending workflows, and integrations.",
@@ -378,14 +380,14 @@ export const site: SiteConfig = {
           alt: "Bags branded cover image with the Bags logo over a florist workspace.",
         },
         meta: {
-          role: "Senior Product Design Engineer",
+          role: "Product Design Engineer",
           year: "2023 - 2026",
           timeline: "Ongoing",
           platform: "Web platform",
           collaborators: [
-            { role: "Senior Developer" },
-            { role: "Senior Engineer" },
-            { role: "Senior Developer" },
+            { role: "Developer" },
+            { role: "Engineer" },
+            { role: "Developer" },
           ],
           scope: [
             "Product Design",
@@ -735,8 +737,8 @@ export const site: SiteConfig = {
           timeline: "~7 weeks",
           platform: "Web platform",
           collaborators: [
-            { role: "Senior Developer" },
-            { role: "Senior Engineer" },
+            { role: "Developer" },
+            { role: "Engineer" },
           ],
           scope: [
             "Product Design",

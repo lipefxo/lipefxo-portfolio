@@ -1,10 +1,41 @@
-import { site } from "@/config/site";
+"use client";
 
-export const socialLinks = [
+import { site } from "@/config/site";
+import type { MouseEventHandler, ReactNode } from "react";
+
+export const EMAIL_COPIED_EVENT = "lipefxo-email-copied";
+
+type BaseSocialLink = {
+  label: string;
+  tooltip: string;
+  icon: ReactNode;
+};
+
+type ExternalSocialLink = BaseSocialLink & {
+  href: string;
+  download?: string;
+};
+
+type CopyEmailSocialLink = BaseSocialLink & {
+  action: "copyEmail";
+  value: string;
+};
+
+export type SocialLink = ExternalSocialLink | CopyEmailSocialLink;
+
+export const socialLinks: SocialLink[] = [
   {
-    label: "Gmail",
-    href: `mailto:${site.socials.email}`,
-    tooltip: site.socials.email,
+    label: "CV",
+    href: "/cv.pdf",
+    tooltip: "Download CV",
+    download: "lipefxo-cv.pdf",
+    icon: <DownloadIcon />,
+  },
+  {
+    label: "Email",
+    action: "copyEmail",
+    value: site.socials.email,
+    tooltip: "Copy",
     icon: <GmailIcon />,
   },
   {
@@ -27,33 +58,110 @@ export const socialLinks = [
   },
 ];
 
+export async function copyEmailToClipboard() {
+  const email = site.socials.email;
+
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(email);
+  } else {
+    const textarea = document.createElement("textarea");
+    textarea.value = email;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    textarea.remove();
+  }
+
+  window.dispatchEvent(new CustomEvent(EMAIL_COPIED_EVENT));
+}
+
 export function SocialIconLinks() {
+  const onCopyEmail: MouseEventHandler<HTMLButtonElement> = async () => {
+    await copyEmailToClipboard();
+  };
+
   return (
     <ul className="flex flex-wrap gap-4 text-zinc-500 dark:text-zinc-400">
       {socialLinks.map((link) => (
         <li key={link.label}>
           <span className="t-tt-wrap group relative inline-block">
-            <a
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={link.label}
-              aria-describedby={`social-tooltip-${link.label.toLowerCase()}`}
-              className="t-tt-trigger peer inline-flex items-center transition-colors hover:text-zinc-950 dark:hover:text-zinc-50"
-            >
-              {link.icon}
-            </a>
+            {"action" in link ? (
+              <button
+                type="button"
+                onClick={onCopyEmail}
+                aria-label={`Copy ${link.label.toLowerCase()}`}
+                aria-describedby={`social-tooltip-${link.label.toLowerCase()}`}
+                className="t-tt-trigger peer inline-flex items-center transition-colors hover:text-zinc-950 dark:hover:text-zinc-50"
+              >
+                {link.icon}
+              </button>
+            ) : (
+              <a
+                href={link.href}
+                target={link.download ? undefined : "_blank"}
+                rel={link.download ? undefined : "noopener noreferrer"}
+                download={link.download}
+                aria-label={link.label}
+                aria-describedby={`social-tooltip-${link.label.toLowerCase()}`}
+                className="t-tt-trigger peer inline-flex items-center transition-colors hover:text-zinc-950 dark:hover:text-zinc-50"
+              >
+                {link.icon}
+              </a>
+            )}
             <span
-              className="t-tt pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-20 -translate-x-1/2 scale-[0.98] whitespace-nowrap rounded-lg bg-[#222222] px-3 py-2 text-xs font-medium text-[#f0f0f0] opacity-0 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_0_rgba(0,0,0,0.05),0_4px_42px_0_rgba(0,0,0,0.06)] transition-[opacity,transform] duration-75 ease-out group-hover:scale-100 group-hover:opacity-100 group-hover:delay-[80ms] group-hover:duration-150 peer-focus-visible:scale-100 peer-focus-visible:opacity-100 peer-focus-visible:delay-[80ms] peer-focus-visible:duration-150"
+              className="t-tt pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-20 flex -translate-x-1/2 scale-[0.98] items-center gap-1.5 whitespace-nowrap rounded-lg bg-[#222222] px-3 py-2 text-xs font-medium text-[#f0f0f0] opacity-0 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_0_rgba(0,0,0,0.05),0_4px_42px_0_rgba(0,0,0,0.06)] transition-[opacity,transform] duration-75 ease-out group-hover:scale-100 group-hover:opacity-100 group-hover:delay-[80ms] group-hover:duration-150 peer-focus-visible:scale-100 peer-focus-visible:opacity-100 peer-focus-visible:delay-[80ms] peer-focus-visible:duration-150"
               id={`social-tooltip-${link.label.toLowerCase()}`}
               role="tooltip"
             >
+              {"action" in link ? <CopyIcon /> : null}
               {link.tooltip}
             </span>
           </span>
         </li>
       ))}
     </ul>
+  );
+}
+
+function CopyIcon() {
+  return (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
+function DownloadIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 3v12" />
+      <path d="m7 10 5 5 5-5" />
+      <path d="M5 21h14" />
+    </svg>
   );
 }
 
