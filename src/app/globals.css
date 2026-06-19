@@ -309,50 +309,20 @@ button:disabled,
   }
 }
 
-/* Transitions.dev — text states swap (driven by TextSwap.tsx) */
-.t-text-swap {
-  /* Exit is quick and accelerating; enter is slower and heavier, with a soft
-     settle and a touch of scale so the swap reads as deliberate and weighty
-     rather than snappy. */
-  --text-swap-exit-dur: 160ms;
-  --text-swap-enter-dur: 360ms;
-  --text-swap-exit-ease: cubic-bezier(0.4, 0, 1, 1);
-  --text-swap-enter-ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --text-swap-translate-y: 10px;
-  --text-swap-blur: 4px;
-  --text-swap-scale: 0.96;
-
-  display: inline-block;
-  transform-origin: left center;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
-  opacity: 1;
-  /* Default transition is the "enter" settle (applied when the new word
-     animates from below to rest). */
-  transition:
-    transform var(--text-swap-enter-dur) var(--text-swap-enter-ease),
-    filter var(--text-swap-enter-dur) var(--text-swap-enter-ease),
-    opacity var(--text-swap-enter-dur) var(--text-swap-enter-ease);
-  will-change: transform, filter, opacity;
-}
-
-.t-text-swap.is-exit {
-  transform: translateY(calc(var(--text-swap-translate-y) * -1))
-    scale(var(--text-swap-scale));
-  filter: blur(var(--text-swap-blur));
-  opacity: 0;
-  transition:
-    transform var(--text-swap-exit-dur) var(--text-swap-exit-ease),
-    filter var(--text-swap-exit-dur) var(--text-swap-exit-ease),
-    opacity var(--text-swap-exit-dur) var(--text-swap-exit-ease);
-}
-
-.t-text-swap.is-enter-start {
-  transform: translateY(var(--text-swap-translate-y))
-    scale(var(--text-swap-scale));
-  filter: blur(var(--text-swap-blur));
-  opacity: 0;
-  transition: none;
+/* Cycling text (driven by TextRotate). Clip the per-letter vertical roll to the
+   line so letters never show above/below it. `contain: paint` forces paint
+   containment — every descendant is clipped to this box regardless of the
+   compositor layers motion promotes the letters to (plain `overflow: hidden`
+   and `clip-path` both fail to clip those). It doesn't include layout
+   containment, so the inline baseline is unaffected. */
+.t-text-rotate {
+  contain: paint;
+  /* Hug the glyphs so the clip box has almost no half-leading above the caps —
+     otherwise a sliver of the rolling letters peeks above the line. Kept above
+     the font's ascent+descent so resting descenders (g, p) aren't clipped. The
+     token still sits on the prose baseline; the surrounding line keeps its own
+     taller line-height. */
+  line-height: 1.2;
 }
 
 /* Neutral gleam that sweeps across the cycling words. Uses currentColor as the
@@ -389,50 +359,6 @@ button:disabled,
 
   100% {
     background-position: 0% 0;
-  }
-}
-
-/* Typographic ellipsis (driven by TypingDots.tsx). Three small dots sized and
-   set on the baseline like a real "...", fading in sequence so they read as
-   text mid-thought. Sits between the action and the tool tokens. */
-.t-typing-dots {
-  --typing-dot-size: 0.16em;
-  --typing-dot-gap: 0.12em;
-  --typing-dot-dur: 1400ms;
-
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--typing-dot-gap);
-  /* Drop the dots to the text baseline so they sit like periods, not centered. */
-  vertical-align: baseline;
-}
-
-.t-typing-dot {
-  width: var(--typing-dot-size);
-  height: var(--typing-dot-size);
-  border-radius: 50%;
-  background-color: currentColor;
-  opacity: 0.25;
-  animation: t-typing-dot var(--typing-dot-dur) ease-in-out infinite;
-}
-
-.t-typing-dot:nth-child(2) {
-  animation-delay: 220ms;
-}
-
-.t-typing-dot:nth-child(3) {
-  animation-delay: 440ms;
-}
-
-@keyframes t-typing-dot {
-  0%,
-  65%,
-  100% {
-    opacity: 0.25;
-  }
-
-  30% {
-    opacity: 0.95;
   }
 }
 
@@ -541,18 +467,9 @@ button:disabled,
     animation: none !important;
   }
 
-  .t-text-swap {
-    transition: none !important;
-  }
-
   .t-text-shimmer {
     -webkit-text-fill-color: currentColor;
     animation: none !important;
-  }
-
-  .t-typing-dot {
-    animation: none !important;
-    opacity: 0.55;
   }
 
   .t-project-card-shake[data-shaking="true"] {

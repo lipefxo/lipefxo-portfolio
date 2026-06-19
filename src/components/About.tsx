@@ -1,9 +1,6 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties } from "react";
 import { site } from "@/config/site";
-import { getSvglIcon } from "@/lib/svgl-icons";
 import { CyclingTokens } from "./CyclingTokens";
-import { SvglInlineIcon } from "./SvglInlineIcon";
-import { TypingDots } from "./TypingDots";
 
 /* The bio renders as two paragraphs. The first sentence turns "talking at
    screens" into two independent, cycling tokens — "<action> <tool>". Each
@@ -50,24 +47,8 @@ const paragraphClass =
 const introParagraphClass =
   "text-base leading-7 text-zinc-700 dark:text-zinc-300";
 
-const toolItems: ReactNode[] = TOOLS.map(({ label, iconKey }) => {
-  const icon = getSvglIcon(iconKey);
-  return (
-    <span
-      key={label}
-      className="whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100"
-    >
-      {icon && <SvglInlineIcon route={icon.route} />}
-      <span
-        className={["t-text-shimmer", icon ? "ml-1" : null]
-          .filter(Boolean)
-          .join(" ")}
-      >
-        {label}
-      </span>
-    </span>
-  );
-});
+const toolTexts = TOOLS.map((t) => t.label);
+const toolIcons = TOOLS.map((t) => t.iconKey);
 
 /** Splits the bio into its two sentences on the first ". " boundary. */
 function splitParagraphs(text: string): [string, string] {
@@ -116,18 +97,19 @@ export function About() {
             {connective}
             <CyclingTokens
               action={{
-                items: ACTION_WORDS,
+                texts: ACTION_WORDS,
                 interval: 2600,
                 offset: 2400,
-                className: "t-text-shimmer",
+                glyphClassName: "t-text-shimmer",
               }}
-              tool={{ items: toolItems, interval: 4100, offset: 4000 }}
-              separator={
-                <>
-                  {" "}
-                  <TypingDots />{" "}
-                </>
-              }
+              tool={{
+                texts: toolTexts,
+                icons: toolIcons,
+                interval: 4100,
+                offset: 4000,
+                className: "font-medium text-zinc-900 dark:text-zinc-100",
+                glyphClassName: "t-text-shimmer",
+              }}
             />
             {afterPhrase}
           </span>
