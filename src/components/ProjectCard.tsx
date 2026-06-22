@@ -25,7 +25,7 @@ interface Props {
 }
 
 const cardClassName =
-  "flex h-full w-full flex-col rounded-lg border border-zinc-200 bg-white p-5 text-left shadow-sm shadow-zinc-950/[0.015] transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out group-hover/card:border-transparent group-hover/card:bg-zinc-50/70 group-hover/card:shadow-md group-hover/card:shadow-zinc-950/[0.035] group-focus-within/card:-translate-y-px group-focus-within/card:border-zinc-300 group-focus-within/card:bg-zinc-50/70 group-focus-within/card:shadow-md group-focus-within/card:shadow-zinc-950/[0.035] dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-black/10 dark:group-hover/card:border-transparent dark:group-hover/card:bg-zinc-900/40 dark:group-hover/card:shadow-black/20 dark:group-focus-within/card:border-zinc-700 dark:group-focus-within/card:bg-zinc-900/40 dark:group-focus-within/card:shadow-black/20";
+  "flex w-full flex-col rounded-lg border border-zinc-200 bg-white p-5 text-left shadow-sm shadow-zinc-950/[0.015] transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out group-hover/card:border-transparent group-hover/card:bg-zinc-50/70 group-hover/card:shadow-md group-hover/card:shadow-zinc-950/[0.035] group-focus-within/card:-translate-y-px group-focus-within/card:border-zinc-300 group-focus-within/card:bg-zinc-50/70 group-focus-within/card:shadow-md group-focus-within/card:shadow-zinc-950/[0.035] dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-black/10 dark:group-hover/card:border-transparent dark:group-hover/card:bg-zinc-900/40 dark:group-hover/card:shadow-black/20 dark:group-focus-within/card:border-zinc-700 dark:group-focus-within/card:bg-zinc-900/40 dark:group-focus-within/card:shadow-black/20";
 
 const revealInitialStyle = {
   "--card-reveal-x": "50%",
@@ -137,7 +137,7 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
         )}
       </div>
 
-      <p className="mt-2 max-w-[48ch] flex-1 text-[13px] leading-5 text-zinc-600 dark:text-zinc-400">
+      <p className="mt-2 max-w-[48ch] text-[13px] leading-5 text-zinc-600 dark:text-zinc-400">
         {project.blurb}
       </p>
 
@@ -165,9 +165,9 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
 
   if (project.locked) {
     return (
-      <Reveal delay={revealDelay} className="group/card h-full w-full">
+      <Reveal delay={revealDelay} className="group/card w-full">
         <div
-          className={`t-project-card-shake relative h-full w-full overflow-hidden rounded-lg${revealHostClassName}`}
+          className={`t-project-card-shake relative w-full overflow-hidden rounded-lg${revealHostClassName}`}
           data-shaking={isShaking ? "true" : undefined}
           onPointerEnter={hasCoverReveal ? handleRevealPointerEnter : undefined}
           onPointerMove={hasCoverReveal ? handleRevealPointerMove : undefined}
@@ -176,7 +176,7 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
         >
           <div className={`${cardClassName} relative pb-12 select-none`}>
             <CardCoverReveal coverImage={project.coverImage} />
-            <div className="relative z-10 flex h-full flex-col">{content}</div>
+            <div className="relative z-10 flex flex-col">{content}</div>
           </div>
           <button
             type="button"
@@ -198,9 +198,9 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
   }
 
   return (
-    <Reveal delay={revealDelay} className="group/card h-full w-full">
+    <Reveal delay={revealDelay} className="group/card w-full">
       <BorderGlow
-        className="h-full w-full rounded-lg"
+        className="w-full rounded-lg"
         edgeSensitivity={24}
         glowRadius={28}
         glowIntensity={0.18}
@@ -221,7 +221,7 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
               aria-label={`View ${project.title} case study`}
               className="absolute inset-0 z-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:focus-visible:outline-zinc-100"
             />
-            <div className="pointer-events-none relative z-10 flex h-full flex-col">
+            <div className="pointer-events-none relative z-10 flex flex-col">
               {content}
               <WebsiteLink
                 href={project.demoUrl}
@@ -241,7 +241,7 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
             style={hasCoverReveal ? revealInitialStyle : undefined}
           >
             <CardCoverReveal coverImage={project.coverImage} />
-            <div className="relative z-10 flex h-full flex-col">{content}</div>
+            <div className="relative z-10 flex flex-col">{content}</div>
             <CardStatusIcon />
           </TransitionLink>
         ) : (
@@ -255,7 +255,7 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
             style={hasCoverReveal ? revealInitialStyle : undefined}
           >
             <CardCoverReveal coverImage={project.coverImage} />
-            <div className="relative z-10 flex h-full flex-col">{content}</div>
+            <div className="relative z-10 flex flex-col">{content}</div>
             <CardStatusIcon />
           </button>
         )}
