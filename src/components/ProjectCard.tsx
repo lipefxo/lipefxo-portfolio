@@ -32,9 +32,32 @@ const revealInitialStyle = {
   "--card-reveal-y": "50%",
 } as CSSProperties;
 
+const lockedHintLabels = [
+  "Almost there!",
+  "Still pixel-pushing",
+  "Tiny chaos inside",
+  "Plot twist loading",
+  "Not ready yet",
+  "Polishing pixels",
+  "Backstage tinkering",
+];
+
+function getLockedHintStartIndex(project: ProjectDetail) {
+  const seed = `${project.title}:${project.year ?? ""}`;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return hash % lockedHintLabels.length;
+}
+
 export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
   const [isShaking, setIsShaking] = useState(false);
   const [isLockedHintVisible, setIsLockedHintVisible] = useState(false);
+  const [lockedHintIndex, setLockedHintIndex] = useState(() => {
+    const startIndex = getLockedHintStartIndex(project);
+    return (startIndex + lockedHintLabels.length - 1) % lockedHintLabels.length;
+  });
   const shakeTimeoutRef = useRef<number | null>(null);
   const hintTimeoutRef = useRef<number | null>(null);
   const revealFrameRef = useRef<number | null>(null);
@@ -72,6 +95,7 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
     }
 
     setIsShaking(false);
+    setLockedHintIndex((index) => (index + 1) % lockedHintLabels.length);
     setIsLockedHintVisible(true);
     window.requestAnimationFrame(() => {
       setIsShaking(true);
@@ -180,7 +204,10 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
           </div>
           <button
             type="button"
-            onClick={shakeLockedCard}
+            onClick={(event) => {
+              shakeLockedCard();
+              event.currentTarget.blur();
+            }}
             aria-label={`${project.title} case study coming soon`}
             className="absolute inset-0 z-10 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:focus-visible:outline-zinc-100"
           />
@@ -191,7 +218,11 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
               className="absolute bottom-5 left-5 z-20"
             />
           )}
-          <CardStatusIcon locked showHint={isLockedHintVisible} />
+          <CardStatusIcon
+            locked
+            showHint={isLockedHintVisible}
+            hintLabel={lockedHintLabels[lockedHintIndex]}
+          />
         </div>
       </Reveal>
     );
@@ -292,23 +323,27 @@ function WebsiteLink({
   className?: string;
 }) {
   return (
-    <ProjectTextLink
-      href={href}
-      ariaLabel={label}
-      onClick={(event) => event.stopPropagation()}
-      className={`gap-1 text-[11px] font-medium text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50 ${className}`}
-    >
-      {formatUrl(href)}
-    </ProjectTextLink>
+    <span className={`inline-flex ${className}`}>
+      <ProjectTextLink
+        href={href}
+        ariaLabel={label}
+        onClick={(event) => event.stopPropagation()}
+        className="gap-1 text-[11px] font-medium text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
+      >
+        {formatUrl(href)}
+      </ProjectTextLink>
+    </span>
   );
 }
 
 function CardStatusIcon({
   locked = false,
   showHint = false,
+  hintLabel = "Coming Soon",
 }: {
   locked?: boolean;
   showHint?: boolean;
+  hintLabel?: string;
 }) {
   if (locked) {
     return (
@@ -323,7 +358,7 @@ function CardStatusIcon({
               : "translate-x-1 opacity-0"
           }`}
         >
-          Coming Soon
+          {hintLabel}
         </span>
         <LockIcon />
       </span>
