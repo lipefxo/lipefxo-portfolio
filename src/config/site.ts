@@ -684,6 +684,147 @@ export const site: SiteConfig = {
       },
     },
     {
+      name: "Prism4",
+      slug: "prism4",
+      blurb:
+        "A personal camera editor I'm building to replace Lightroom in my own workflow: no Adobe subscription, no bloat, just the essentials I actually use.",
+      longDescription:
+        "Prism4 is my own personal camera editor, and my first iOS app. I started it because I don't want my photo workflow tied to Lightroom, Adobe subscriptions, or bloated editor apps full of tools I never touch. The goal is a focused place for the essentials: open a real photo, tune the image, save a reusable look, export the finished version, and move on.",
+      glow: {
+        colors: ["#7c3aed", "#06b6d4", "#f97316"],
+        glowColor: "262 83 58",
+      },
+      cover: {
+        label: "Prism4 cover image",
+        ratio: "48/17",
+        src: "/work/prism4/cover.png",
+        alt: "Prism4 branded cover image with a dark iPhone photo editor interface and spectral color controls.",
+      },
+      tech: [
+        "Product Design",
+        "UI Design",
+        "UX Design",
+        "Swift",
+        "Conductor",
+        "Codex",
+        "GitHub",
+      ],
+      caseStudy: {
+        headline: "Replacing Lightroom with the photo editor I actually want",
+        summary:
+          "My first iOS app: a personal camera editor built around the essentials I use, with fast edits, reusable looks, clean exports, and none of the subscription baggage or app bloat.",
+        hero: {
+          label: "Prism4 cover image",
+          ratio: "48/17",
+          src: "/work/prism4/cover.png",
+          alt: "Prism4 branded cover image with a dark iPhone photo editor interface and spectral color controls.",
+        },
+        meta: {
+          role: "Design Engineer",
+          year: "2026",
+          timeline: "Prototype sprint",
+          platform: "Personal camera editor",
+          scope: [
+            "Product Design",
+            "UX / UI",
+            "Personal workflow design",
+            "Essential editing controls",
+            "Reusable looks",
+            "Import and export",
+          ],
+        },
+        git: { prs: 2, additions: 2958, deletions: 320, files: 34 },
+        sections: [
+          {
+            body: [
+              "Prism4 started as an escape hatch from the way photo editing has slowly turned into a subscription and workspace-management problem. I wanted a small editor that fits my own camera workflow: open a photo, make the adjustments I actually make, save the look if it is worth reusing, export the finished version, and get out.",
+              "It is also my first iOS app, which made the constraint sharper: instead of trying to learn the platform by cloning a huge professional editor, I wanted to build something narrow enough to finish and personal enough that I would actually use it.",
+            ],
+          },
+          {
+            heading: "Getting out of the subscription loop.",
+            body: [
+              "I don't want Lightroom to be the default home for my photos just because it has been the default for everyone else. The subscription is annoying, but the bigger problem is the feeling that a simple edit has to live inside a giant product with catalogs, panels, cloud sync, prompts, presets, and a hundred controls I barely touch.",
+              "Prism4 is me cutting that down to the workflow I actually want to use. No account. No monthly bill. No product trying to become my whole photo library.",
+            ],
+            images: [
+              { label: "A lighter personal alternative to a bloated editing workspace", ratio: "16/9" },
+            ],
+          },
+          {
+            heading: "Only the controls I actually use.",
+            body: [
+              "Most of my edits are not complicated. I care about exposure, temperature, tint, contrast, saturation, highlights, shadows, a look, a little grain, maybe a vignette, and a clean export. That is the product line for Prism4: keep the controls close, keep them readable, and avoid turning the app into a drawer of things I do not use.",
+              "The first version is intentionally plain. It proves the flow before decoration: pick a photo, edit it live, undo when needed, reset when I go too far, and export the result.",
+            ],
+            images: [
+              { label: "Essential editing controls: tone, color, looks, grain, and export", ratio: "16/9" },
+            ],
+          },
+          {
+            heading: "A workflow that starts with real photos.",
+            body: [
+              "The editor needs to work with the files I already shoot and save, not a perfect demo asset. Prism4 imports the original photo, keeps the edit non-destructive, and lets the same basic controls work whether I am editing a camera shot, a screenshot, or something I pulled into the library.",
+              "That matters because a personal tool only survives if it fits the way you already behave. If I have to babysit formats or move files around before editing, I will go back to the old tool.",
+            ],
+            images: [
+              { label: "Importing real photos without turning the app into a library manager", ratio: "16/9" },
+            ],
+          },
+          {
+            heading: "Looks without locking me in.",
+            body: [
+              "I still want the parts of Lightroom that are useful. Reusable looks are one of them. In Prism4, a look is just the style: the tone, color, LUT, vignette, and grain choices that can travel from one photo to another.",
+              "The correction stays with the photo. That way applying a look does not drag one image's exposure or white balance into the next one. It keeps the reusable part reusable, and the per-photo part local.",
+            ],
+            images: [
+              { label: "Reusable looks that carry style without overwriting each photo", ratio: "16/9" },
+            ],
+          },
+          {
+            heading: "Fast enough to stay invisible.",
+            body: [
+              "A lightweight editor only feels lightweight if the preview keeps up. Slider changes need to feel immediate, exports need to preserve the final quality, and nothing in the interface should make the app feel like a professional suite pretending to be a simple tool.",
+              "That is the main product constraint: make the edit loop quick enough that the app gets out of the way.",
+            ],
+            layout: "split",
+            images: [
+              { label: "Responsive preview while adjusting a photo", ratio: "4/3" },
+              { label: "Full-quality export when the edit is done", ratio: "4/3" },
+            ],
+          },
+          {
+            heading: "Export and move on.",
+            body: [
+              "The end of the workflow is deliberately boring. Export saves a finished version as a new image and leaves the original alone. I get the edited photo I wanted without committing my entire library or future workflow to one app.",
+            ],
+            images: [
+              { label: "A clean finished export, with the original left untouched", ratio: "16/9" },
+            ],
+          },
+          {
+            heading: "A tool shaped by my own habits.",
+            body: [
+              "The point of Prism4 is not to out-feature every editor. It is the opposite: build the smallest editor that respects how I actually edit photos. If a control is not part of that workflow, it has to earn its place.",
+              "That makes it a product design exercise as much as a build. The value is in deciding what not to include.",
+            ],
+            images: [
+              { label: "A focused editor shaped around a personal camera workflow", ratio: "16/9" },
+            ],
+          },
+        ],
+        tldr: [
+          "My first iOS app: a personal camera editor I'm building so my photo workflow does not depend on Lightroom, Adobe subscriptions, or bloated editing apps.",
+          "The product goal is subtraction: keep the controls I actually use and leave out everything that turns a simple edit into a workspace.",
+          "The core flow is pick a real photo, tune the image, save a reusable look when it is worth keeping, export the finished version, and move on.",
+          "Essential controls stay close: exposure, temperature, tint, contrast, saturation, highlights, shadows, looks, grain, vignette, undo, reset, and export.",
+          "Reusable looks carry style from one photo to another without forcing one photo's correction onto the next.",
+          "Exports create a finished version while leaving the original untouched.",
+          "The point is not to out-feature Lightroom. It is to build the smallest editor that fits how I actually edit.",
+        ],
+      },
+    },
+    {
       name: "AlphaDeal",
       slug: "alphadeal",
       locked: true,
