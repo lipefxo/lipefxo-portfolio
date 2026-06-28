@@ -30,10 +30,12 @@ export function CurrentlyCard({ category }: CurrentlyCardProps) {
   const [order, setOrder] = useState(() =>
     category.items.map((_, index) => index),
   );
+  const [isDeckActive, setIsDeckActive] = useState(false);
   const reduceMotion = useReducedMotion();
   const frontIndex = order[0] ?? 0;
   const front = category.items[frontIndex];
   const canShuffle = category.items.length > 1;
+  const shouldOpenDeck = isDeckActive && !reduceMotion;
 
   const shuffle = () => {
     setOrder((current) => [...current.slice(1), current[0]]);
@@ -47,9 +49,13 @@ export function CurrentlyCard({ category }: CurrentlyCardProps) {
         <motion.button
           type="button"
           onClick={shuffle}
+          onBlur={() => setIsDeckActive(false)}
+          onFocus={() => setIsDeckActive(true)}
+          onHoverEnd={() => setIsDeckActive(false)}
+          onHoverStart={() => setIsDeckActive(true)}
           aria-label={`Shuffle ${category.label}, currently ${front.title}`}
           whileTap={reduceMotion ? undefined : { scale: 0.97 }}
-          className="group relative size-[72px] overflow-visible rounded-xl text-left outline-none focus-visible:ring-2 focus-visible:ring-zinc-950/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-zinc-50/70 dark:focus-visible:ring-offset-zinc-950"
+          className="group relative size-[72px] cursor-pointer overflow-visible rounded-xl text-left outline-none focus-visible:ring-2 focus-visible:ring-zinc-950/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-zinc-50/70 dark:focus-visible:ring-offset-zinc-950"
         >
           <span aria-hidden="true" className="absolute inset-0">
             {order.map((entryIndex, depth) => {
@@ -73,10 +79,27 @@ export function CurrentlyCard({ category }: CurrentlyCardProps) {
                         }
                       : {
                           opacity: depth > 2 ? 0 : 1,
-                          rotate: depth === 0 ? 0 : depth % 2 ? -6 : 6,
-                          scale: 1 - visibleDepth * 0.07,
-                          x: visibleDepth * 4,
-                          y: visibleDepth * -5,
+                          rotate:
+                            depth === 0
+                              ? 0
+                              : depth % 2
+                                ? shouldOpenDeck
+                                  ? -9
+                                  : -6
+                                : shouldOpenDeck
+                                  ? 9
+                                  : 6,
+                          scale:
+                            depth === 0 && shouldOpenDeck
+                              ? 1.03
+                              : 1 - visibleDepth * (shouldOpenDeck ? 0.055 : 0.07),
+                          x: visibleDepth * (shouldOpenDeck ? 7 : 4),
+                          y:
+                            depth === 0
+                              ? shouldOpenDeck
+                                ? -4
+                                : 0
+                              : visibleDepth * (shouldOpenDeck ? -8 : -5),
                         }
                   }
                   transition={reduceMotion ? { duration: 0 } : DECK_TRANSITION}
