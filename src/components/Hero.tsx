@@ -3,6 +3,24 @@ import { site } from "@/config/site";
 import { ProfileAvatar } from "./ProfileAvatar";
 import { SocialIconLinks } from "./SocialIconLinks";
 
+const FLAG_RE = /(\p{Regional_Indicator}{2})/u;
+
+function LocationWithFlag({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(FLAG_RE).map((part, i) =>
+        FLAG_RE.test(part) ? (
+          <span key={i} className="t-flag-wave">
+            {part}
+          </span>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  );
+}
+
 export function Hero() {
   return (
     <header
@@ -23,12 +41,12 @@ export function Hero() {
         style={{ "--intro-index": 1 } as CSSProperties}
       >
         {site.tagline}
-        <span className="mt-1.5 block text-sm leading-6 text-zinc-500 dark:text-zinc-500">
-          {site.location}
+        <span className="mt-0.5 block text-sm leading-5 text-zinc-500 dark:text-zinc-500">
+          <LocationWithFlag text={site.location} />
         </span>
       </p>
       <div
-        className="t-intro-item col-start-2 row-start-1 justify-self-end pt-1"
+        className="t-intro-item col-start-1 lg:hidden"
         style={{ "--intro-index": 2 } as CSSProperties}
       >
         <SocialIconLinks />

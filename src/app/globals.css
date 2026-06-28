@@ -84,6 +84,8 @@ body {
 
 .font-brand {
   font-family: var(--font-caveat), cursive;
+  font-kerning: normal;
+  font-feature-settings: "kern" 1;
 }
 
 * {
@@ -381,6 +383,32 @@ button:disabled,
   }
 }
 
+.t-flag-wave {
+  display: inline-block;
+  transform-origin: 10% 65%;
+  animation: t-flag-wave 2600ms ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes t-flag-wave {
+  0%,
+  100% {
+    transform: rotate(0deg) skewX(0deg);
+  }
+
+  20% {
+    transform: rotate(-2.5deg) translateY(-0.25px) skewX(2.5deg);
+  }
+
+  50% {
+    transform: rotate(2deg) translateY(0.25px) skewX(-2deg);
+  }
+
+  80% {
+    transform: rotate(-1.5deg) translateY(-0.15px) skewX(1.5deg);
+  }
+}
+
 .t-image-expand-button {
   opacity: 1;
   transform: translateY(0) scale(1);
@@ -422,6 +450,10 @@ button:disabled,
   }
 
   .t-project-card-shake[data-shaking="true"] {
+    animation: none !important;
+  }
+
+  .t-flag-wave {
     animation: none !important;
   }
 }

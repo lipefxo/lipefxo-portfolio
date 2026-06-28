@@ -147,10 +147,8 @@ export interface ExperienceItem {
   highlights: string[];
 }
 
-/** A "currently into" card in the personal / about-me section. */
-export interface CurrentlyItem {
-  /** Category label shown as the eyebrow, e.g. "Watching". */
-  label: string;
+/** One entry within a Currently category's shuffle deck. */
+export interface CurrentlyEntry {
   /** What it is, e.g. "Spider-Noir". */
   title: string;
   /** Optional context line, e.g. "Prime Video". */
@@ -163,6 +161,14 @@ export interface CurrentlyItem {
    * so 128×128 covers retina). When set, it replaces the emoji.
    */
   image?: string;
+}
+
+/** A "currently into" deck in the personal / about-me section. */
+export interface CurrentlyItem {
+  /** Category label shown as the eyebrow, e.g. "Watching". */
+  label: string;
+  /** Deck of entries; the first is shown on top. Click shuffles to the next. */
+  items: CurrentlyEntry[];
 }
 
 export interface SiteConfig {
@@ -189,7 +195,7 @@ export const site: SiteConfig = {
   // Display name. Switch to "Luis Felipe Lins" if you'd rather use your full name.
   name: "lipefxo",
   tagline: "Product Design Engineer",
-  location: "Based in 🇧🇷 Brazil",
+  location: "Based in Brazil 🇧🇷",
   bio: "Pushing pixels around until they feel just right, while talking at screens. Somewhere between product design, systems thinking, and front-end implementation, turning fuzzy ideas into working software while obsessing over the details.",
   githubUser: "lipefxo",
   socials: {
@@ -252,7 +258,7 @@ export const site: SiteConfig = {
   experience: [
     {
       company: "SecureBags",
-      role: "Product Designer / Design Engineer",
+      role: "Product Design Engineer",
       period: "Mar 2023 — Present",
       summary:
         "I lead product design and front-end execution for a fintech SaaS platform, turning complex lending and operations workflows into clear, reusable product experiences. The role spans product strategy, UX, design systems, React implementation, and internal tooling, with a focus on shortening the distance between design decisions and shipped software.",
@@ -293,27 +299,78 @@ export const site: SiteConfig = {
   currently: [
     {
       label: "Watching",
-      title: "Spider-Noir",
-      icon: "🕷️",
-      image: "/currently/spider-noir-512.webp",
+      items: [
+        {
+          title: "Spider-Noir",
+          icon: "🕷️",
+          image: "/currently/spider-noir-512.webp",
+        },
+        {
+          title: "House of the Dragon",
+          icon: "🐉",
+          image: "/currently/house-of-the-dragon-512.png",
+        },
+        {
+          title: "Chernobyl",
+          icon: "☢️",
+          image: "/currently/chernobyl-512.png",
+        },
+      ],
     },
     {
       label: "Playing",
-      title: "Arc Raiders",
-      icon: "🎮",
-      image: "/currently/arc-raiders-512.webp",
+      items: [
+        {
+          title: "Arc Raiders",
+          icon: "🎮",
+          image: "/currently/arc-raiders-512.webp",
+        },
+        {
+          title: "Crimson Desert",
+          icon: "⚔️",
+          image: "/currently/crimson-desert-512.png",
+        },
+        {
+          title: "Graveyard Keeper",
+          icon: "🪦",
+          image: "/currently/graveyard-keeper-512.png",
+        },
+      ],
     },
     {
       label: "Listening",
-      title: "Bad Bunny",
-      icon: "🎧",
-      image: "/currently/bad-bunny-512.webp",
+      items: [
+        {
+          title: "Bad Bunny",
+          icon: "🎧",
+          image: "/currently/bad-bunny-512.webp",
+        },
+        {
+          title: "Stromae",
+          icon: "🎤",
+          image: "/currently/stromae-512.png",
+        },
+        {
+          title: "Balu Brigada",
+          icon: "🎶",
+          image: "/currently/balu-brigada-512.png",
+        },
+        {
+          title: "RÜFÜS DU SOL",
+          icon: "🌅",
+          image: "/currently/rufus-du-sol-512.png",
+        },
+      ],
     },
     {
       label: "Drinking",
-      title: "Cold latte",
-      icon: "🧊",
-      image: "/currently/cold-latte-512.webp",
+      items: [
+        {
+          title: "Cold latte",
+          icon: "🧊",
+          image: "/currently/cold-latte-512.webp",
+        },
+      ],
     },
   ],
   hiddenRepos: ["lipefxo", "origami-coffee"],

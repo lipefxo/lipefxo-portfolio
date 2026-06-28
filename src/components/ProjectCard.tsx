@@ -6,12 +6,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { removeScopeTechLabels, type ProjectDetail } from "@/lib/projects";
+import type { ProjectDetail } from "@/lib/projects";
 import { TransitionLink } from "./TransitionLink";
 import { BorderGlow } from "./BorderGlow";
 import { ProjectTextLink } from "./ProjectTextLink";
 import { Reveal } from "./Reveal";
-import { TechTag } from "./TechTag";
 
 interface Props {
   project: ProjectDetail;
@@ -23,7 +22,7 @@ interface Props {
 }
 
 const cardClassName =
-  "flex w-full flex-col rounded-lg border border-zinc-200 bg-white p-5 text-left shadow-sm shadow-zinc-950/[0.015] transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out group-hover/card:border-transparent group-hover/card:bg-zinc-50/70 group-hover/card:shadow-md group-hover/card:shadow-zinc-950/[0.035] group-focus-within/card:-translate-y-px group-focus-within/card:border-zinc-300 group-focus-within/card:bg-zinc-50/70 group-focus-within/card:shadow-md group-focus-within/card:shadow-zinc-950/[0.035] dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-black/10 dark:group-hover/card:border-transparent dark:group-hover/card:bg-zinc-900/40 dark:group-hover/card:shadow-black/20 dark:group-focus-within/card:border-zinc-700 dark:group-focus-within/card:bg-zinc-900/40 dark:group-focus-within/card:shadow-black/20";
+  "flex min-h-[13rem] w-full flex-col rounded-lg border border-zinc-200 bg-white p-5 text-left shadow-sm shadow-zinc-950/[0.015] transition-[background-color,border-color,box-shadow,transform] duration-200 ease-out group-hover/card:border-transparent group-hover/card:bg-zinc-50/70 group-hover/card:shadow-md group-hover/card:shadow-zinc-950/[0.035] group-focus-within/card:-translate-y-px group-focus-within/card:border-zinc-300 group-focus-within/card:bg-zinc-50/70 group-focus-within/card:shadow-md group-focus-within/card:shadow-zinc-950/[0.035] dark:border-zinc-800 dark:bg-zinc-950 dark:shadow-black/10 dark:group-hover/card:border-transparent dark:group-hover/card:bg-zinc-900/40 dark:group-hover/card:shadow-black/20 dark:group-focus-within/card:border-zinc-700 dark:group-focus-within/card:bg-zinc-900/40 dark:group-focus-within/card:shadow-black/20";
 
 const lockedHintLabels = [
   "Almost there!",
@@ -53,9 +52,6 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
   });
   const shakeTimeoutRef = useRef<number | null>(null);
   const hintTimeoutRef = useRef<number | null>(null);
-  const stack = removeScopeTechLabels(project.tech);
-  const visibleTech = stack.slice(0, 4);
-  const hiddenTechCount = Math.max(stack.length - visibleTech.length, 0);
 
   useEffect(() => {
     return () => {
@@ -108,26 +104,6 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
       <p className="mt-2 max-w-[48ch] text-[13px] leading-5 text-zinc-600 dark:text-zinc-400">
         {project.blurb}
       </p>
-
-      <div className="mt-4 flex flex-wrap items-center gap-1.5 pr-10 text-[11px] text-zinc-500 dark:text-zinc-500">
-        {project.language && (
-          <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-500" />
-            {project.language}
-          </span>
-        )}
-        {typeof project.stars === "number" && project.stars > 0 && (
-          <span>★ {project.stars}</span>
-        )}
-        {visibleTech.map((t) => (
-          <TechTag key={t} label={t} variant="compact" />
-        ))}
-        {hiddenTechCount > 0 && (
-          <span className="inline-flex h-6 shrink-0 items-center rounded-md border border-zinc-200 bg-white/55 px-2 text-[11px] text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-400">
-            +{hiddenTechCount}
-          </span>
-        )}
-      </div>
     </>
   );
 
@@ -184,12 +160,12 @@ export function ProjectCard({ project, onOpen, revealDelay = 0, href }: Props) {
               aria-label={`View ${project.title} case study`}
               className="absolute inset-0 z-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:focus-visible:outline-zinc-100"
             />
-            <div className="pointer-events-none relative z-10 flex flex-col">
+            <div className="pointer-events-none relative z-10 flex min-h-[calc(13rem-2.5rem)] flex-col">
               {content}
               <WebsiteLink
                 href={project.demoUrl}
                 label={`Visit ${project.title} website`}
-                className="pointer-events-auto mt-4 self-start"
+                className="pointer-events-auto mt-auto self-start pt-4"
               />
             </div>
             <CardStatusIcon />

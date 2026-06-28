@@ -2,11 +2,14 @@
 
 import { site } from "@/config/site";
 import type { MouseEventHandler, ReactNode } from "react";
+import CenterUnderline from "@/components/fancy/text/underline-center";
+import { cn } from "@/lib/utils";
 
 export const EMAIL_COPIED_EVENT = "lipefxo-email-copied";
 
 type BaseSocialLink = {
   label: string;
+  textLabel: string;
   tooltip: string;
   icon: ReactNode;
 };
@@ -26,6 +29,7 @@ export type SocialLink = ExternalSocialLink | CopyEmailSocialLink;
 export const socialLinks: SocialLink[] = [
   {
     label: "CV",
+    textLabel: "cv",
     href: "/cv.pdf",
     tooltip: "Download CV",
     download: "lipefxo-cv.pdf",
@@ -33,6 +37,7 @@ export const socialLinks: SocialLink[] = [
   },
   {
     label: "Email",
+    textLabel: "e-mail",
     action: "copyEmail",
     value: site.socials.email,
     tooltip: "Copy",
@@ -40,18 +45,21 @@ export const socialLinks: SocialLink[] = [
   },
   {
     label: "GitHub",
+    textLabel: "github",
     href: `https://github.com/${site.socials.github}`,
     tooltip: `@${site.socials.github}`,
     icon: <GitHubIcon />,
   },
   {
     label: "X",
+    textLabel: "twitter(x)",
     href: `https://x.com/${site.socials.x}`,
     tooltip: `@${site.socials.x}`,
     icon: <XIcon />,
   },
   {
     label: "LinkedIn",
+    textLabel: "linkedin",
     href: site.socials.linkedin,
     tooltip: "linkedin.com/in/felipefxo",
     icon: <LinkedInIcon />,
@@ -78,70 +86,54 @@ export async function copyEmailToClipboard() {
   window.dispatchEvent(new CustomEvent(EMAIL_COPIED_EVENT));
 }
 
-export function SocialIconLinks() {
+export function SocialIconLinks({
+  className,
+}: {
+  className?: string;
+}) {
   const onCopyEmail: MouseEventHandler<HTMLButtonElement> = async () => {
     await copyEmailToClipboard();
   };
 
   return (
-    <ul className="flex flex-wrap gap-4 text-zinc-500 dark:text-zinc-400">
+    <ul
+      className={cn(
+        "flex flex-wrap gap-4 text-zinc-500 dark:text-zinc-400",
+        className,
+      )}
+    >
       {socialLinks.map((link) => (
         <li key={link.label}>
-          <span className="t-tt-wrap group relative inline-block">
-            {"action" in link ? (
-              <button
-                type="button"
-                onClick={onCopyEmail}
-                aria-label={`Copy ${link.label.toLowerCase()}`}
-                aria-describedby={`social-tooltip-${link.label.toLowerCase()}`}
-                className="t-tt-trigger peer inline-flex items-center transition-colors hover:text-zinc-950 dark:hover:text-zinc-50"
-              >
-                {link.icon}
-              </button>
-            ) : (
-              <a
-                href={link.href}
-                target={link.download ? undefined : "_blank"}
-                rel={link.download ? undefined : "noopener noreferrer"}
-                download={link.download}
-                aria-label={link.label}
-                aria-describedby={`social-tooltip-${link.label.toLowerCase()}`}
-                className="t-tt-trigger peer inline-flex items-center transition-colors hover:text-zinc-950 dark:hover:text-zinc-50"
-              >
-                {link.icon}
-              </a>
-            )}
-            <span
-              className="t-tt pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-20 flex -translate-x-1/2 scale-[0.98] items-center gap-1.5 whitespace-nowrap rounded-lg bg-[#222222] px-3 py-2 text-xs font-medium text-[#f0f0f0] opacity-0 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_0_rgba(0,0,0,0.05),0_4px_42px_0_rgba(0,0,0,0.06)] transition-[opacity,transform] duration-75 ease-out group-hover:scale-100 group-hover:opacity-100 group-hover:delay-[80ms] group-hover:duration-150 peer-focus-visible:scale-100 peer-focus-visible:opacity-100 peer-focus-visible:delay-[80ms] peer-focus-visible:duration-150"
-              id={`social-tooltip-${link.label.toLowerCase()}`}
-              role="tooltip"
+          {"action" in link ? (
+            <CenterUnderline
+              as="button"
+              type="button"
+              onClick={onCopyEmail}
+              aria-label="Copy e-mail"
+              className="text-[13px] font-medium transition-colors hover:text-zinc-950 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-900 dark:hover:text-zinc-50 dark:focus-visible:outline-zinc-100"
+              underlineHeightRatio={0.08}
+              underlinePaddingRatio={0.18}
             >
-              {"action" in link ? <CopyIcon /> : null}
-              {link.tooltip}
-            </span>
-          </span>
+              {link.textLabel}
+            </CenterUnderline>
+          ) : (
+            <CenterUnderline
+              as="a"
+              href={link.href}
+              target={link.download ? undefined : "_blank"}
+              rel={link.download ? undefined : "noopener noreferrer"}
+              download={link.download}
+              aria-label={link.label}
+              className="text-[13px] font-medium no-underline transition-colors hover:text-zinc-950 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-900 dark:hover:text-zinc-50 dark:focus-visible:outline-zinc-100"
+              underlineHeightRatio={0.08}
+              underlinePaddingRatio={0.18}
+            >
+              {link.textLabel}
+            </CenterUnderline>
+          )}
         </li>
       ))}
     </ul>
-  );
-}
-
-function CopyIcon() {
-  return (
-    <svg
-      width="13"
-      height="13"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-    </svg>
   );
 }
 
@@ -152,15 +144,20 @@ function DownloadIcon() {
       height="18"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d="M12 3v12" />
-      <path d="m7 10 5 5 5-5" />
-      <path d="M5 21h14" />
+      <path
+        d="M8.8 2H14L20 8V17.2C20 18.8802 20 19.7202 19.673 20.362C19.3854 20.9265 18.9265 21.3854 18.362 21.673C17.7202 22 16.8802 22 15.2 22H8.8C7.11984 22 6.27976 22 5.63803 21.673C5.07354 21.3854 4.6146 20.9265 4.32698 20.362C4 19.7202 4 18.8802 4 17.2V6.8C4 5.11984 4 4.27976 4.32698 3.63803C4.6146 3.07354 5.07354 2.6146 5.63803 2.32698C6.27976 2 7.11984 2 8.8 2Z"
+        fill="currentColor"
+        opacity="0.22"
+      />
+      <path
+        d="M14 2.26953V6.40007C14 6.96012 14 7.24015 14.109 7.45406C14.2049 7.64222 14.3578 7.7952 14.546 7.89108C14.7599 8.00007 15.0399 8.00007 15.6 8.00007H19.7305M15 15L12 18L9 15M12 18V12M14 2H8.8C7.11984 2 6.27976 2 5.63803 2.32698C5.07354 2.6146 4.6146 3.07354 4.32698 3.63803C4 4.27976 4 5.11984 4 6.8V17.2C4 18.8802 4 19.7202 4.32698 20.362C4.6146 20.9265 5.07354 21.3854 5.63803 21.673C6.27976 22 7.11984 22 8.8 22H15.2C16.8802 22 17.7202 22 18.362 21.673C18.9265 21.3854 19.3854 20.9265 19.673 20.362C20 19.7202 20 18.8802 20 17.2V8L14 2Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
