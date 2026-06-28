@@ -42,7 +42,6 @@ export default async function Home() {
             >
               <SocialIconLinks
                 className="justify-end"
-                tooltipIdPrefix="desktop-social-tooltip"
               />
             </div>
           </div>

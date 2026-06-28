@@ -26,7 +26,10 @@ type CenterUnderlineProps =
     } & Omit<HTMLMotionProps<"span">, "as" | "children" | "className">)
   | (CenterUnderlineBaseProps & {
       as: "a";
-    } & Omit<HTMLMotionProps<"a">, "as" | "children" | "className">);
+    } & Omit<HTMLMotionProps<"a">, "as" | "children" | "className">)
+  | (CenterUnderlineBaseProps & {
+      as: "button";
+    } & Omit<HTMLMotionProps<"button">, "as" | "children" | "className">);
 
 const CenterUnderline = ({
   children,
@@ -103,6 +106,22 @@ const CenterUnderline = ({
       >
         {content}
       </motion.a>
+    );
+  }
+
+  if (as === "button") {
+    return (
+      <motion.button
+        className={cn("relative inline-block cursor-pointer", className)}
+        initial="hidden"
+        animate="hidden"
+        whileHover="visible"
+        whileFocus="visible"
+        ref={setTextRef}
+        {...(props as Omit<HTMLMotionProps<"button">, "as" | "children" | "className">)}
+      >
+        {content}
+      </motion.button>
     );
   }
 

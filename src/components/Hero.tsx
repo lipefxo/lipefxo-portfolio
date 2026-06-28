@@ -49,7 +49,7 @@ export function Hero() {
         className="t-intro-item col-start-1 lg:hidden"
         style={{ "--intro-index": 2 } as CSSProperties}
       >
-        <SocialIconLinks tooltipIdPrefix="hero-social-tooltip" />
+        <SocialIconLinks />
       </div>
     </header>
   );

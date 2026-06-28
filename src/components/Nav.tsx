@@ -7,6 +7,7 @@ import { TransitionLink } from "./TransitionLink";
 import { ProfileAvatar } from "./ProfileAvatar";
 import {
   EMAIL_COPIED_EVENT,
+  SocialIconLinks,
   copyEmailToClipboard,
   socialLinks,
 } from "./SocialIconLinks";
@@ -127,42 +128,15 @@ export function Nav() {
           </TransitionLink>
         </div>
 
-        <ul
-          className={`hidden items-center justify-self-center gap-4 text-zinc-500 delay-75 dark:text-zinc-400 md:flex ${reveal} ${
+        <div
+          className={`hidden justify-self-center delay-75 md:block ${reveal} ${
             active
               ? "pointer-events-auto translate-y-0 opacity-100"
               : "pointer-events-none -translate-y-1 opacity-0"
           }`}
         >
-          {socialLinks.map((link) => (
-            <li key={link.label} className="flex">
-              {"action" in link ? (
-                <button
-                  type="button"
-                  aria-label={`Copy ${link.label.toLowerCase()}`}
-                  className="inline-flex items-center transition-colors hover:text-zinc-950 dark:hover:text-zinc-50"
-                  onClick={() => onCopyEmail()}
-                >
-                  {link.icon}
-                </button>
-              ) : (
-                <a
-                  href={link.href}
-                  target={link.download ? undefined : "_blank"}
-                  rel={link.download ? undefined : "noopener noreferrer"}
-                  download={link.download}
-                  aria-label={link.label}
-                  className={`inline-flex items-center transition-colors hover:text-zinc-950 dark:hover:text-zinc-50 ${
-                    link.download ? "gap-1.5 text-xs font-semibold tracking-tight" : ""
-                  }`}
-                >
-                  {link.icon}
-                  {link.download ? <span>{link.label}</span> : null}
-                </a>
-              )}
-            </li>
-          ))}
-        </ul>
+          <SocialIconLinks className="justify-center" />
+        </div>
 
         <div className="pointer-events-auto flex items-center gap-2 justify-self-end">
           <div className="hidden md:flex">
