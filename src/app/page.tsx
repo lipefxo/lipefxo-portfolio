@@ -29,18 +29,27 @@ export default async function Home() {
       </div>
       <div className="pointer-events-none fixed inset-0 z-0 dark:bg-[radial-gradient(circle_at_50%_34%,rgba(0,0,0,0.38),rgba(0,0,0,0.48)_48%,rgba(0,0,0,0.68)_100%)]" />
       <Nav />
-      <IntroReveal className="relative z-10 w-full max-w-3xl space-y-16 px-6 py-16 sm:px-10 sm:py-24">
-        <Hero />
-        <About />
-        <Projects work={workDetails} />
-        <Experience />
-        <Currently />
-        <footer
-          className="t-intro-item pt-8 text-xs text-zinc-400 dark:text-zinc-600"
-          style={{ "--intro-index": 13 } as CSSProperties}
-        >
-          © {site.name}
-        </footer>
+      <IntroReveal className="relative z-10 w-full max-w-5xl px-6 py-16 sm:px-10 sm:py-24">
+        <div className="grid grid-cols-1 gap-x-10 gap-y-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+          <div className="flex flex-col gap-10">
+            <Hero />
+            <About />
+          </div>
+          <div className="lg:pt-60">
+            <Experience />
+          </div>
+        </div>
+
+        <div className="mt-16 space-y-16">
+          <Projects work={workDetails} />
+          <Currently />
+          <footer
+            className="t-intro-item pt-8 text-xs text-zinc-400 dark:text-zinc-600"
+            style={{ "--intro-index": 8 } as CSSProperties}
+          >
+            © {site.name}
+          </footer>
+        </div>
       </IntroReveal>
     </div>
   );

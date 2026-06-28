@@ -27,6 +27,7 @@ export function Nav() {
   const [emailCopied, setEmailCopied] = useState(false);
   const active = isProjectPage || scrolled;
   const framed = active || drawerOpen;
+  const containerMax = isProjectPage ? "max-w-3xl" : "max-w-5xl";
 
   useEffect(() => {
     if (isProjectPage) return;
@@ -107,7 +108,9 @@ export function Nav() {
           : "border-transparent bg-transparent"
       }`}
     >
-      <div className="mx-auto grid max-w-3xl grid-cols-[1fr_auto] items-center gap-4 px-6 py-3.5 sm:px-10 md:grid-cols-[1fr_auto_1fr] md:gap-6">
+      <div
+        className={`mx-auto grid ${containerMax} grid-cols-[1fr_auto] items-center gap-4 px-6 py-3.5 sm:px-10 md:grid-cols-[1fr_auto_1fr] md:gap-6`}
+      >
         <div className="flex min-w-0 items-center gap-3 justify-self-start">
           <TransitionLink
             href="/"
@@ -187,7 +190,7 @@ export function Nav() {
         data-open={drawerOpen}
         className="t-panel-slide fixed inset-0 z-50 h-dvh overflow-y-auto bg-white/95 px-6 backdrop-blur-md [--panel-translate-y:-100%] dark:bg-black/95 sm:px-10 md:hidden"
       >
-        <div className="mx-auto flex min-h-dvh max-w-3xl flex-col py-3.5">
+        <div className={`mx-auto flex min-h-dvh ${containerMax} flex-col py-3.5`}>
           <div className="flex items-center justify-between gap-4">
             <TransitionLink
               href="/"

@@ -7,7 +7,7 @@ export function Hero() {
   return (
     <header
       id="hero"
-      className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-6 gap-y-5 pt-8 sm:pt-16"
+      className="flex flex-col gap-5 pt-8 sm:pt-16"
     >
       <h1
         className="t-intro-item flex items-center gap-3 text-zinc-950 dark:text-zinc-50"
@@ -19,16 +19,16 @@ export function Hero() {
         </span>
       </h1>
       <p
-        className="t-intro-item col-start-1 max-w-xl text-base leading-7 text-zinc-600 dark:text-zinc-400"
+        className="t-intro-item max-w-xl text-base leading-7 text-zinc-600 dark:text-zinc-400"
         style={{ "--intro-index": 1 } as CSSProperties}
       >
         {site.tagline}
-        <span className="mt-1.5 block text-sm leading-6 text-zinc-500 dark:text-zinc-500">
+        <span className="mt-0.5 block text-sm leading-5 text-zinc-500 dark:text-zinc-500">
           {site.location}
         </span>
       </p>
       <div
-        className="t-intro-item col-start-2 row-start-1 justify-self-end pt-1"
+        className="t-intro-item"
         style={{ "--intro-index": 2 } as CSSProperties}
       >
         <SocialIconLinks />

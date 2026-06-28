@@ -84,6 +84,8 @@ body {
 
 .font-brand {
   font-family: var(--font-caveat), cursive;
+  font-kerning: normal;
+  font-feature-settings: "kern" 1;
 }
 
 * {
