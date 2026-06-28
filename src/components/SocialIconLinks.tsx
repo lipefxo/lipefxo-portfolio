@@ -2,6 +2,7 @@
 
 import { site } from "@/config/site";
 import type { MouseEventHandler, ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 export const EMAIL_COPIED_EVENT = "lipefxo-email-copied";
 
@@ -78,50 +79,65 @@ export async function copyEmailToClipboard() {
   window.dispatchEvent(new CustomEvent(EMAIL_COPIED_EVENT));
 }
 
-export function SocialIconLinks() {
+export function SocialIconLinks({
+  className,
+  tooltipIdPrefix = "social-tooltip",
+}: {
+  className?: string;
+  tooltipIdPrefix?: string;
+}) {
   const onCopyEmail: MouseEventHandler<HTMLButtonElement> = async () => {
     await copyEmailToClipboard();
   };
 
   return (
-    <ul className="flex flex-wrap gap-4 text-zinc-500 dark:text-zinc-400">
-      {socialLinks.map((link) => (
-        <li key={link.label}>
-          <span className="t-tt-wrap group relative inline-block">
-            {"action" in link ? (
-              <button
-                type="button"
-                onClick={onCopyEmail}
-                aria-label={`Copy ${link.label.toLowerCase()}`}
-                aria-describedby={`social-tooltip-${link.label.toLowerCase()}`}
-                className="t-tt-trigger peer inline-flex items-center transition-colors hover:text-zinc-950 dark:hover:text-zinc-50"
+    <ul
+      className={cn(
+        "flex flex-wrap gap-4 text-zinc-500 dark:text-zinc-400",
+        className,
+      )}
+    >
+      {socialLinks.map((link) => {
+        const tooltipId = `${tooltipIdPrefix}-${link.label.toLowerCase()}`;
+
+        return (
+          <li key={link.label}>
+            <span className="t-tt-wrap group relative inline-block">
+              {"action" in link ? (
+                <button
+                  type="button"
+                  onClick={onCopyEmail}
+                  aria-label={`Copy ${link.label.toLowerCase()}`}
+                  aria-describedby={tooltipId}
+                  className="t-tt-trigger peer inline-flex items-center transition-colors hover:text-zinc-950 dark:hover:text-zinc-50"
+                >
+                  {link.icon}
+                </button>
+              ) : (
+                <a
+                  href={link.href}
+                  target={link.download ? undefined : "_blank"}
+                  rel={link.download ? undefined : "noopener noreferrer"}
+                  download={link.download}
+                  aria-label={link.label}
+                  aria-describedby={tooltipId}
+                  className="t-tt-trigger peer inline-flex items-center transition-colors hover:text-zinc-950 dark:hover:text-zinc-50"
+                >
+                  {link.icon}
+                </a>
+              )}
+              <span
+                className="t-tt pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-20 flex -translate-x-1/2 scale-[0.98] items-center gap-1.5 whitespace-nowrap rounded-lg bg-[#222222] px-3 py-2 text-xs font-medium text-[#f0f0f0] opacity-0 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_0_rgba(0,0,0,0.05),0_4px_42px_0_rgba(0,0,0,0.06)] transition-[opacity,transform] duration-75 ease-out group-hover:scale-100 group-hover:opacity-100 group-hover:delay-[80ms] group-hover:duration-150 peer-focus-visible:scale-100 peer-focus-visible:opacity-100 peer-focus-visible:delay-[80ms] peer-focus-visible:duration-150"
+                id={tooltipId}
+                role="tooltip"
               >
-                {link.icon}
-              </button>
-            ) : (
-              <a
-                href={link.href}
-                target={link.download ? undefined : "_blank"}
-                rel={link.download ? undefined : "noopener noreferrer"}
-                download={link.download}
-                aria-label={link.label}
-                aria-describedby={`social-tooltip-${link.label.toLowerCase()}`}
-                className="t-tt-trigger peer inline-flex items-center transition-colors hover:text-zinc-950 dark:hover:text-zinc-50"
-              >
-                {link.icon}
-              </a>
-            )}
-            <span
-              className="t-tt pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-20 flex -translate-x-1/2 scale-[0.98] items-center gap-1.5 whitespace-nowrap rounded-lg bg-[#222222] px-3 py-2 text-xs font-medium text-[#f0f0f0] opacity-0 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_0_rgba(0,0,0,0.05),0_4px_42px_0_rgba(0,0,0,0.06)] transition-[opacity,transform] duration-75 ease-out group-hover:scale-100 group-hover:opacity-100 group-hover:delay-[80ms] group-hover:duration-150 peer-focus-visible:scale-100 peer-focus-visible:opacity-100 peer-focus-visible:delay-[80ms] peer-focus-visible:duration-150"
-              id={`social-tooltip-${link.label.toLowerCase()}`}
-              role="tooltip"
-            >
-              {"action" in link ? <CopyIcon /> : null}
-              {link.tooltip}
+                {"action" in link ? <CopyIcon /> : null}
+                {link.tooltip}
+              </span>
             </span>
-          </span>
-        </li>
-      ))}
+          </li>
+        );
+      })}
     </ul>
   );
 }

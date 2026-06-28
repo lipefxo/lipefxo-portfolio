@@ -305,8 +305,16 @@ export const site: SiteConfig = {
           icon: "🕷️",
           image: "/currently/spider-noir-512.webp",
         },
-        { title: "House of the Dragon", icon: "🐉" },
-        { title: "Chernobyl", icon: "☢️" },
+        {
+          title: "House of the Dragon",
+          icon: "🐉",
+          image: "/currently/house-of-the-dragon-512.png",
+        },
+        {
+          title: "Chernobyl",
+          icon: "☢️",
+          image: "/currently/chernobyl-512.png",
+        },
       ],
     },
     {
@@ -317,8 +325,16 @@ export const site: SiteConfig = {
           icon: "🎮",
           image: "/currently/arc-raiders-512.webp",
         },
-        { title: "Crimson Desert", icon: "⚔️" },
-        { title: "Graveyard Keeper", icon: "🪦" },
+        {
+          title: "Crimson Desert",
+          icon: "⚔️",
+          image: "/currently/crimson-desert-512.png",
+        },
+        {
+          title: "Graveyard Keeper",
+          icon: "🪦",
+          image: "/currently/graveyard-keeper-512.png",
+        },
       ],
     },
     {
@@ -329,9 +345,21 @@ export const site: SiteConfig = {
           icon: "🎧",
           image: "/currently/bad-bunny-512.webp",
         },
-        { title: "Stromae", icon: "🎤" },
-        { title: "Balu Brigada", icon: "🎶" },
-        { title: "RÜFÜS DU SOL", icon: "🌅" },
+        {
+          title: "Stromae",
+          icon: "🎤",
+          image: "/currently/stromae-512.png",
+        },
+        {
+          title: "Balu Brigada",
+          icon: "🎶",
+          image: "/currently/balu-brigada-512.png",
+        },
+        {
+          title: "RÜFÜS DU SOL",
+          icon: "🌅",
+          image: "/currently/rufus-du-sol-512.png",
+        },
       ],
     },
     {

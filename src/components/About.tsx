@@ -42,10 +42,10 @@ const TOOLS: Array<{ label: string; iconKey: string }> = [
 const SHIMMER_TEXT = "details";
 
 const paragraphClass =
-  "max-w-[48ch] text-base leading-7 text-zinc-700 dark:text-zinc-300";
+  "max-w-[78ch] text-base leading-7 text-zinc-700 dark:text-zinc-300";
 
 const introParagraphClass =
-  "text-base leading-7 text-zinc-700 dark:text-zinc-300";
+  "max-w-[78ch] text-base leading-7 text-zinc-700 dark:text-zinc-300";
 
 const toolTexts = TOOLS.map((t) => t.label);
 const toolIcons = TOOLS.map((t) => t.iconKey);

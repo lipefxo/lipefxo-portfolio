@@ -17,9 +17,8 @@ const DECK_TRANSITION = {
 } satisfies Transition;
 
 const TEXT_TRANSITION = {
-  type: "spring",
-  stiffness: 360,
-  damping: 30,
+  duration: 0.14,
+  ease: [0.22, 1, 0.36, 1],
 } satisfies Transition;
 
 interface CurrentlyCardProps {
@@ -118,12 +117,12 @@ export function CurrentlyCard({ category }: CurrentlyCardProps) {
         <span className="text-[10px] font-medium tracking-wide text-zinc-400 uppercase dark:text-zinc-500">
           {category.label}
         </span>
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
             key={frontIndex}
-            initial={reduceMotion ? false : { opacity: 0, y: 4 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 3 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -3 }}
             transition={reduceMotion ? { duration: 0 } : TEXT_TRANSITION}
             aria-live="polite"
           >

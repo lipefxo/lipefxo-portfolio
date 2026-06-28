@@ -9,6 +9,7 @@ import { Projects } from "@/components/Projects";
 import { Currently } from "@/components/Currently";
 import { DarkVeil } from "@/components/DarkVeil";
 import { IntroReveal } from "@/components/IntroReveal";
+import { SocialIconLinks } from "@/components/SocialIconLinks";
 
 export default async function Home() {
   const workDetails = site.work.map(workToDetail);
@@ -30,12 +31,25 @@ export default async function Home() {
       <div className="pointer-events-none fixed inset-0 z-0 dark:bg-[radial-gradient(circle_at_50%_34%,rgba(0,0,0,0.38),rgba(0,0,0,0.48)_48%,rgba(0,0,0,0.68)_100%)]" />
       <Nav />
       <IntroReveal className="relative z-10 w-full max-w-5xl px-6 py-16 sm:px-10 sm:py-24">
-        <div className="grid grid-cols-1 gap-x-10 gap-y-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
-          <div className="flex flex-col gap-10">
+        <div className="grid grid-cols-1 gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+          <div>
             <Hero />
+          </div>
+          <div>
+            <div
+              className="t-intro-item hidden justify-end pt-8 sm:pt-16 lg:flex"
+              style={{ "--intro-index": 2 } as CSSProperties}
+            >
+              <SocialIconLinks
+                className="justify-end"
+                tooltipIdPrefix="desktop-social-tooltip"
+              />
+            </div>
+          </div>
+          <div className="lg:col-span-2">
             <About />
           </div>
-          <div className="lg:pt-60">
+          <div className="lg:col-span-2">
             <Experience />
           </div>
         </div>
