@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { site } from "@/config/site";
+import { LocalTime } from "./LocalTime";
 import { ProfileAvatar } from "./ProfileAvatar";
 import { SocialIconLinks } from "./SocialIconLinks";
 
@@ -41,8 +42,11 @@ export function Hero() {
         style={{ "--intro-index": 1 } as CSSProperties}
       >
         {site.tagline}
-        <span className="mt-0.5 block text-sm leading-5 text-zinc-500 dark:text-zinc-500">
-          <LocationWithFlag text={site.location} />
+        <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-5 text-zinc-500 dark:text-zinc-500">
+          <span>
+            <LocationWithFlag text={site.location} />
+          </span>
+          <LocalTime />
         </span>
       </p>
       <div
