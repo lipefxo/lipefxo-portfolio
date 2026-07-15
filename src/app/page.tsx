@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
 import { site } from "@/config/site";
 import { workToDetail } from "@/lib/projects";
-import { Nav } from "@/components/Nav";
 import { Hero } from "@/components/Hero";
 import { About } from "@/components/About";
 import { Experience } from "@/components/Experience";
@@ -10,12 +9,16 @@ import { Currently } from "@/components/Currently";
 import { DarkVeil } from "@/components/DarkVeil";
 import { IntroReveal } from "@/components/IntroReveal";
 import { SocialIconLinks } from "@/components/SocialIconLinks";
+import { AgentModeShell } from "@/components/AgentModeShell";
+import { getAgentMarkdown } from "@/lib/agent-markdown";
 
 export default async function Home() {
   const workDetails = site.work.map(workToDetail);
+  const agentMarkdown = getAgentMarkdown();
 
   return (
-    <div className="relative flex min-h-screen w-full flex-1 justify-center overflow-hidden bg-white dark:bg-black">
+    <AgentModeShell markdown={agentMarkdown}>
+      <div className="relative flex min-h-screen w-full flex-1 justify-center overflow-hidden bg-white dark:bg-black">
       <div className="pointer-events-none fixed inset-0 z-0">
         <DarkVeil
           className="opacity-0 dark:opacity-[0.22]"
@@ -29,7 +32,6 @@ export default async function Home() {
         />
       </div>
       <div className="pointer-events-none fixed inset-0 z-0 dark:bg-[radial-gradient(circle_at_50%_34%,rgba(0,0,0,0.38),rgba(0,0,0,0.48)_48%,rgba(0,0,0,0.68)_100%)]" />
-      <Nav />
       <IntroReveal className="relative z-10 w-full max-w-5xl px-6 py-16 sm:px-10 sm:py-24">
         <div className="grid grid-cols-1 gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
           <div>
@@ -64,6 +66,7 @@ export default async function Home() {
           </footer>
         </div>
       </IntroReveal>
-    </div>
+      </div>
+    </AgentModeShell>
   );
 }

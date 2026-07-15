@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { site } from "@/config/site";
 import { getWorkBySlug, workSlugs } from "@/lib/projects";
-import { Nav } from "@/components/Nav";
 import { DarkVeil } from "@/components/DarkVeil";
 import { IntroReveal } from "@/components/IntroReveal";
 import { CaseStudyView } from "@/components/work/CaseStudyView";
+import { AgentModeShell } from "@/components/AgentModeShell";
+import { getAgentMarkdown } from "@/lib/agent-markdown";
 
 type Params = Promise<{ slug: string }>;
 
@@ -65,7 +66,8 @@ export default async function WorkCaseStudyPage({ params }: { params: Params }) 
   const veilHue = Number.isFinite(hue) ? hue : 34;
 
   return (
-    <div className="relative flex min-h-screen w-full flex-1 justify-center overflow-hidden bg-white dark:bg-black">
+    <AgentModeShell markdown={getAgentMarkdown()}>
+      <div className="relative flex min-h-screen w-full flex-1 justify-center overflow-hidden bg-white dark:bg-black">
       <div className="pointer-events-none fixed inset-0 z-0">
         <DarkVeil
           className="opacity-0 dark:opacity-[0.22]"
@@ -86,11 +88,10 @@ export default async function WorkCaseStudyPage({ params }: { params: Params }) 
           aria-hidden="true"
         />
       )}
-      <Nav />
-
       <IntroReveal className="relative z-10 w-full max-w-3xl px-6 py-16 sm:px-10 sm:py-24">
         <CaseStudyView cs={cs} tech={project.tech} next={next} />
       </IntroReveal>
-    </div>
+      </div>
+    </AgentModeShell>
   );
 }
