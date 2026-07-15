@@ -12,6 +12,8 @@ import {
   socialLinks,
 } from "./SocialIconLinks";
 import { ThemeToggle } from "./ThemeToggle";
+import { AgentModeToggle } from "./AgentModeToggle";
+import { useAgentMode } from "./AgentModeContext";
 
 /**
  * Fixed top navigation. The bar itself is always present so the theme toggle
@@ -22,11 +24,12 @@ import { ThemeToggle } from "./ThemeToggle";
  */
 export function Nav() {
   const pathname = usePathname();
+  const agentMode = useAgentMode();
   const isProjectPage = pathname.startsWith("/work/");
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [emailCopied, setEmailCopied] = useState(false);
-  const active = isProjectPage || scrolled;
+  const active = agentMode?.active || isProjectPage || scrolled;
   const framed = active || drawerOpen;
   const containerMax = isProjectPage ? "max-w-3xl" : "max-w-5xl";
 
@@ -139,7 +142,8 @@ export function Nav() {
         </div>
 
         <div className="pointer-events-auto flex items-center gap-2 justify-self-end">
-          <div className="hidden md:flex">
+          <div className="hidden items-center gap-2 md:flex">
+            <AgentModeToggle />
             <ThemeToggle />
           </div>
           <button
@@ -218,7 +222,8 @@ export function Nav() {
             ))}
           </ul>
 
-          <div className="mt-auto flex justify-end border-t border-zinc-200/70 py-5 dark:border-zinc-800/70">
+          <div className="mt-auto flex justify-end gap-2 border-t border-zinc-200/70 py-5 dark:border-zinc-800/70">
+            <AgentModeToggle className="h-11 w-11 rounded-full border border-zinc-200/75 bg-white/65 shadow-[0_1px_12px_rgba(0,0,0,0.04)] backdrop-blur dark:border-zinc-800/80 dark:bg-zinc-950/55" />
             <ThemeToggle className="h-11 w-11 rounded-full border border-zinc-200/75 bg-white/65 shadow-[0_1px_12px_rgba(0,0,0,0.04)] backdrop-blur dark:border-zinc-800/80 dark:bg-zinc-950/55" />
           </div>
         </div>
