@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 const TIME_ZONE = "America/Sao_Paulo";
-const TIME_ZONE_LABEL = "GMT-3";
+const TIME_ZONE_LABEL = "UTC-3";
 
 function formatLocalTime(date: Date) {
   return new Intl.DateTimeFormat("en-US", {
