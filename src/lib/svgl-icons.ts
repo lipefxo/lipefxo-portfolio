@@ -82,6 +82,7 @@ const ICONS = {
     route: themed("/library/shadcn-ui.svg", "/library/shadcn-ui_dark.svg"),
   },
   slack: { title: "Slack", route: svgl("/library/slack.svg") },
+  spotify: { title: "Spotify", route: svgl("/library/spotify.svg") },
   supabase: { title: "Supabase", route: svgl("/library/supabase.svg") },
   swift: { title: "Swift", route: svgl("/library/swift.svg") },
   "tailwind css": {
