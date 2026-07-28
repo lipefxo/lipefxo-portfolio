@@ -171,6 +171,18 @@ export interface CurrentlyItem {
   items: CurrentlyEntry[];
 }
 
+/** A record displayed in the interactive "On rotation" listening console. */
+export interface MusicAlbum {
+  title: string;
+  artist: string;
+  /** Existing square cover artwork, displayed without cropping. */
+  cover: string;
+  /** Full Spotify album URL opened after a successful selection. */
+  spotifyUrl: string;
+  /** Small per-record accent used by the console metadata and focus treatment. */
+  accent: string;
+}
+
 export interface SiteConfig {
   name: string;
   tagline: string;
@@ -183,6 +195,8 @@ export interface SiteConfig {
   experience: ExperienceItem[];
   /** Personal "currently into" cards for the about-me section. */
   currently: CurrentlyItem[];
+  /** Albums shown in the interactive listening console. */
+  onRotation: MusicAlbum[];
   /** Public repos hidden from the open-source feed. */
   hiddenRepos: string[];
   /** Curated copy for public repos, keyed by repo name. */
@@ -371,6 +385,36 @@ export const site: SiteConfig = {
           image: "/currently/cold-latte-512.webp",
         },
       ],
+    },
+  ],
+  onRotation: [
+    {
+      title: "DeBÍ TiRAR MáS FOToS",
+      artist: "Bad Bunny",
+      cover: "/currently/bad-bunny-512.webp",
+      spotifyUrl: "https://open.spotify.com/album/5K79FLRUCSysQnVESLcTdb",
+      accent: "#788147",
+    },
+    {
+      title: "Multitude",
+      artist: "Stromae",
+      cover: "/currently/stromae-512.png",
+      spotifyUrl: "https://open.spotify.com/album/5JY3b9cELQsoG7D5TJMOgw",
+      accent: "#9ab9bb",
+    },
+    {
+      title: "Portal",
+      artist: "Balu Brigada",
+      cover: "/currently/balu-brigada-512.png",
+      spotifyUrl: "https://open.spotify.com/album/3T5osCmLRKocwvc1yobKwB",
+      accent: "#d93724",
+    },
+    {
+      title: "Surrender (Remixes)",
+      artist: "RÜFÜS DU SOL",
+      cover: "/currently/rufus-du-sol-512.png",
+      spotifyUrl: "https://open.spotify.com/album/73TcBRSRsPLKmxnjnVsSV3",
+      accent: "#d3784e",
     },
   ],
   hiddenRepos: ["lipefxo", "origami-coffee"],

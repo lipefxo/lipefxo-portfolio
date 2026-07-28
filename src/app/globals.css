@@ -217,6 +217,147 @@ button:disabled,
   filter: blur(0);
 }
 
+@keyframes t-turntable-record-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.t-turntable-record-spin {
+  animation: t-turntable-record-spin 3.2s linear infinite;
+  animation-play-state: paused;
+  will-change: transform;
+}
+
+.t-turntable-record-spin[data-powered="true"] {
+  animation-play-state: running;
+}
+
+.t-crt-noise {
+  position: relative;
+  overflow: hidden;
+  background-color: rgb(72 31 7 / 0.82);
+  background-image:
+    radial-gradient(
+      circle at center,
+      rgb(255 204 126 / 0.92) 0 0.7px,
+      transparent 0.9px
+    ),
+    radial-gradient(
+      circle at center,
+      rgb(255 146 43 / 0.78) 0 0.65px,
+      transparent 0.9px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgb(255 190 96 / 0.18) 0 1px,
+      rgb(51 20 4 / 0.28) 1px 2px,
+      transparent 2px 4px
+    );
+  background-position:
+    0 0,
+    2px 1px,
+    0 0;
+  background-size:
+    4px 3px,
+    5px 4px,
+    100% 4px;
+  filter: brightness(1.16) contrast(1.72) saturate(0.82);
+  animation: t-crt-noise-shift 72ms steps(2, end) infinite;
+  will-change: background-position, transform;
+}
+
+.t-crt-noise::before,
+.t-crt-noise::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+.t-crt-noise::before {
+  inset: -18%;
+  background-image: repeating-radial-gradient(
+    ellipse at 37% 46%,
+    rgb(255 220 157 / 0.34) 0 0.8px,
+    transparent 1px 2.4px
+  );
+  background-size: 7px 5px;
+  mix-blend-mode: screen;
+  animation: t-crt-noise-drift 104ms steps(2, end) infinite;
+}
+
+.t-crt-noise::after {
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(255 211 139 / 0.1) 43%,
+    rgb(255 225 174 / 0.62) 49%,
+    rgb(255 168 65 / 0.18) 54%,
+    transparent 63%
+  );
+  mix-blend-mode: screen;
+  animation: t-crt-sync-roll 190ms linear infinite;
+}
+
+@keyframes t-crt-noise-shift {
+  0% {
+    background-position:
+      0 0,
+      2px 1px,
+      0 0;
+    transform: translate3d(0, 0, 0) scale(1.01);
+  }
+
+  33% {
+    background-position:
+      -3px 2px,
+      4px -2px,
+      0 1px;
+    transform: translate3d(1px, -0.5px, 0) scale(1.025);
+  }
+
+  66% {
+    background-position:
+      2px -3px,
+      -2px 3px,
+      0 -1px;
+    transform: translate3d(-1px, 0.5px, 0) scale(1.015);
+  }
+
+  100% {
+    background-position:
+      -1px 1px,
+      3px 0,
+      0 0;
+    transform: translate3d(0.5px, 0, 0) scale(1.02);
+  }
+}
+
+@keyframes t-crt-noise-drift {
+  0% {
+    transform: translate3d(-2%, 1%, 0);
+  }
+
+  50% {
+    transform: translate3d(2%, -2%, 0);
+  }
+
+  100% {
+    transform: translate3d(-1%, 2%, 0);
+  }
+}
+
+@keyframes t-crt-sync-roll {
+  from {
+    transform: translateY(-58%);
+  }
+
+  to {
+    transform: translateY(58%);
+  }
+}
+
 .t-panel-slide {
   transform: translateY(var(--panel-translate-y));
   opacity: 0;
@@ -557,6 +698,16 @@ button:disabled,
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .t-crt-noise,
+  .t-crt-noise::before,
+  .t-crt-noise::after {
+    animation: none !important;
+  }
+
+  .t-turntable-record-spin {
+    animation: none !important;
+  }
+
   .t-stagger-line {
     transition: none !important;
   }
