@@ -436,9 +436,9 @@ export const site: SiteConfig = {
       name: "Notch Capture",
       slug: "notch-capture",
       blurb:
-        "A little Mac app that turns the notch into a private inbox, so I can jot a thought down and get back to work before it derails me.",
+        "A little Mac app that turns the notch into a private surface for capture, focus, music, camera checks, and desk-light controls.",
       longDescription:
-        "I made Notch Capture because half my ideas show up while I'm in the middle of something else, and opening a notes app to save them is exactly how I lose the something else. So I built a capture inbox that hides in the notch: one shortcut, one field, type the thing, hit Return, done. It takes links, images, files, and drags; tags sort themselves out with an @; and a little shelf on top holds my music and a pomodoro timer. It's a Swift 6 agent app with no Dock icon, no window, and no analytics — everything lives on my machine, and the only things it ever fetches are album art, favicons, and its own updates.",
+        "I made Notch Capture because half my ideas show up while I'm in the middle of something else, and opening a notes app to save one is exactly how I lose the thing I was already doing. The app keeps a searchable inbox, reusable snippets, music controls, a focus timer, a webcam mirror, and connected-light controls behind the Mac notch. It has no Dock icon, no floating window, and no analytics. One shortcut opens the surface, one composer captures or finds what I need, and Escape puts it away.",
       glow: {
         colors: ["#1e3a8a", "#172554", "#1d4ed8"],
         glowColor: "217 76 28",
@@ -446,7 +446,7 @@ export const site: SiteConfig = {
       cover: {
         label: "Notch Capture cover image",
         ratio: "48/17",
-        src: "/work/notch-capture/cover.webp",
+        src: "/work/notch-capture/cover-3.webp",
         alt: "Notch Capture branded cover image with the app's inbox panel unfolding from a Mac notch.",
       },
       tech: [
@@ -460,19 +460,19 @@ export const site: SiteConfig = {
         "macOS",
       ],
       caseStudy: {
-        headline: "Catching thoughts at the speed they show up",
+        headline: "The notch had one job. Now it has a few.",
         summary:
-          "A private, local-first capture inbox that lives in the Mac notch — one shortcut to jot the thing down and get back to what you were doing.",
+          "A private, local-first surface for capturing thoughts and keeping small desk utilities close without leaving the work in front of me.",
         hero: {
           label: "Notch Capture cover image",
           ratio: "48/17",
-          src: "/work/notch-capture/cover.webp",
+          src: "/work/notch-capture/cover-3.webp",
           alt: "Notch Capture branded cover image with the app's inbox panel unfolding from a Mac notch.",
         },
         meta: {
           role: "Product Design Engineer",
           year: "2026",
-          timeline: "1 sprint",
+          timeline: "2 sprints",
           platform: "macOS notch app",
           scope: [
             "Product Design",
@@ -483,11 +483,11 @@ export const site: SiteConfig = {
             "Landing page (Next.js)",
           ],
         },
-        git: { prs: 13, additions: 38000, deletions: 6800, files: 118 },
+        git: { prs: 18, additions: 44000, deletions: 7100, files: 127 },
         sections: [
           {
             body: [
-              "Notch Capture is a little Mac app that turns the notch into a private capture inbox. It has no Dock icon, no menu-bar item, no window floating around — the whole app lives behind the black cutout at the top of the screen, and unfolds from it when I need it. I designed and built all of it myself in a sprint, and it runs entirely on my machine. No account, no cloud, no analytics.",
+              "Notch Capture is a small Mac app that unfolds from the black cutout at the top of the screen. It started as a faster way to save a thought, then grew into the place I reach for the other tiny things that interrupt a work session: reusable text, music controls, a focus timer, a webcam check, and desk-light adjustments. I designed and built it solo over two sprints.",
             ],
           },
           {
@@ -495,118 +495,130 @@ export const site: SiteConfig = {
             body: [
               "The best ideas have terrible timing. They show up mid-task, and the moment I switch to a notes app to save one, I've traded the thing I was doing for the thing I just thought of. What I kept wanting wasn't a better notes app — it was a shorter distance between thinking something and having it written down.",
             ],
-            images: [
-              {
-                label: "The idle pill in the notch",
-                ratio: "16/9",
-              },
-            ],
           },
           {
             heading: "It lives in the notch.",
             body: [
-              "The notch is the one part of the screen no window ever uses, which makes it the perfect front door. Control–Shift–N and the inbox unfolds right out of it; Escape and it's gone like it was never there. Because there's no Dock icon or app window, capturing never feels like leaving — it's a quick detour, not a context switch.",
+              "The notch is the one part of the screen no window uses, which makes it the right front door. Control–Shift–N opens the inbox and Escape dismisses it. There is no Dock icon, menu-bar item, or separate window to find, so opening the app feels like a quick detour instead of a context switch.",
             ],
             images: [
               {
-                label: "Expanded inbox unfolding from the notch",
+                label: "The expanded Notch Capture inbox",
                 ratio: "16/9",
+                src: "/work/notch-capture/inbox-composer.webp",
+                alt: "Notch Capture expanded beneath the Mac notch with music, snippets, folders, tasks, and the composer visible.",
+                caption:
+                  "The complete inbox unfolds from the notch and keeps its composer anchored at the bottom.",
               },
             ],
           },
           {
-            heading: "One field for everything.",
+            heading: "One surface to capture and retrieve.",
             body: [
-              "The composer is a single bar that does both jobs: typing filters the ledger live, and Return captures what I typed as a new item. No mode to pick, no wrong field to be in. Searching for something that doesn't exist yet and writing it down become the same gesture — which is usually exactly how remembering works.",
+              "The composer does both jobs: typing filters the ledger live, while Return saves new text as an item. Above it, folders keep larger collections legible and colored tags make projects easy to scan. Reusable snippets sit in their own shelf with categories and counts, close enough to copy without digging through the full list.",
             ],
             images: [
               {
-                label: "Composer capturing a thought with a tag",
+                label: "Expanded inbox with snippets and folders",
                 ratio: "16/9",
+                src: "/work/notch-capture/expanded-inbox.webp",
+                alt: "Close view of the Notch Capture inbox showing now playing, snippet categories, colored project tags, and folders.",
+                caption:
+                  "Music, snippets, project tags, and folders share one compact hierarchy.",
               },
             ],
           },
           {
-            heading: "Paste it, drop it, tag it.",
+            heading: "Actions stay in the composer.",
             body: [
-              "Capture isn't only text. A lone URL becomes a link and fetches its favicon once, right at capture time. Images paste straight into the composer, and files, text, or URLs dragged onto the surface become captures with attachments. Writing @tag anywhere tags the item — tags autocomplete as I type and each gets its own color — and slash commands handle the chores: /folder makes a folder, /clear sweeps completed tasks to Trash.",
+              "Typing / turns the same composer into a command palette. From there I can create a reusable snippet, add a top-level folder, or clear completed tasks without adding permanent controls to the interface. The commands explain themselves and keep their shortcuts visible, so the feature is discoverable without making the default view noisy.",
+            ],
+            images: [
+              {
+                label: "Slash-command actions in the composer",
+                ratio: "4/3",
+                src: "/work/notch-capture/capture-actions.webp",
+                alt: "Notch Capture slash-command menu offering Create Snippet, Create Folder, and Clear Completed Tasks.",
+                caption:
+                  "Slash commands add power without crowding the everyday capture flow.",
+              },
+            ],
+          },
+          {
+            heading: "Focus tools are one click away.",
+            body: [
+              "A small shelf in the header switches between the inbox, timer, light, mirror, and settings. The timer offers 15, 25, 45, and 60-minute presets, then stays visible in the notch while it runs. Music playback lives beside it, with album art, track information, transport controls, and a draggable progress bar.",
+            ],
+            images: [
+              {
+                label: "Focus timer presets",
+                ratio: "4/3",
+                src: "/work/notch-capture/focus-timer.webp",
+                alt: "Notch Capture timer menu with 15, 25, 45, and 60-minute focus presets.",
+                caption:
+                  "The timer opens from the utility shelf and offers four common focus lengths.",
+              },
+            ],
+          },
+          {
+            heading: "Useful even when the inbox is closed.",
+            body: [
+              "Collapsing the inbox does not hide what is active. The compact pill keeps the current track, playback controls, and progress visible without taking over the desktop. The app can shrink to this lightweight state between captures, then expand back into the full inbox from the same place.",
+            ],
+            images: [
+              {
+                label: "Compact music player in the notch",
+                ratio: "16/9",
+                src: "/work/notch-capture/compact-player.webp",
+                alt: "Compact Notch Capture music player floating from the Mac notch over a blue desktop.",
+                caption:
+                  "The compact state leaves playback visible while returning the rest of the screen to work.",
+              },
+            ],
+          },
+          {
+            heading: "A quick check before the call.",
+            body: [
+              "The mirror turns the notch into a live webcam preview without recording or saving anything. Compatible cameras expose zoom, recentering, drag-to-aim, and three framing slots, so a preferred crop can be saved and recalled per camera.",
+              "The neighboring light panel controls a connected MOLUS G60 from the same shelf. Power, brightness, and color temperature stay together, which means the camera and the light can be checked without opening two more utilities before a call.",
             ],
             layout: "split",
             images: [
               {
-                label: "Link capture with its favicon",
+                label: "Webcam mirror and framing controls",
                 ratio: "4/3",
+                src: "/work/notch-capture/mirror-controls.webp",
+                alt: "Notch Capture mirror showing a webcam preview with zoom, recenter, framing preset, and save controls.",
+                caption:
+                  "Mirror controls pair zoom and framing presets with the live preview.",
               },
               {
-                label: "@tag autocomplete in the composer",
+                label: "Connected desk-light controls",
                 ratio: "4/3",
-              },
-            ],
-          },
-          {
-            heading: "Notes, tasks, and a tidy ledger.",
-            body: [
-              "Everything lands in one ledger as a note or a task. Tasks can be pinned, given due dates, and checked off — with a short completion hold so finishing something feels like something. Filters cut the list by All, Tasks, Due, Completed, Archive, and Trash, plus folder and tag views. Rows drag to reorder or drop into folders, and file and image attachments get proper QuickLook thumbnails instead of generic icons.",
-            ],
-            images: [
-              {
-                label: "Ledger with pinned tasks, folders, and attachments",
-                ratio: "16/9",
-              },
-            ],
-          },
-          {
-            heading: "Music and a timer in the shelf.",
-            body: [
-              "The expanded surface carries a small utility shelf. Now playing shows and controls Apple Music and Spotify — the album art doubles as a play/pause button with a waveform overlay, and a draggable scrubber seeks within the track, rendered with Liquid Glass on macOS 26. Next to it sits a pomodoro timer with 15/25/45/60-minute presets, a completion chime, and a finish screen. It survives sleep and wake, because focus shouldn't reset just because the laptop napped.",
-            ],
-            layout: "split",
-            images: [
-              {
-                label: "Now playing with the glass scrubber",
-                ratio: "4/3",
-              },
-              {
-                label: "Pomodoro timer finish screen",
-                ratio: "4/3",
-              },
-            ],
-          },
-          {
-            heading: "Quiet when you are.",
-            body: [
-              "While idle, the app keeps a compact pill in the notch — playing music or a running timer shows there at a glance, and its size is configurable down to almost nothing. On external displays without a real notch, the pill can hide entirely while the shortcut keeps working. The app's whole personality is being there the instant it's needed and invisible the rest of the time.",
-            ],
-            images: [
-              {
-                label: "Compact activity pill showing music and timer",
-                ratio: "16/9",
+                src: "/work/notch-capture/light-controls.webp",
+                alt: "Notch Capture controls for a connected MOLUS G60 light with power, brightness, and color-temperature settings.",
+                caption:
+                  "The connected-light panel keeps brightness and color temperature beside the camera tools.",
               },
             ],
           },
           {
             heading: "Yours, on your machine.",
             body: [
-              "Everything is stored locally in SwiftData, with attachments and cached favicons in a folder beside it. The app makes exactly three kinds of network requests — album artwork, favicons at capture time, and its own Sparkle appcast for updates — and nothing else, ever. The library exports to a portable package and imports back additively with duplicate detection, so the data is mine to move, back up, or walk away with.",
-            ],
-            images: [
-              {
-                label: "Settings surface with import & export",
-                ratio: "16/9",
-              },
+              "Everything in the inbox is stored locally in SwiftData. There is no account, cloud sync, or analytics, and the mirror feed is drawn on screen and discarded. The app only reaches the network for album art, link previews at capture time, and its own updates. The library can be exported as a portable package and imported again with duplicate detection.",
             ],
           },
         ],
         tldr: [
-          "A little Mac app that turns the notch into a private capture inbox — one shortcut opens it, Escape makes it vanish, and there's no Dock icon or window in between.",
-          "The composer is one field for both search and capture: typing filters the ledger live, and Return saves what you typed as a new item.",
-          "It captures more than text: lone URLs become links with their favicon, images paste straight in, and anything dragged onto the surface becomes a capture with attachments.",
-          "Writing @tag anywhere tags an item — tags autocomplete and get their own color — and slash commands like /folder and /clear handle the housekeeping.",
-          "Items are notes or tasks: tasks pin, take due dates, and check off with a short completion hold, in a ledger with filters, folders, and QuickLook thumbnails.",
-          "A utility shelf holds now playing for Apple Music and Spotify — album art as a play/pause button, a Liquid Glass scrubber to seek — and a pomodoro timer that survives sleep.",
-          "While idle it shrinks to a compact pill in the notch that shows active music or a running timer at a glance.",
-          "Everything is local: SwiftData on your machine, no account, no analytics, and exactly three network requests — album art, favicons, and its own updates.",
-          "Designed and built solo in a sprint: 13 PRs, ~38k lines of Swift 6 and SwiftUI, plus a Next.js landing page.",
+          "A private surface that opens from the Mac notch with one shortcut and disappears with Escape.",
+          "One composer searches the ledger, captures new items, and opens actions such as /snippet, /folder, and /clear.",
+          "Reusable snippets, colored project tags, folders, notes, and tasks share one compact inbox.",
+          "The utility shelf brings together music controls and a focus timer with 15, 25, 45, and 60-minute presets.",
+          "A compact pill keeps active music and timer state visible after the full inbox closes.",
+          "The webcam mirror offers zoom, drag-to-aim, and three saved framing presets without recording the feed.",
+          "Connected-light controls put power, brightness, and color temperature beside the camera tools.",
+          "Everything is local: SwiftData on the machine, no account, no analytics, and only limited requests for media, link previews, and updates.",
+          "Designed and built solo over two sprints: 18 PRs, ~44k lines of Swift 6 and SwiftUI, plus a Next.js landing page.",
         ],
       },
     },
