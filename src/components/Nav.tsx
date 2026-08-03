@@ -25,16 +25,22 @@ import { useAgentMode } from "./AgentModeContext";
 export function Nav() {
   const pathname = usePathname();
   const agentMode = useAgentMode();
+  const agentModeActive = agentMode?.active ?? false;
   const isProjectPage = pathname.startsWith("/work/");
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [emailCopied, setEmailCopied] = useState(false);
-  const active = agentMode?.active || isProjectPage || scrolled;
+  const active = agentModeActive || isProjectPage || scrolled;
   const framed = active || drawerOpen;
   const containerMax = isProjectPage ? "max-w-3xl" : "max-w-5xl";
 
   useEffect(() => {
     if (isProjectPage) return;
+
+    // Agent mode unmounts page children (including #hero). Skip observing
+    // while it's gone so we don't treat its absence as "scrolled", and
+    // re-bind when agent mode turns off so the remounted hero is watched.
+    if (agentModeActive) return;
 
     // On the home page the bar reveals as the hero leaves the top of the
     // viewport. On other pages without a hero it reveals once the user
@@ -61,7 +67,7 @@ export function Nav() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [isProjectPage]);
+  }, [isProjectPage, agentModeActive]);
 
   useEffect(() => {
     if (!drawerOpen) return;
