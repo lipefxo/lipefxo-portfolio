@@ -20,7 +20,10 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  title: `${site.name} — portfolio`,
+  title: {
+    default: "Lipe's Folio",
+    template: "%s — Lipe's Folio",
+  },
   description: site.tagline,
 };
 
