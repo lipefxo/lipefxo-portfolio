@@ -33,12 +33,16 @@ export async function generateMetadata({
   const project = getWorkBySlug(slug);
   if (!project?.caseStudy) return {};
 
-  const title = `${project.name} — ${site.name}`;
+  const title = project.name;
   const description = project.caseStudy.summary;
   return {
     title,
     description,
-    openGraph: { title, description, type: "article" },
+    openGraph: {
+      title: `${project.name} — Lipe's Folio`,
+      description,
+      type: "article",
+    },
   };
 }
 
