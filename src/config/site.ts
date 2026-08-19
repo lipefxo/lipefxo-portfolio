@@ -147,6 +147,16 @@ export interface ExperienceItem {
   highlights: string[];
 }
 
+export interface ResumeProfile {
+  fullName: string;
+  phone: string;
+  portfolio: string;
+  summary: string;
+  education: string;
+  certifications: string[];
+  languages: string;
+}
+
 /** One entry within a Currently category's shuffle deck. */
 export interface CurrentlyEntry {
   /** What it is, e.g. "Spider-Noir". */
@@ -188,6 +198,7 @@ export interface SiteConfig {
   tagline: string;
   location: string;
   bio: string;
+  resume: ResumeProfile;
   githubUser: string;
   socials: SocialLinks;
   skills: string[];
@@ -208,9 +219,24 @@ export interface SiteConfig {
 export const site: SiteConfig = {
   // Display name. Switch to "Luis Felipe Lins" if you'd rather use your full name.
   name: "lipefxo",
-  tagline: "Product Design Engineer",
-  location: "Based in Brazil 🇧🇷",
+  tagline: "Product Designer & Design Engineer",
+  location: "São Paulo, Brazil 🇧🇷",
   bio: "Pushing pixels around until they feel just right, while talking at screens. Somewhere between product design, systems thinking, and front-end implementation, turning fuzzy ideas into working software while obsessing over the details.",
+  resume: {
+    fullName: "Luis Felipe Lins",
+    phone: "+55 61 98210-5161",
+    portfolio: "https://lipefxolio.com",
+    summary:
+      "Product designer with 10 years across fintech, SaaS, and brand, and founding designer at two startups — building design foundations and systems from zero through rapid growth. Over the past year that has grown into design engineering: I now build what I design, shipping production React and TypeScript into the codebase, running multi-agent development workflows across front-end and back-end, and holding the product roadmap and prioritization.",
+    education: "Bachelor of Architecture and Urbanism, UniCEUB | 2018",
+    certifications: [
+      "Visual Design for Digital Products, Aprender Design | 2025",
+      "AI Creator, Human Academy | 2024",
+      "Scaling Design Systems, TheStarter | 2023",
+      "Product Discovery, Produtos Incríveis | 2023",
+    ],
+    languages: "English — C1 | Portuguese — Native",
+  },
   githubUser: "lipefxo",
   socials: {
     email: "lipefxo@gmail.com",
@@ -220,92 +246,93 @@ export const site: SiteConfig = {
   },
   // From CV — edit freely.
   skills: [
-    "Product Design",
-    "UI Design",
     "UX Design",
+    "UI Design",
+    "Product Design",
     "Design Systems",
-    "Brand Design",
-    "Visual Design",
+    "User Research (Qualitative and Quantitative)",
     "Information Architecture",
-    "Responsive Design",
-    "Userflow",
     "Prototyping",
-    "Atomic Design",
-    "Styleguides",
-    "Qualitative Research",
-    "Quantitative Research",
-    "User Interviews",
-    "Agile Methods",
-    "HTML",
-    "CSS",
-    "JavaScript",
+    "Responsive Design",
+    "React",
+    "TypeScript",
+    "HTML/CSS",
     "Tailwind CSS",
+    "Multi-Agent Development Workflows",
+    "Git Worktrees",
+    "MCP (Model Context Protocol)",
+    "Product Roadmapping",
+    "Prioritization",
+    "Product Analytics",
   ],
   tools: [
     "Figma",
     "Cursor",
-    "Codex",
     "Claude Code",
-    "v0",
+    "Codex",
+    "Conductor",
+    "Grok",
     "VS Code",
+    "GitHub",
     "Retool",
+    "PostHog",
     "Webflow",
     "Framer",
-    "GitHub",
-    "Supabase",
-    "Vercel",
-    "Zeroheight",
-    "Zeplin",
-    "Notion",
-    "Slack",
-    "Jira",
     "Linear",
-    "Miro",
-    "ClickUp",
-    "Confluence",
-    "HubSpot",
-    "Hotjar",
-    "Intercom",
-    "Lovable",
-    "MagicPath",
+    "Notion",
   ],
   experience: [
     {
       company: "SecureBags",
-      role: "Product Design Engineer",
-      period: "Mar 2023 — Present",
+      role: "Design Engineer & Acting Product Manager",
+      period: "Oct 2025 — Present",
       summary:
-        "I lead product design and front-end execution for a fintech SaaS platform, turning complex lending and operations workflows into clear, reusable product experiences. The role spans product strategy, UX, design systems, React implementation, and internal tooling, with a focus on shortening the distance between design decisions and shipped software.",
+        "I own the product roadmap and prioritization while building product experiences directly in the production codebase. The role combines product discovery, React and TypeScript implementation, multi-agent development workflows, analytics, and internal operations tooling.",
       highlights: [
-        "Promoted from Product Designer to Design Engineer for shipping production-quality code alongside design.",
-        "Pioneered a Figma-to-production workflow with Cursor, React, Chakra UI, and MCP, partnering with AI tools end to end.",
-        "Built a modular Figma design system, cutting design-to-development delivery time by 40%.",
-        "Owned end-to-end UX/UI for a new SaaS platform — onboarding, dashboards, lending workflows, and integrations.",
-        "Shipped production React components and built internal Retool back-office tools, reducing manual work by 35%.",
+        "Owned the product roadmap and prioritization, running discovery and product sessions with engineering and stakeholders; established the team’s development cycle, working processes, and documentation standards from scratch.",
+        "Built components and end-to-end flows directly in the production codebase rather than specifying them for handoff, shipping React and TypeScript and refining spacing, states, motion, and interaction details in code where they can actually be judged.",
+        "Set up and ran multi-agent development workflows using Claude Code, Codex, Conductor, and Cursor, running agents in parallel across isolated Git worktrees — enabling sustained concurrent delivery across back-end and front-end as a single contributor — and authored the documentation, reusable agent skills, and workflow conventions that made it a repeatable team practice.",
+        "Implemented PostHog across the product, instrumenting key funnels and building the dashboards behind them, giving the team analytics visibility it previously lacked and grounding roadmap decisions in behavioural data rather than assumption.",
+        "Designed and built the internal back-office into production for financial review, customer onboarding, and operations, giving support and operations direct ownership of workflows that previously required engineering intervention.",
+      ],
+    },
+    {
+      company: "SecureBags",
+      role: "Senior Product Designer (founding designer)",
+      period: "Mar 2023 — Oct 2025",
+      summary:
+        "I joined SecureBags as its founding designer and established the design foundations, workflows, and cross-functional processes that supported the company’s rapid growth. I owned the SaaS platform’s UX/UI, design system, and internal tooling from research through production.",
+      highlights: [
+        "Joined with no existing design infrastructure; established design foundations, workflows, and cross-functional processes that scaled through the company’s rapid growth.",
+        "Owned complete UX and UI for a new SaaS platform covering onboarding, account management, dashboards, lending workflows, and integrations, from research through high-fidelity handoff; streamlined onboarding and key flows to reduce drop-off and improve retention.",
+        "Built a Figma-to-production pipeline using Cursor, React, Chakra UI, and MCP, and created a modular design system of reusable, dynamically structured components, cutting design-to-development delivery time by 40%.",
+        "Identified operational bottlenecks creating manual overhead for the support team; designed and shipped internal back-office tooling in Retool for financial review, customer onboarding, and operations.",
       ],
     },
     {
       company: "Suflex",
-      role: "Lead Product Designer",
+      role: "Lead Product Designer (promoted from Product Designer)",
       period: "Aug 2020 — Jan 2023",
       summary:
-        "I established the product design practice for two SaaS products, guiding both B2B and B2C experiences from early discovery through MVP launch. I worked closely with engineering and leadership to define flows, validate concepts, build the design system, and create a product language the team could scale.",
+        "I joined Suflex as its founding designer and grew into the Lead Product Designer role, owning design operations and direction across two SaaS products while partnering with engineering and business leadership.",
       highlights: [
-        "Promoted to Lead Product Designer; coached designers and set design direction with engineering leadership.",
-        "Established the Suflex Design System, reducing feature delivery time by 30%.",
-        "Owned the full UX/UI lifecycle — discovery, research, journey mapping, prototyping, and high-fidelity handoff.",
+        "Joined as founding designer and promoted to Lead Product Designer; owned design operations, coached junior designers, and presented design direction to engineering and business leadership.",
+        "Led design for two SaaS products (B2B and B2C) from concept to MVP launch, owning discovery, research, journey mapping, prototyping, and developer handoff.",
+        "Established the Suflex Design System with a unified component library and design guidelines, reducing feature delivery time by 30% and ensuring cross-platform consistency.",
+        "Partnered with engineering and product management to align roadmaps, scope initiatives, and fold user feedback into iteration, contributing to product-market fit.",
+        "Drove post-launch usability and data-driven refinements that increased product adoption and retention.",
       ],
     },
     {
       company: "Grafite Design",
-      role: "Product & Brand Designer",
-      period: "2015 — 2025",
+      role: "Independent Product and Brand Designer",
+      period: "Jan 2015 — Jan 2025",
       summary:
-        "I ran independent product and brand design work across startups, small businesses, and organizations that needed clearer identities and better digital experiences. Projects ranged from positioning and visual systems to complete product interfaces, giving me a broad foundation in how brand, UX, and implementation shape each other.",
+        "I ran independent product and brand design work alongside the roles above, helping small businesses, startups, and NGOs build distinctive identities and complete digital products.",
       highlights: [
-        "Created 40+ brand identity and strategy projects for startups, small businesses, and NGOs.",
-        "Delivered 10+ product design projects from style guide through complete UI/UX.",
-        "Built production-ready interfaces with Material Design, Human Interface Guidelines, Tailwind, Chakra UI, and NaiveUI.",
+        "Created over 40 brand identity and strategy projects for small businesses, startups, and NGOs seeking distinctive market positioning.",
+        "Served clients across technology, food, legal, finance, medical, and home industries, adapting the design approach to sector-specific needs.",
+        "Delivered over 10 end-to-end product design projects for clients without in-house design capability, from style guide definition through complete UI/UX.",
       ],
     },
   ],

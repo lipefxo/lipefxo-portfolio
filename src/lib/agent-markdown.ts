@@ -100,20 +100,25 @@ export function getAgentMarkdown() {
   const lines = [
     `# ${site.name}`,
     "",
+    `Name: ${site.resume.fullName}`,
+    "",
     site.tagline,
     "",
     `Location: ${site.location}`,
     "",
     "## Contact",
     "",
+    `- Phone: ${site.resume.phone}`,
     `- Email: [${site.socials.email}](mailto:${site.socials.email})`,
+    "- CV: /cv.docx",
+    `- Portfolio: ${site.resume.portfolio}`,
     `- GitHub: https://github.com/${site.socials.github}`,
     `- X: https://x.com/${site.socials.x}`,
     `- LinkedIn: ${site.socials.linkedin}`,
     "",
     "## About",
     "",
-    site.bio,
+    site.resume.summary,
     "",
     "## Experience",
     "",
@@ -132,7 +137,30 @@ export function getAgentMarkdown() {
     );
   }
 
-  lines.push("## Skills", "", ...site.skills.map((skill) => `- ${skill}`), "", "## Tools", "", ...site.tools.map((tool) => `- ${tool}`), "", "## Currently", "");
+  lines.push(
+    "## Skills",
+    "",
+    ...site.skills.map((skill) => `- ${skill}`),
+    "",
+    "## Tools",
+    "",
+    ...site.tools.map((tool) => `- ${tool}`),
+    "",
+    "## Education",
+    "",
+    `- ${site.resume.education}`,
+    "",
+    "## Certifications",
+    "",
+    ...site.resume.certifications.map((certification) => `- ${certification}`),
+    "",
+    "## Languages",
+    "",
+    `- ${site.resume.languages}`,
+    "",
+    "## Currently",
+    "",
+  );
 
   for (const category of site.currently) {
     lines.push(

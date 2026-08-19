@@ -30,9 +30,9 @@ export const socialLinks: SocialLink[] = [
   {
     label: "CV",
     textLabel: "cv",
-    href: "/cv.pdf",
+    href: "/cv.docx",
     tooltip: "Download CV",
-    download: "lipefxo-cv.pdf",
+    download: "lipefxo-cv.docx",
     icon: <DownloadIcon />,
   },
   {
