@@ -4,6 +4,7 @@ import Image from "next/image";
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type ChangeEvent,
@@ -95,22 +96,37 @@ const currencySymbols: Record<WithdrawCurrency, string> = {
   EUR: "€",
 };
 
+const MAX_AMOUNT_WHOLE_DIGITS = 9;
+const MAX_AMOUNT_DECIMAL_DIGITS = 2;
+const MAX_AMOUNT_GROUPING_CHARACTERS = Math.floor((MAX_AMOUNT_WHOLE_DIGITS - 1) / 3);
+const MAX_AMOUNT_INPUT_LENGTH = MAX_AMOUNT_WHOLE_DIGITS
+  + MAX_AMOUNT_DECIMAL_DIGITS
+  + MAX_AMOUNT_GROUPING_CHARACTERS
+  + 1;
+
+const amountSeparators: Record<WithdrawCurrency, { decimal: string; group: string }> = {
+  USD: { decimal: ".", group: "," },
+  BRL: { decimal: ",", group: "." },
+  EUR: { decimal: ".", group: "," },
+};
+
 const moneyFormatters: Record<WithdrawCurrency, Intl.NumberFormat> = {
   USD: new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }),
   BRL: new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }),
   EUR: new Intl.NumberFormat("en-US", { style: "currency", currency: "EUR" }),
 };
 
-function sanitizeAmount(value: string) {
-  const normalized = value.replace(",", ".");
-  const negative = normalized.startsWith("-");
+function sanitizeAmount(value: string, currency: WithdrawCurrency) {
+  const { decimal, group } = amountSeparators[currency];
+  const ungrouped = value.replaceAll(group, "");
+  const normalized = decimal === "." ? ungrouped : ungrouped.replaceAll(decimal, ".");
   const unsigned = normalized.replace(/[^\d.]/g, "");
   const [whole = "", ...decimalParts] = unsigned.split(".");
-  const decimal = decimalParts.join("").slice(0, 2);
-  const prefix = negative ? "-" : "";
+  const trimmedWhole = whole.replace(/^0+(?=\d)/, "").slice(0, MAX_AMOUNT_WHOLE_DIGITS);
+  const fraction = decimalParts.join("").slice(0, MAX_AMOUNT_DECIMAL_DIGITS);
 
-  if (!unsigned.includes(".")) return `${prefix}${whole}`;
-  return `${prefix}${whole}.${decimal}`;
+  if (!unsigned.includes(".")) return trimmedWhole;
+  return `${trimmedWhole}.${fraction}`;
 }
 
 function parseAmount(value: string) {
@@ -120,6 +136,39 @@ function parseAmount(value: string) {
 
 function formatInputAmount(value: number) {
   return Number.isFinite(value) ? value.toFixed(2) : "";
+}
+
+function formatEditingAmount(value: string, currency: WithdrawCurrency) {
+  if (!value) return "";
+
+  const { decimal, group } = amountSeparators[currency];
+  const [whole = "", fraction = ""] = value.split(".");
+  const groupedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, group);
+
+  return value.includes(".") ? `${groupedWhole}${decimal}${fraction}` : groupedWhole;
+}
+
+function countAmountTokens(value: string, currency: WithdrawCurrency) {
+  const { decimal } = amountSeparators[currency];
+  return Array.from(value).reduce(
+    (count, character) => count + (/\d/.test(character) || character === decimal ? 1 : 0),
+    0,
+  );
+}
+
+function findAmountCaret(value: string, tokenOffset: number, currency: WithdrawCurrency) {
+  if (tokenOffset <= 0) return 0;
+
+  const { decimal } = amountSeparators[currency];
+  let tokensSeen = 0;
+
+  for (let index = 0; index < value.length; index += 1) {
+    const character = value[index];
+    if (/\d/.test(character) || character === decimal) tokensSeen += 1;
+    if (tokensSeen === tokenOffset) return index + 1;
+  }
+
+  return value.length;
 }
 
 function formatMoney(value: number, currency: WithdrawCurrency) {
@@ -197,6 +246,13 @@ export function WithdrawFlow({
   const [draft, setDraft] = useState<AmountDraft>({ side: "source", raw: "" });
   const [reviewAttempted, setReviewAttempted] = useState(false);
   const [lockedQuote, setLockedQuote] = useState<LockedWithdrawalQuote | null>(null);
+  const sourceInputRef = useRef<HTMLInputElement>(null);
+  const targetInputRef = useRef<HTMLInputElement>(null);
+  const pendingSelectionRef = useRef<{
+    currency: WithdrawCurrency;
+    side: AmountDraft["side"];
+    tokenOffset: number;
+  } | null>(null);
 
   const selectedBank = bankAccounts.find((account) => account.id === selectedBankId)
     ?? bankAccounts[0];
@@ -204,8 +260,32 @@ export function WithdrawFlow({
   const draftAmount = parseAmount(draft.raw);
   const sourceAmount = draft.side === "source" ? draftAmount : draftAmount / rate;
   const targetAmount = draft.side === "target" ? draftAmount : draftAmount * rate;
-  const sourceValue = draft.side === "source" ? draft.raw : formatInputAmount(sourceAmount);
-  const targetValue = draft.side === "target" ? draft.raw : formatInputAmount(targetAmount);
+  const sourceValue = formatEditingAmount(
+    draft.side === "source" ? draft.raw : formatInputAmount(sourceAmount),
+    "USD",
+  );
+  const targetValue = formatEditingAmount(
+    draft.side === "target" ? draft.raw : formatInputAmount(targetAmount),
+    selectedBank.currency,
+  );
+
+  useLayoutEffect(() => {
+    const pendingSelection = pendingSelectionRef.current;
+    if (!pendingSelection) return;
+
+    const input = pendingSelection.side === "source"
+      ? sourceInputRef.current
+      : targetInputRef.current;
+    if (!input) return;
+
+    const caret = findAmountCaret(
+      input.value,
+      pendingSelection.tokenOffset,
+      pendingSelection.currency,
+    );
+    input.setSelectionRange(caret, caret);
+    pendingSelectionRef.current = null;
+  }, [sourceValue, targetValue]);
 
   const validationError = !Number.isFinite(sourceAmount)
     ? "Enter an amount to continue."
@@ -221,30 +301,32 @@ export function WithdrawFlow({
   );
   const canReview = validationError === null;
 
-  const updateDraft = useCallback((side: AmountDraft["side"], value: string) => {
-    setDraft({ side, raw: sanitizeAmount(value) });
+  const updateDraft = useCallback((
+    side: AmountDraft["side"],
+    value: string,
+    currency: WithdrawCurrency,
+    selectionStart: number | null,
+  ) => {
+    pendingSelectionRef.current = {
+      currency,
+      side,
+      tokenOffset: countAmountTokens(value.slice(0, selectionStart ?? value.length), currency),
+    };
+    setDraft({ side, raw: sanitizeAmount(value, currency) });
     setReviewAttempted(false);
-  }, []);
-
-  const formatDraftOnBlur = useCallback((side: AmountDraft["side"]) => {
-    setDraft((current) => {
-      if (current.side !== side) return current;
-      const amount = parseAmount(current.raw);
-      return Number.isFinite(amount)
-        ? { ...current, raw: formatInputAmount(amount) }
-        : current;
-    });
   }, []);
 
   const selectBank = useCallback((account: WithdrawBankAccount) => {
     setDraft({
       side: "source",
-      raw: Number.isFinite(sourceAmount) ? formatInputAmount(sourceAmount) : "",
+      raw: draft.side === "source"
+        ? draft.raw
+        : Number.isFinite(sourceAmount) ? formatInputAmount(sourceAmount) : "",
     });
     setSelectedBankId(account.id);
     setReviewAttempted(false);
     onTargetCurrencyChange(account.currency);
-  }, [onTargetCurrencyChange, sourceAmount]);
+  }, [draft.raw, draft.side, onTargetCurrencyChange, sourceAmount]);
 
   const reviewWithdrawal = useCallback((event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -303,16 +385,22 @@ export function WithdrawFlow({
                 </span>
                 <span className={styles.withdrawAmountControl}>
                   <input
+                    ref={sourceInputRef}
                     id="withdraw-source-amount"
                     type="text"
                     inputMode="decimal"
                     autoComplete="off"
+                    maxLength={MAX_AMOUNT_INPUT_LENGTH}
                     value={sourceValue}
                     placeholder="0.00"
                     aria-invalid={showValidation || undefined}
                     aria-describedby="withdraw-validation"
-                    onBlur={() => formatDraftOnBlur("source")}
-                    onChange={(event: ChangeEvent<HTMLInputElement>) => updateDraft("source", event.target.value)}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) => updateDraft(
+                      "source",
+                      event.target.value,
+                      "USD",
+                      event.target.selectionStart,
+                    )}
                   />
                   <span><Image src={currencyFlags.USD} width={20} height={20} alt="" /> USD</span>
                 </span>
@@ -329,16 +417,22 @@ export function WithdrawFlow({
                 </span>
                 <span className={styles.withdrawAmountControl}>
                   <input
+                    ref={targetInputRef}
                     id="withdraw-target-amount"
                     type="text"
                     inputMode="decimal"
                     autoComplete="off"
+                    maxLength={MAX_AMOUNT_INPUT_LENGTH}
                     value={targetValue}
                     placeholder="0.00"
                     aria-invalid={showValidation || undefined}
                     aria-describedby="withdraw-validation"
-                    onBlur={() => formatDraftOnBlur("target")}
-                    onChange={(event: ChangeEvent<HTMLInputElement>) => updateDraft("target", event.target.value)}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) => updateDraft(
+                      "target",
+                      event.target.value,
+                      selectedBank.currency,
+                      event.target.selectionStart,
+                    )}
                   />
                   <span>
                     <Image src={currencyFlags[selectedBank.currency]} width={20} height={20} alt="" />
@@ -407,14 +501,13 @@ export function WithdrawFlow({
             transition={transition}
             aria-label="Review withdrawal"
           >
-            <StepHeader eyebrow="Review withdrawal" title="Check your withdrawal" />
             <div className={styles.withdrawReviewHero}>
               <span>You withdraw</span>
               <strong>{formatMoney(lockedQuote.sourceAmount, "USD")}</strong>
               <small>{lockedQuote.bank.bank} receives {formatMoney(lockedQuote.targetAmount, lockedQuote.targetCurrency)}</small>
             </div>
             <DetailList quote={lockedQuote} locked />
-            <div className={styles.primaryActions}>
+            <div className={`${styles.primaryActions} ${styles.withdrawReviewActions}`}>
               <button type="button" className={styles.actionButton} onClick={returnToForm}>Back</button>
               <button type="button" className={`${styles.actionButton} ${styles.actionPrimary}`} onClick={confirmWithdrawal}>Confirm withdrawal</button>
             </div>

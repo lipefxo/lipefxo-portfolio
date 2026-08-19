@@ -712,6 +712,13 @@
   align-self: end;
 }
 
+.withdrawReviewActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .withdrawReviewHero {
   display: flex;
   align-items: center;
@@ -1992,7 +1999,7 @@
 
 .transactionCard {
   width: 100%;
-  padding: 10px var(--panel-inset);
+  padding: 6px 8px;
 }
 
 .transactionRow {
@@ -2006,7 +2013,7 @@
   gap: 12px;
   border: 0;
   border-bottom: 1px solid var(--line);
-  padding: 0;
+  padding: 0 16px;
   background: transparent;
   color: var(--ink);
   text-align: left;
@@ -3193,6 +3200,16 @@
     font-size: clamp(17px, 3.8vw, 20px);
   }
 
+  .withdrawReviewActions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .withdrawReviewActions .actionButton {
+    width: auto;
+  }
+
   .primaryActions .actionButton svg { width: 25px; height: 25px; }
 
   .featureGrid {
@@ -3229,8 +3246,12 @@
 
   .promoCopy { width: 100%; min-height: 132px; }
 
-  .transactionCard { padding: 8px 16px; }
-  .transactionRow { grid-template-columns: 28px minmax(0, 1fr) auto 14px; gap: 9px; }
+  .transactionCard { padding: 6px; }
+  .transactionRow {
+    grid-template-columns: 28px minmax(0, 1fr) auto 14px;
+    gap: 9px;
+    padding-inline: 10px;
+  }
   .amount { font-size: 13px; }
 
   .articlesSection { overflow: hidden; margin-inline: -22px; padding-inline: 22px; }

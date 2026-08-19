@@ -173,20 +173,20 @@ export function TransactionDetailsModal({
     };
   }, [onClose, open, triggerRef]);
 
-  const backdropTransition = reducedMotion
+  const layerTransition = reducedMotion
     ? { duration: 0 }
-    : { duration: 0.22, ease: "easeOut" as const };
+    : { duration: 0.15, ease: "easeOut" as const };
   const dialogTransition = reducedMotion
     ? { duration: 0 }
-    : { duration: 0.3, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] };
+    : { duration: 0.25, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] };
 
   return (
     <motion.div
       className={styles.transactionModalLayer}
-      initial={{ opacity: 0 }}
+      initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={backdropTransition}
+      transition={layerTransition}
       data-open={open}
     >
       <button
