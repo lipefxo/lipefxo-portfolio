@@ -11,6 +11,7 @@ import {
 } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
   ArrowDown01Icon,
@@ -36,6 +37,7 @@ import {
 import styles from "./paper-dashboard.module.css";
 import { FeatureArt } from "./FeatureArt";
 import { BorderGlow } from "./BorderGlow";
+import { InviteFriendModal } from "./InviteFriendModal";
 
 const Topography = dynamic(() => import("./Topography"), { ssr: false });
 
@@ -151,6 +153,12 @@ const articles = [
 const BRL_RATE_SEQUENCE = [5.18, 5.17, 5.19, 5.18, 5.16, 5.19, 5.17, 5.18] as const;
 type RateDirection = "up" | "down" | "steady";
 const BALANCE_VALUE = 16_720;
+const INVITE_LAYOUT_TRANSITION = {
+  layout: {
+    duration: 0.48,
+    ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+  },
+};
 
 function formatBalance(value: number) {
   const [whole, decimal] = value.toFixed(2).split(".");
@@ -335,11 +343,26 @@ function AnimatedBalance() {
 export function PaperDashboard() {
   const [activeNav, setActiveNav] = useState("Home");
   const [collapsedNavOpen, setCollapsedNavOpen] = useState(false);
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [inviteModalPresent, setInviteModalPresent] = useState(false);
   const [toast, setToast] = useState("Ready to explore");
   const [articlePage, setArticlePage] = useState(0);
   const [brlRateStep, setBrlRateStep] = useState(0);
+  const inviteTriggerRef = useRef<HTMLButtonElement>(null);
+  const reducedMotion = Boolean(useReducedMotion());
 
   const notify = useCallback((message: string) => setToast(message), []);
+  const openInviteModal = useCallback(() => {
+    setCollapsedNavOpen(false);
+    setInviteModalPresent(true);
+    setInviteModalOpen(true);
+  }, []);
+  const closeInviteModal = useCallback(() => setInviteModalOpen(false), []);
+  const finishInviteModalExit = useCallback(() => {
+    if (!inviteModalOpen) setInviteModalPresent(false);
+  }, [inviteModalOpen]);
+  const previewCopy = useCallback(() => notify("Copy code previewed"), [notify]);
+  const previewWhatsApp = useCallback(() => notify("WhatsApp share previewed"), [notify]);
   const selectNav = useCallback((label: string) => {
     setActiveNav(label);
     setCollapsedNavOpen(false);
@@ -396,8 +419,14 @@ export function PaperDashboard() {
     : brlRate > previousBrlRate ? "up" : "down";
 
   return (
-    <main className={styles.viewport}>
-      <div className={styles.dashboard}>
+    <LayoutGroup id="paper-dashboard-invite">
+      <main className={styles.viewport}>
+        <div
+          className={styles.dashboardLayer}
+          inert={inviteModalPresent ? true : undefined}
+          aria-hidden={inviteModalPresent || undefined}
+        >
+          <div className={styles.dashboard}>
         <aside className={styles.sidebar} aria-label="Account navigation">
           <Enter index={0} phase="nav"><HiglobeLogo /></Enter>
           <nav className={`${styles.nav} ${styles.navWrap}`}>
@@ -502,25 +531,69 @@ export function PaperDashboard() {
             </section>
           </Enter>
 
-          <section className={styles.featureGrid} aria-label="Account tools">
-            {features.map((feature, index) => (
-              <Enter key={feature.title} index={index + 2}>
-                <button type="button" className={styles.featureCard} onClick={() => notify(feature.title)}>
-                  <div className={styles.featureTop}>
-                    <FeatureArt type={feature.art} />
-                    <Icon name={index === 3 ? "external" : "arrow"} size={16} />
-                  </div>
-                  <div className={styles.featureCopy}>
-                    <h2>
-                      <span className={styles.desktopFeatureTitle}>{feature.title}</span>
-                      <span className={styles.mobileFeatureTitle}>{feature.mobileTitle}</span>
-                    </h2>
-                    <p>{feature.body}</p>
-                  </div>
-                </button>
-              </Enter>
-            ))}
-          </section>
+            <section className={styles.featureGrid} aria-label="Account tools">
+              {features.map((feature, index) => {
+                const isInviteCard = feature.art === "send";
+
+                return (
+                  <Enter key={feature.title} index={index + 2}>
+                    {isInviteCard ? (
+                      <motion.button
+                        ref={inviteTriggerRef}
+                        type="button"
+                        className={`${styles.featureCard} ${styles.inviteFeatureCard}`}
+                        data-modal-open={inviteModalPresent}
+                        aria-haspopup="dialog"
+                        aria-expanded={inviteModalOpen}
+                        layoutId={reducedMotion ? undefined : "invite-card-shell"}
+                        transition={reducedMotion ? { duration: 0 } : INVITE_LAYOUT_TRANSITION}
+                        onClick={openInviteModal}
+                      >
+                        <div className={styles.featureTop}>
+                          <motion.div
+                            className={styles.inviteCardPlane}
+                            layoutId={reducedMotion ? undefined : "invite-card-plane"}
+                            transition={reducedMotion ? { duration: 0 } : INVITE_LAYOUT_TRANSITION}
+                          >
+                            <FeatureArt type={feature.art} />
+                          </motion.div>
+                          <Icon name="arrow" size={16} />
+                        </div>
+                        <div className={styles.featureCopy}>
+                          <motion.h2
+                            layoutId={reducedMotion ? undefined : "invite-card-title"}
+                            transition={reducedMotion ? { duration: 0 } : INVITE_LAYOUT_TRANSITION}
+                          >
+                            <span className={styles.desktopFeatureTitle}>{feature.title}</span>
+                            <span className={styles.mobileFeatureTitle}>{feature.mobileTitle}</span>
+                          </motion.h2>
+                          <motion.p
+                            layoutId={reducedMotion ? undefined : "invite-card-description"}
+                            transition={reducedMotion ? { duration: 0 } : INVITE_LAYOUT_TRANSITION}
+                          >
+                            {feature.body}
+                          </motion.p>
+                        </div>
+                      </motion.button>
+                    ) : (
+                      <button type="button" className={styles.featureCard} onClick={() => notify(feature.title)}>
+                        <div className={styles.featureTop}>
+                          <FeatureArt type={feature.art} />
+                          <Icon name={index === 3 ? "external" : "arrow"} size={16} />
+                        </div>
+                        <div className={styles.featureCopy}>
+                          <h2>
+                            <span className={styles.desktopFeatureTitle}>{feature.title}</span>
+                            <span className={styles.mobileFeatureTitle}>{feature.mobileTitle}</span>
+                          </h2>
+                          <p>{feature.body}</p>
+                        </div>
+                      </button>
+                    )}
+                  </Enter>
+                );
+              })}
+            </section>
 
           <Enter index={6}>
             <BorderGlow
@@ -597,7 +670,7 @@ export function PaperDashboard() {
             <span>2026 © Higlobe Inc.</span><span>0.21.40</span>
           </Enter>
         </div>
-      </div>
+          </div>
 
       <button
         type="button"
@@ -657,7 +730,25 @@ export function PaperDashboard() {
         </div>
       </nav>
 
-      <div className={`${styles.toast} ${toast ? styles.toastVisible : ""}`} role="status" aria-live="polite">{toast}</div>
-    </main>
+          <div className={`${styles.toast} ${toast ? styles.toastVisible : ""}`} role="status" aria-live="polite">{toast}</div>
+        </div>
+
+        <AnimatePresence
+          initial={false}
+          mode="sync"
+          onExitComplete={finishInviteModalExit}
+        >
+          {inviteModalOpen ? (
+            <InviteFriendModal
+              open={inviteModalOpen}
+              onClose={closeInviteModal}
+              triggerRef={inviteTriggerRef}
+              onCopyPreview={previewCopy}
+              onWhatsAppPreview={previewWhatsApp}
+            />
+          ) : null}
+        </AnimatePresence>
+      </main>
+    </LayoutGroup>
   );
 }

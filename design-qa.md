@@ -1,64 +1,41 @@
-# Paper Dashboard Mobile Design QA
+# Invite Friend Modal Design QA
 
-- Source visual truth: `.context/attachments/cGKojw/CleanShot 2026-08-18 at 20.55.16@2x.jpg`
+- Source visual truth: `.context/attachments/uVU9xk/CleanShot 2026-08-18 at 21.49.17@2x.jpg`
 - Implementation route: `/paper-dashboard`
+- Target state: referral modal opened from `Invite a friend, earn $20`
+- Target viewport: 1138 × 1144 CSS px (source is 2276 × 2288 px at `@2x`)
 - Implementation screenshot: unavailable because no in-app or connected browser backend was available.
-- Viewport: 569 × 1197 CSS px target.
-- Source dimensions: 1138 × 2394 px at `@2x`.
-- Implementation dimensions and density: not captured.
-- State: default mobile dashboard, Home selected, initial content position.
 
-## Full-view comparison evidence
+## Source comparison evidence
 
-The source was opened at original resolution and measured. It establishes a 22 px page inset, a 48 px account header, a 28 px header-to-content gap, a 436 px balance hero, a 24 px section gap, a two-column feature grid with 22 px gaps and 250 px cards, plus a fixed three-item bottom navigation. The implementation encodes those measurements at the 640 px breakpoint, but a browser-rendered capture could not be produced for a valid side-by-side comparison.
+The source was inspected at original resolution. It establishes a centered white modal approximately 970 CSS px wide, a 24 px outer radius, a top-left close control, a centered paper-plane/title/subtitle group, three referral explanation columns, a bordered invitation panel with two actions, and a centered referral-validity footer. The screenshot's external `Frame 81` canvas label is intentionally excluded.
 
-## Focused-region comparison evidence
-
-- Header: logo hidden, HG account control positioned at the top-right, chevron removed.
-- Balance: centered exchange rate, large centered balance/gain, 64 px two-column actions.
-- Feature grid: two columns, 250 px cards, enlarged supplied artwork, mobile-specific Higlobe Card title, arrow affordances hidden.
-- Navigation: Home, Send, and Receive only; fixed 22 px from both sides with a tinted Home state.
-
-These matches are based on source measurements and implementation inspection, not a post-build screenshot.
+The implementation preserves the supplied inline paper-plane art and shared layout identifiers for the source card shell, plane, title, and subtitle. Following the scale review, the modal was intentionally reduced from the source canvas proportions to align with the dashboard's 808 px content column: the desktop surface is now 840 × 740 px at its maximum, and its typography follows the dashboard's 12–22 px hierarchy.
 
 ## Findings
 
-- [Blocked] Browser-rendered mobile evidence is unavailable.
-  - Location: `/paper-dashboard` at 569 × 1197 CSS px and narrower-phone breakpoints.
-  - Evidence: the source screenshot is available, but the browser runtime reports no available in-app or connected browser backend.
-  - Impact: final typography, wrapping, SVG optical scale, fixed-navigation overlap, and scrolling behavior cannot receive a valid screenshot-based pass.
-  - Fix: connect a browser, capture the route at the target viewport, and repeat the full-view and focused comparisons.
+- [Blocked] Browser-rendered visual comparison is unavailable.
+  - Location: `/paper-dashboard` at 1138 × 1144 CSS px, with the invite modal open.
+  - Evidence: the browser runtime reports no available in-app or connected browser backend.
+  - Impact: exact optical spacing, text wrapping, the shared-element interpolation, and animation reversal cannot receive a screenshot-based pass.
+  - Fix: connect a browser, capture the open modal at the target viewport, compare it beside the source, and repeat at 640 px and a narrow mobile width.
 
-## Comparison history
+## Implementation checks
 
-1. Source analysis found that the prior mobile layout used a top horizontal nav, short balance card, one-column feature list, visible card arrows, and a motion dock—materially different from the target.
-2. The mobile breakpoint was rebuilt to match the target structure and measurements. A secondary 430 px breakpoint preserves the two-column layout with scaled spacing and typography.
-3. Lint, TypeScript, production build, and whitespace checks pass. Post-fix screenshot evidence remains unavailable.
-
-## Required fidelity surfaces
-
-- Fonts and typography: responsive sizes and weights follow the reference hierarchy; rendered comparison blocked.
-- Spacing and layout rhythm: source-derived frame, gap, card, and navigation measurements are implemented; rendered comparison blocked.
-- Colors and visual tokens: existing white, ink, pink, line, and active-state tokens are preserved; rendered comparison blocked.
-- Image quality and asset fidelity: existing supplied SVG artwork is retained and scaled responsively; rendered comparison blocked.
-- Copy and content: the mobile title is `Higlobe Card`; all other source copy is retained.
-
-## Primary interactions and accessibility checks
-
-- Home, Send, Receive, Details, Withdraw, and feature cards remain semantic buttons.
-- The bottom navigation is fixed and the main content remains independently scrollable.
-- Controls meet or exceed 44 px on the primary mobile breakpoint; reduced-motion rules remain intact.
-- Browser interaction tests, console inspection, and fixed-navigation overlap checks are blocked by browser availability.
-
-## Implementation checklist
-
-- [x] Top-right account header.
-- [x] Tall centered balance hero.
-- [x] Two-column mobile feature grid.
-- [x] Mobile card typography, wrapping, and artwork scale.
-- [x] Fixed three-item bottom navigation.
-- [x] Narrower-phone responsive scaling.
-- [x] Lint, TypeScript, production build, and diff checks.
-- [ ] Browser-rendered mobile screenshot and interaction verification.
+- [x] 840 px desktop surface, 20 px radius, 740 px viewport-aware maximum presentation height, internal scrolling, and hidden scrollbar.
+- [x] Plane, title, steps, action panel, buttons, and footer rescaled to the dashboard's existing visual hierarchy.
+- [x] Full-screen mobile surface below 640 px with safe-area padding, stacked steps, and stacked actions.
+- [x] Shared shell, plane, title, and subtitle transition using the existing smooth easing over 480 ms.
+- [x] Backdrop and revealed content fade after the morph begins.
+- [x] Closing presence keeps the source card inert and hover-free until the 480 ms reverse morph completes.
+- [x] Close-button and backdrop dismissal share the same reverse-transition path; modal-only content exits before the shared elements.
+- [x] Close button, Escape, and backdrop dismissal.
+- [x] Body scroll locking, focus trap, initial close-button focus, and trigger focus restoration.
+- [x] Background dashboard marked inert and hidden from assistive technology while open.
+- [x] Reduced-motion path removes spatial layout animation.
+- [x] Visual-only Copy Code and WhatsApp confirmation states; no clipboard write or external navigation.
+- [x] Hugeicons `Share08Icon`, `HappyIcon`, `Money03Icon`, `Copy02Icon`, and `WhatsappIcon` used as specified.
+- [x] Targeted lint, TypeScript, and production build pass.
+- [ ] Browser interaction, console, screenshot, and animation-reversal verification.
 
 final result: blocked
