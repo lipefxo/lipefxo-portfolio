@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import styles from "./paper-dashboard.module.css";
+import styles from "./higlobe-prototype.module.css";
 
 type FeatureArtType = "card" | "send" | "bitso" | "rate";
 

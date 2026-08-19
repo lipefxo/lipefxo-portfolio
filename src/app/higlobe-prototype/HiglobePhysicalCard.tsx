@@ -14,7 +14,7 @@ import {
   ViewOffSlashIcon,
 } from "@hugeicons/core-free-icons";
 import { AnimatePresence, motion } from "motion/react";
-import styles from "./paper-dashboard.module.css";
+import styles from "./higlobe-prototype.module.css";
 
 export type CardStatus = "active" | "frozen";
 export type CardFace = "front" | "back";
@@ -170,7 +170,7 @@ export function HiglobePhysicalCard({
             >
               <Image
                 className={styles.physicalCardLogo}
-                src="/paper-dashboard/higlobe.svg"
+                src="/higlobe-prototype/higlobe.svg"
                 width={112}
                 height={32}
                 alt="Higlobe"

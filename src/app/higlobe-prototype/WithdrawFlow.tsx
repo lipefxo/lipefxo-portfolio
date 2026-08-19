@@ -17,7 +17,7 @@ import {
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { AnimatePresence, motion } from "motion/react";
-import styles from "./paper-dashboard.module.css";
+import styles from "./higlobe-prototype.module.css";
 
 export type WithdrawCurrency = "USD" | "BRL" | "EUR";
 
@@ -64,7 +64,7 @@ const bankAccounts: readonly WithdrawBankAccount[] = [
     account: "Checking",
     lastFour: "8432",
     currency: "BRL",
-    flag: "/paper-dashboard/flag-br.png",
+    flag: "/higlobe-prototype/flag-br.png",
   },
   {
     id: "chase-usd-1904",
@@ -72,7 +72,7 @@ const bankAccounts: readonly WithdrawBankAccount[] = [
     account: "Checking",
     lastFour: "1904",
     currency: "USD",
-    flag: "/paper-dashboard/flag-us.png",
+    flag: "/higlobe-prototype/flag-us.png",
   },
   {
     id: "revolut-eur-6651",
@@ -80,14 +80,14 @@ const bankAccounts: readonly WithdrawBankAccount[] = [
     account: "Euro account",
     lastFour: "6651",
     currency: "EUR",
-    flag: "/paper-dashboard/euro.svg",
+    flag: "/higlobe-prototype/euro.svg",
   },
 ];
 
 const currencyFlags: Record<WithdrawCurrency, string> = {
-  USD: "/paper-dashboard/flag-us.png",
-  BRL: "/paper-dashboard/flag-br.png",
-  EUR: "/paper-dashboard/euro.svg",
+  USD: "/higlobe-prototype/flag-us.png",
+  BRL: "/higlobe-prototype/flag-br.png",
+  EUR: "/higlobe-prototype/euro.svg",
 };
 
 const currencySymbols: Record<WithdrawCurrency, string> = {

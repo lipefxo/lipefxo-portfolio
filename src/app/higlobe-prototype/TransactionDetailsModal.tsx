@@ -9,7 +9,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { motion, useReducedMotion } from "motion/react";
-import styles from "./paper-dashboard.module.css";
+import styles from "./higlobe-prototype.module.css";
 
 export type TransactionStatus = "Completed" | "Pending";
 

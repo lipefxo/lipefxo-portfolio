@@ -51,7 +51,7 @@ import {
   ViewOffSlashIcon,
   WhatsappIcon,
 } from "@hugeicons/core-free-icons";
-import styles from "./paper-dashboard.module.css";
+import styles from "./higlobe-prototype.module.css";
 import { FeatureArt } from "./FeatureArt";
 import { BorderGlow } from "./BorderGlow";
 import { DepositFundsModal } from "./DepositFundsModal";
@@ -223,8 +223,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Acme, Inc",
     date: "Just now",
     amount: "-$700.00",
-    avatar: "/paper-dashboard/avatar-acme.png",
-    flag: "/paper-dashboard/flag-us.png",
+    avatar: "/higlobe-prototype/avatar-acme.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -232,8 +232,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Bank of Westeros",
     date: "August 16th 13:35",
     amount: "€7,000.00",
-    avatar: "/paper-dashboard/avatar-bank.png",
-    flag: "/paper-dashboard/euro.svg",
+    avatar: "/higlobe-prototype/avatar-bank.png",
+    flag: "/higlobe-prototype/euro.svg",
     negative: false,
   },
   {
@@ -241,8 +241,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Avengers LLC",
     date: "August 16th 12:32",
     amount: "$3,500.00",
-    avatar: "/paper-dashboard/avatar-avengers.png",
-    flag: "/paper-dashboard/flag-us.png",
+    avatar: "/higlobe-prototype/avatar-avengers.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: false,
   },
   {
@@ -250,8 +250,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Wayne Enterprises",
     date: "August 16th 11:08",
     amount: "$25,000.00",
-    avatar: "/paper-dashboard/avatar-wayne.png",
-    flag: "/paper-dashboard/flag-us.png",
+    avatar: "/higlobe-prototype/avatar-wayne.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: false,
   },
   {
@@ -259,8 +259,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Higlobe Earn",
     date: "August 16th 10:42",
     amount: "+$12.48",
-    avatar: "/paper-dashboard/higlobecircle.svg",
-    flag: "/paper-dashboard/flag-us.png",
+    avatar: "/higlobe-prototype/higlobecircle.svg",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: false,
   },
   {
@@ -268,8 +268,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Acme, Inc",
     date: "August 15th 17:46",
     amount: "-$1,250.00",
-    avatar: "/paper-dashboard/avatar-acme.png",
-    flag: "/paper-dashboard/flag-us.png",
+    avatar: "/higlobe-prototype/avatar-acme.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -277,8 +277,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Wayne Enterprises",
     date: "August 15th 14:20",
     amount: "$8,400.00",
-    avatar: "/paper-dashboard/avatar-wayne.png",
-    flag: "/paper-dashboard/flag-us.png",
+    avatar: "/higlobe-prototype/avatar-wayne.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: false,
   },
   {
@@ -286,8 +286,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Avengers LLC",
     date: "August 14th 10:12",
     amount: "-$320.00",
-    avatar: "/paper-dashboard/avatar-avengers.png",
-    flag: "/paper-dashboard/flag-us.png",
+    avatar: "/higlobe-prototype/avatar-avengers.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -295,8 +295,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Bank of Westeros",
     date: "August 13th 16:05",
     amount: "€2,750.00",
-    avatar: "/paper-dashboard/avatar-bank.png",
-    flag: "/paper-dashboard/euro.svg",
+    avatar: "/higlobe-prototype/avatar-bank.png",
+    flag: "/higlobe-prototype/euro.svg",
     negative: false,
   },
   {
@@ -304,8 +304,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Higlobe Earn",
     date: "August 12th 18:30",
     amount: "+$9.16",
-    avatar: "/paper-dashboard/higlobecircle.svg",
-    flag: "/paper-dashboard/flag-us.png",
+    avatar: "/higlobe-prototype/higlobecircle.svg",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: false,
   },
   {
@@ -313,8 +313,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Acme, Inc",
     date: "August 12th 09:48",
     amount: "$4,900.00",
-    avatar: "/paper-dashboard/avatar-acme.png",
-    flag: "/paper-dashboard/flag-us.png",
+    avatar: "/higlobe-prototype/avatar-acme.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: false,
   },
   {
@@ -322,8 +322,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Wayne Enterprises",
     date: "August 11th 18:24",
     amount: "-$2,100.00",
-    avatar: "/paper-dashboard/avatar-wayne.png",
-    flag: "/paper-dashboard/flag-us.png",
+    avatar: "/higlobe-prototype/avatar-wayne.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -331,8 +331,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Higlobe Earn",
     date: "August 10th 17:50",
     amount: "+$5.84",
-    avatar: "/paper-dashboard/higlobecircle.svg",
-    flag: "/paper-dashboard/flag-us.png",
+    avatar: "/higlobe-prototype/higlobecircle.svg",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: false,
   },
   {
@@ -340,8 +340,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Avengers LLC",
     date: "August 10th 12:17",
     amount: "$6,800.00",
-    avatar: "/paper-dashboard/avatar-avengers.png",
-    flag: "/paper-dashboard/flag-us.png",
+    avatar: "/higlobe-prototype/avatar-avengers.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: false,
   },
   {
@@ -349,8 +349,8 @@ const accountTransactionSeeds: readonly TransactionSeed[] = [
     company: "Bank of Westeros",
     date: "August 9th 08:42",
     amount: "€1,900.00",
-    avatar: "/paper-dashboard/avatar-bank.png",
-    flag: "/paper-dashboard/euro.svg",
+    avatar: "/higlobe-prototype/avatar-bank.png",
+    flag: "/higlobe-prototype/euro.svg",
     negative: false,
   },
 ];
@@ -369,7 +369,7 @@ const cardTransactionSeeds: readonly TransactionSeed[] = [
     date: "August 18th 14:22",
     amount: "-$24.50",
     visual: { kind: "icon", icon: "taxi", tone: "pink" },
-    flag: "/paper-dashboard/flag-us.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -378,7 +378,7 @@ const cardTransactionSeeds: readonly TransactionSeed[] = [
     date: "August 17th 09:14",
     amount: "-$6.25",
     visual: { kind: "icon", icon: "coffee", tone: "green" },
-    flag: "/paper-dashboard/flag-us.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -387,7 +387,7 @@ const cardTransactionSeeds: readonly TransactionSeed[] = [
     date: "August 16th 16:45",
     amount: "-$89.99",
     visual: { kind: "icon", icon: "shopping", tone: "amber" },
-    flag: "/paper-dashboard/flag-us.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -396,7 +396,7 @@ const cardTransactionSeeds: readonly TransactionSeed[] = [
     date: "August 15th 18:36",
     amount: "-$42.73",
     visual: { kind: "icon", icon: "groceries", tone: "green" },
-    flag: "/paper-dashboard/flag-us.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -405,7 +405,7 @@ const cardTransactionSeeds: readonly TransactionSeed[] = [
     date: "August 14th 21:08",
     amount: "-$18.20",
     visual: { kind: "icon", icon: "taxi", tone: "pink" },
-    flag: "/paper-dashboard/flag-us.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -414,7 +414,7 @@ const cardTransactionSeeds: readonly TransactionSeed[] = [
     date: "August 13th 08:00",
     amount: "-$22.99",
     visual: { kind: "icon", icon: "entertainment", tone: "pink" },
-    flag: "/paper-dashboard/flag-us.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -423,7 +423,7 @@ const cardTransactionSeeds: readonly TransactionSeed[] = [
     date: "August 12th 12:41",
     amount: "-$15.48",
     visual: { kind: "icon", icon: "restaurant", tone: "green" },
-    flag: "/paper-dashboard/flag-us.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -432,7 +432,7 @@ const cardTransactionSeeds: readonly TransactionSeed[] = [
     date: "August 11th 17:29",
     amount: "-$31.16",
     visual: { kind: "icon", icon: "pharmacy", tone: "pink" },
-    flag: "/paper-dashboard/flag-us.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -441,7 +441,7 @@ const cardTransactionSeeds: readonly TransactionSeed[] = [
     date: "August 10th 10:05",
     amount: "-$164.00",
     visual: { kind: "icon", icon: "hotel", tone: "amber" },
-    flag: "/paper-dashboard/flag-us.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -450,7 +450,7 @@ const cardTransactionSeeds: readonly TransactionSeed[] = [
     date: "August 9th 19:12",
     amount: "-$56.84",
     visual: { kind: "icon", icon: "groceries", tone: "green" },
-    flag: "/paper-dashboard/flag-us.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -459,7 +459,7 @@ const cardTransactionSeeds: readonly TransactionSeed[] = [
     date: "August 8th 07:45",
     amount: "-$238.60",
     visual: { kind: "icon", icon: "airfare", tone: "pink" },
-    flag: "/paper-dashboard/flag-us.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -468,7 +468,7 @@ const cardTransactionSeeds: readonly TransactionSeed[] = [
     date: "August 7th 08:18",
     amount: "-$7.80",
     visual: { kind: "icon", icon: "coffee", tone: "amber" },
-    flag: "/paper-dashboard/flag-us.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
   {
@@ -477,7 +477,7 @@ const cardTransactionSeeds: readonly TransactionSeed[] = [
     date: "August 6th 15:52",
     amount: "-$129.00",
     visual: { kind: "icon", icon: "shopping", tone: "amber" },
-    flag: "/paper-dashboard/flag-us.png",
+    flag: "/higlobe-prototype/flag-us.png",
     negative: true,
   },
 ];
@@ -519,15 +519,15 @@ const cardTransactions: readonly Transaction[] = cardTransactionSeeds.map((trans
 const articles = [
   {
     title: "Why stable coins will send the global money transfer industry to zero.",
-    image: "/paper-dashboard/article-stablecoins.jpg",
+    image: "/higlobe-prototype/article-stablecoins.jpg",
   },
   {
     title: "How to receive your international earnings in the Philippines like a local.",
-    image: "/paper-dashboard/article-philippines.jpg",
+    image: "/higlobe-prototype/article-philippines.jpg",
   },
   {
     title: "Why are global accounts the future of international commerce.",
-    image: "/paper-dashboard/article-commerce.jpg",
+    image: "/higlobe-prototype/article-commerce.jpg",
   },
 ] as const;
 
@@ -549,7 +549,7 @@ type SendRecipient = {
 const sendOptions: FlowOption[] = [
   { id: "individual", title: "Pay an Individual", icon: "individual" },
   { id: "group", title: "Pay a Group", icon: "group" },
-  { id: "bitso", title: "Pay with Bitso", image: "/paper-dashboard/feature-bitso.svg" },
+  { id: "bitso", title: "Pay with Bitso", image: "/higlobe-prototype/feature-bitso.svg" },
 ];
 
 const receiveOptions: FlowOption[] = [
@@ -559,9 +559,9 @@ const receiveOptions: FlowOption[] = [
 ];
 
 const sendRecipients: SendRecipient[] = [
-  { name: "Avengers LLC", avatar: "/paper-dashboard/avatar-avengers.png" },
-  { name: "Bank of Westeros", avatar: "/paper-dashboard/avatar-bank.png" },
-  { name: "Wayne Enterprises", avatar: "/paper-dashboard/avatar-wayne.png" },
+  { name: "Avengers LLC", avatar: "/higlobe-prototype/avatar-avengers.png" },
+  { name: "Bank of Westeros", avatar: "/higlobe-prototype/avatar-bank.png" },
+  { name: "Wayne Enterprises", avatar: "/higlobe-prototype/avatar-wayne.png" },
 ];
 
 const currencyCodes = ["USD", "BRL", "EUR"] as const;
@@ -575,17 +575,17 @@ type CurrencyMenuState = {
 
 const currencyConfig = {
   USD: {
-    icon: "/paper-dashboard/flag-us.png",
+    icon: "/higlobe-prototype/flag-us.png",
     label: "US dollar",
     quotesPerUsd: [1, 1, 1, 1, 1, 1, 1, 1],
   },
   BRL: {
-    icon: "/paper-dashboard/flag-br.png",
+    icon: "/higlobe-prototype/flag-br.png",
     label: "Brazilian real",
     quotesPerUsd: [5.18, 5.17, 5.19, 5.18, 5.16, 5.19, 5.17, 5.18],
   },
   EUR: {
-    icon: "/paper-dashboard/euro.svg",
+    icon: "/higlobe-prototype/euro.svg",
     label: "Euro",
     quotesPerUsd: [0.92, 0.91, 0.92, 0.93, 0.92, 0.91, 0.92, 0.92],
   },
@@ -764,7 +764,7 @@ function HiglobeLogo({ onClick }: { onClick: () => void }) {
     >
       <Image
         className={styles.logo}
-        src="/paper-dashboard/higlobe.svg"
+        src="/higlobe-prototype/higlobe.svg"
         width={100}
         height={28}
         alt="Higlobe"
@@ -789,7 +789,7 @@ function Enter({
     <div
       className={`${styles.motionItem} ${className}`}
       data-phase={phase}
-      style={{ "--paper-index": index } as CSSProperties}
+      style={{ "--higlobe-index": index } as CSSProperties}
     >
       {children}
     </div>
@@ -1267,7 +1267,7 @@ function FlowChooser({
         <div
           className={styles.flowIntroItem}
           key={option.id}
-          style={{ "--paper-index": index } as CSSProperties}
+          style={{ "--higlobe-index": index } as CSSProperties}
         >
           <button
             type="button"
@@ -1313,7 +1313,7 @@ function RecipientPicker({
 }) {
   return (
     <section className={styles.recipientPicker} aria-label="Choose a recipient">
-      <div className={styles.flowIntroItem} style={{ "--paper-index": 0 } as CSSProperties}>
+      <div className={styles.flowIntroItem} style={{ "--higlobe-index": 0 } as CSSProperties}>
         <label className={styles.recipientSearch}>
           <Icon name="search" size={23} />
           <span className={styles.srOnly}>Search existing recipients</span>
@@ -1328,7 +1328,7 @@ function RecipientPicker({
         </label>
       </div>
 
-      <div className={styles.flowIntroItem} style={{ "--paper-index": 1 } as CSSProperties}>
+      <div className={styles.flowIntroItem} style={{ "--higlobe-index": 1 } as CSSProperties}>
         <ActionButton
           className={`${styles.featureCard} ${styles.addRecipientCard}`}
           icon="user-add"
@@ -1337,7 +1337,7 @@ function RecipientPicker({
         </ActionButton>
       </div>
 
-      <div className={styles.flowIntroItem} style={{ "--paper-index": 2 } as CSSProperties}>
+      <div className={styles.flowIntroItem} style={{ "--higlobe-index": 2 } as CSSProperties}>
         <div className={`${styles.transactionCard} ${styles.recipientList}`} aria-live="polite">
           {recipients.length ? (
             recipients.map((recipient) => (
@@ -1590,7 +1590,7 @@ function HiglobeCardPage({
   );
 }
 
-export function PaperDashboard() {
+export function HiglobePrototype() {
   const [activeNav, setActiveNav] = useState<NavLabel>("Home");
   const [sendStep, setSendStep] = useState<SendStep>("chooser");
   const [receiveStep, setReceiveStep] = useState<ReceiveStep>("chooser");
@@ -1740,7 +1740,7 @@ export function PaperDashboard() {
   const moneyFlowActive = activeNav === "Send" || activeNav === "Receive";
 
   return (
-    <LayoutGroup id="paper-dashboard-invite">
+    <LayoutGroup id="higlobe-prototype-invite">
       <main className={styles.viewport}>
         <div
           className={styles.dashboardLayer}

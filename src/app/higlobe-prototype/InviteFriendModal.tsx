@@ -20,7 +20,7 @@ import {
 import dynamic from "next/dynamic";
 import { motion, useReducedMotion } from "motion/react";
 import { FeatureArt } from "./FeatureArt";
-import styles from "./paper-dashboard.module.css";
+import styles from "./higlobe-prototype.module.css";
 
 const Topography = dynamic(() => import("./Topography"), { ssr: false });
 

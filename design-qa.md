@@ -1,7 +1,7 @@
 # Higlobe Card Page Design QA
 
 - Source visual truth: `/Users/lipe/.codex/generated_images/01a01a87-6904-7002-9dc5-1e484ebd444e/exec-3fec128e-95a1-42f9-9af2-9a093d3e90c2.png`
-- Implementation route: `/paper-dashboard`, with `Higlobe Card` selected
+- Implementation route: `/higlobe-prototype`, with `Higlobe Card` selected
 - Target state: active card, front face, details hidden
 - Source dimensions: 1487 × 1058 px
 - Intended implementation viewport: 1440 × 1024 CSS px; the generated source does not establish a device-pixel density
@@ -16,7 +16,7 @@ A browser-rendered implementation capture could not be created, so the required 
 ## Findings
 
 - [Blocked] Browser-rendered visual and interaction evidence is unavailable.
-  - Location: `/paper-dashboard` with Higlobe Card selected, at 1440 × 1024 CSS px and the planned responsive breakpoints.
+  - Location: `/higlobe-prototype` with Higlobe Card selected, at 1440 × 1024 CSS px and the planned responsive breakpoints.
   - Evidence: browser discovery reports no available in-app or connected browser surface; the local route returns HTTP 200 and the production build succeeds.
   - Impact: exact screenshot fidelity, live pointer tilt, freeze settling, front/back flip, keyboard behavior, console state, and responsive overflow cannot receive the required browser pass.
   - Fix: connect the in-app browser, compare the active/front state beside the source, then exercise frozen, back, revealed, reduced-motion, 920 px, 640 px, and 430 px states.
@@ -51,7 +51,7 @@ final result: blocked
 # Invite Friend Modal Design QA
 
 - Source visual truth: `.context/attachments/uVU9xk/CleanShot 2026-08-18 at 21.49.17@2x.jpg`
-- Implementation route: `/paper-dashboard`
+- Implementation route: `/higlobe-prototype`
 - Target state: referral modal opened from `Invite a friend, earn $20`
 - Target viewport: 1138 × 1144 CSS px (source is 2276 × 2288 px at `@2x`)
 - Implementation screenshot: unavailable because no in-app or connected browser backend was available.
@@ -65,7 +65,7 @@ The implementation preserves the supplied inline paper-plane art and shared layo
 ## Findings
 
 - [Blocked] Browser-rendered visual comparison is unavailable.
-  - Location: `/paper-dashboard` at 1138 × 1144 CSS px, with the invite modal open.
+  - Location: `/higlobe-prototype` at 1138 × 1144 CSS px, with the invite modal open.
   - Evidence: the browser runtime reports no available in-app or connected browser backend.
   - Impact: exact optical spacing, text wrapping, the shared-element interpolation, and animation reversal cannot receive a screenshot-based pass.
   - Fix: connect a browser, capture the open modal at the target viewport, compare it beside the source, and repeat at 640 px and a narrow mobile width.
@@ -97,7 +97,7 @@ final result: blocked
 # Receive Flow Design QA
 
 - Source visual truth: `.context/attachments/ZvVQvO/CleanShot 2026-08-19 at 11.41.39@2x.jpg`
-- Implementation route: `/paper-dashboard`, with `Receive` selected
+- Implementation route: `/higlobe-prototype`, with `Receive` selected
 - Target state: Receive chooser
 - Source dimensions: 1784 × 1376 px at `@2x`
 - Density-normalized source size: 892 × 688 CSS px at device scale factor 2
@@ -112,8 +112,8 @@ A browser-rendered implementation capture could not be created. The required com
 ## Findings
 
 - [Blocked] Browser-rendered visual and interaction evidence is unavailable.
-  - Location: `/paper-dashboard` with Receive selected, at the normalized source viewport and responsive breakpoints.
-  - Evidence: browser discovery returned no available in-app or connected browser surfaces; the existing local Next.js server returns HTTP 200 for `/paper-dashboard`.
+  - Location: `/higlobe-prototype` with Receive selected, at the normalized source viewport and responsive breakpoints.
+  - Evidence: browser discovery returned no available in-app or connected browser surfaces; the existing local Next.js server returns HTTP 200 for `/higlobe-prototype`.
   - Impact: exact screenshot fidelity, breakpoint behavior, hover/focus/tap states, currency-menu interaction, Send regression behavior, console state, and live motion quality cannot receive the required browser pass.
   - Fix: connect the in-app browser, capture Receive beside the source at the confirmed source viewport, then repeat at desktop, 920 px, 640 px, and 430 px or narrower.
 
@@ -127,7 +127,7 @@ A browser-rendered implementation capture could not be created. The required com
 - [x] Send, Receive, and Transactions compact balance cards retain the restored balance-first/exchange-second order.
 - [x] At 430 px and narrower, the restored order remains balance first and exchange second in the stacked compact card.
 - [x] Expanded Home balance layout, currency selection, live-rate animation, reduced motion, modal behavior, and transaction rendering remain on their existing code paths.
-- [x] Targeted ESLint passes for `PaperDashboard.tsx`.
+- [x] Targeted ESLint passes for `HiglobePrototype.tsx`.
 - [x] TypeScript, `git diff --check`, and the production build pass.
 - [x] Full lint still reports only the pre-existing `BorderGlow.tsx` `react-hooks/set-state-in-effect` violation.
 - [ ] Browser interaction, console inspection, responsive screenshots, and combined source comparison.
@@ -143,7 +143,7 @@ final result: blocked
 # Deposit Button-to-Card Expansion Design QA
 
 - Source visual truth: `.context/attachments/N9weAc/CleanShot 2026-08-19 at 08.41.56@2x.jpg`
-- Implementation route: `/paper-dashboard`, with the Deposit dropdown opened from the balance card
+- Implementation route: `/higlobe-prototype`, with the Deposit dropdown opened from the balance card
 - Source dimensions: 1190 × 1060 px at `@2x`
 - Normalized CSS viewport: 595 × 530 px at device scale factor 2
 - Intended implementation surface: a 400 px maximum-width card expanding leftward and downward from the trigger's top-right corner, with 16 px viewport clamping at every breakpoint
@@ -158,8 +158,8 @@ A browser-rendered implementation capture could not be created, so the required 
 ## Findings
 
 - [Blocked] Browser-rendered visual and interaction evidence is unavailable.
-  - Location: `/paper-dashboard` at desktop, 640 px, and 390 px responsive widths.
-  - Evidence: the in-app browser runtime reported no available browser surfaces; the existing local Next.js server returned HTTP 200 for `/paper-dashboard`.
+  - Location: `/higlobe-prototype` at desktop, 640 px, and 390 px responsive widths.
+  - Evidence: the in-app browser runtime reported no available browser surfaces; the existing local Next.js server returned HTTP 200 for `/higlobe-prototype`.
   - Impact: optical spacing, trigger alignment, viewport clamping, internal overflow, dropdown animation, keyboard focus movement, repeated open/close behavior, and browser console state cannot receive a live verification pass.
   - Fix: connect the in-app browser, capture the expansion on desktop, verify that the shell begins at the exact trigger bounds with no gap, then repeat at 640 px and 390 px.
 
@@ -199,7 +199,7 @@ final result: blocked
 - Source visual truth:
   - `.context/attachments/MtrCfe/CleanShot 2026-08-19 at 08.26.58@2x.jpg` (chooser)
   - `.context/attachments/n4AXrX/CleanShot 2026-08-19 at 08.27.03@2x.jpg` (recipients)
-- Implementation route: `/paper-dashboard`, with `Send` selected
+- Implementation route: `/higlobe-prototype`, with `Send` selected
 - Target states: Send chooser and recipient picker
 - Source dimensions: 2546 × 1968 px each at `@2x`
 - Target CSS viewport: 1273 × 984 px at device scale factor 2
@@ -212,7 +212,7 @@ Both source screenshots were opened at original resolution. They establish the s
 ## Findings
 
 - [Blocked] Browser-rendered visual and interaction evidence is unavailable.
-  - Location: `/paper-dashboard` at 1273 × 984 CSS px in both Send states, plus responsive widths.
+  - Location: `/higlobe-prototype` at 1273 × 984 CSS px in both Send states, plus responsive widths.
   - Evidence: browser discovery returned no available in-app or connected browser surfaces.
   - Impact: exact typography, spacing rhythm, color rendering, image sharpness/crop, responsive overflow, focus movement, console state, and visual transition quality cannot receive the required comparison pass.
   - Fix: connect an in-app browser, capture both Send states at the normalized target viewport, compare each capture beside its source, then repeat at 920 px and a narrow mobile width.
@@ -229,7 +229,7 @@ Both source screenshots were opened at original resolution. They establish the s
 - [x] Individual, Group, and Bitso controls share the same transition into recipient selection.
 - [x] Only the active Send panel is mounted in normal document flow; stage changes use a 280 ms fade/8 px rise while the item wrappers retain the existing staggered entrance language.
 - [x] Removing the persistent absolute-positioned page pair eliminates both recipient-over-chooser painting and the large stage-1-sized vertical offset shown in the 09:28 implementation capture.
-- [x] Active Send content reuses the homepage `paper-enter` animation language with a tighter 12 px travel, subtle scale/blur, and 52 ms item stagger; chooser cards and recipient search/action/table animate through neutral wrappers so existing card transforms remain intact.
+- [x] Active Send content reuses the homepage `higlobe-enter` animation language with a tighter 12 px travel, subtle scale/blur, and 52 ms item stagger; chooser cards and recipient search/action/table animate through neutral wrappers so existing card transforms remain intact.
 - [x] The moving balance and rate groups soften to 42% opacity with a 4 px mid-morph blur before resolving, reducing the perceived speed of their long layout interpolation without interrupting the persistent balance counter.
 - [x] Inactive Send panels are inert and hidden from assistive technology; search focus moves only after the recipient panel becomes active.
 - [x] Search filters Avengers LLC, Bank of Westeros, and Wayne Enterprises case-insensitively and provides an empty state.
@@ -241,7 +241,7 @@ Both source screenshots were opened at original resolution. They establish the s
 - [x] Reduced-motion behavior removes spatial transition timing.
 - [x] Targeted ESLint passes for the changed React components.
 - [x] TypeScript and the production build pass.
-- [x] `/paper-dashboard` returns HTTP 200 after the motion refinement, and `git diff --check` passes.
+- [x] `/higlobe-prototype` returns HTTP 200 after the motion refinement, and `git diff --check` passes.
 - [x] Full lint was rerun and still reports only the pre-existing `BorderGlow.tsx` state-in-effect violation.
 - [ ] Browser interaction, console, responsive screenshot, and source-comparison verification.
 

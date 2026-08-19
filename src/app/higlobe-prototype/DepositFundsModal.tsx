@@ -17,7 +17,7 @@ import {
   CopyCheckIcon,
 } from "@hugeicons/core-free-icons";
 import { motion, useReducedMotion } from "motion/react";
-import styles from "./paper-dashboard.module.css";
+import styles from "./higlobe-prototype.module.css";
 
 const PIX_CODE = "1fas125090as9f-1221t6a-oi1jihasf-15297c6as7";
 const DEPOSIT_LAYOUT_TRANSITION = {
@@ -260,7 +260,7 @@ export function DepositFundsModal({
           >
             <Image
               className={styles.depositCoins}
-              src="/paper-dashboard/deposit-coins.png"
+              src="/higlobe-prototype/deposit-coins.png"
               width={224}
               height={112}
               alt=""

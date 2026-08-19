@@ -5,11 +5,11 @@
   --line: #ececec;
   --surface: #fefefe;
   --panel-inset: 24px;
-  --paper-enter-y: 30px;
-  --paper-enter-scale: 0.985;
-  --paper-enter-duration: 720ms;
-  --paper-enter-stagger: 92ms;
-  --paper-enter-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --higlobe-enter-y: 30px;
+  --higlobe-enter-scale: 0.985;
+  --higlobe-enter-duration: 720ms;
+  --higlobe-enter-stagger: 92ms;
+  --higlobe-enter-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --interaction-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --button-font-size: 14px;
   --button-font-weight: 600;
@@ -19,7 +19,7 @@
   overflow-y: visible;
   background: #fff;
   color: var(--ink);
-  font-family: var(--font-paper), "Inter", Arial, sans-serif;
+  font-family: var(--font-higlobe), "Inter", Arial, sans-serif;
   font-synthesis: none;
   -webkit-font-smoothing: antialiased;
 }
@@ -50,13 +50,13 @@
 .motionItem {
   min-width: 0;
   overflow: visible;
-  animation: paper-enter var(--paper-enter-duration) var(--paper-enter-ease) both;
-  animation-delay: calc(var(--paper-enter-lead, 0ms) + var(--paper-index) * var(--paper-enter-stagger));
+  animation: higlobe-enter var(--higlobe-enter-duration) var(--higlobe-enter-ease) both;
+  animation-delay: calc(var(--higlobe-enter-lead, 0ms) + var(--higlobe-index) * var(--higlobe-enter-stagger));
   will-change: transform, opacity, filter;
 }
 
 .motionItem[data-phase="content"] {
-  --paper-enter-lead: var(--paper-enter-stagger);
+  --higlobe-enter-lead: var(--higlobe-enter-stagger);
 }
 
 .balanceCardLayer {
@@ -65,10 +65,10 @@
   overflow: visible;
 }
 
-@keyframes paper-enter {
+@keyframes higlobe-enter {
   from {
     opacity: 0;
-    transform: translateY(var(--paper-enter-y)) scale(var(--paper-enter-scale));
+    transform: translateY(var(--higlobe-enter-y)) scale(var(--higlobe-enter-scale));
     filter: blur(5px);
   }
   to {
@@ -238,11 +238,11 @@
 
 .flowStage {
   min-height: 0;
-  --paper-enter-y: 12px;
-  --paper-enter-scale: 0.992;
-  --paper-enter-duration: 480ms;
-  --paper-enter-stagger: 52ms;
-  --paper-enter-lead: 70ms;
+  --higlobe-enter-y: 12px;
+  --higlobe-enter-scale: 0.992;
+  --higlobe-enter-duration: 480ms;
+  --higlobe-enter-stagger: 52ms;
+  --higlobe-enter-lead: 70ms;
 }
 
 .flowIntroItem {
@@ -251,8 +251,8 @@
 
 .flowStage[data-page="1"] .flowIntroItem,
 .flowStage[data-page="2"] .flowIntroItem {
-  animation: paper-enter var(--paper-enter-duration) var(--paper-enter-ease) both;
-  animation-delay: calc(var(--paper-enter-lead) + var(--paper-index) * var(--paper-enter-stagger));
+  animation: higlobe-enter var(--higlobe-enter-duration) var(--higlobe-enter-ease) both;
+  animation-delay: calc(var(--higlobe-enter-lead) + var(--higlobe-index) * var(--higlobe-enter-stagger));
   will-change: transform, opacity, filter;
 }
 
@@ -1504,7 +1504,7 @@
   border: 1px solid rgb(255 255 255 / 18%);
   border-radius: 14px;
   padding: var(--panel-inset);
-  background-image: url("/paper-dashboard/global-hire.png");
+  background-image: url("/higlobe-prototype/global-hire.png");
   background-position: center;
   background-size: cover;
   box-shadow: 0 1px 8.2px rgb(0 0 0 / 3%);
@@ -2036,7 +2036,7 @@
 
 .transactionRowEnter {
   --transaction-row-index: 0;
-  animation: transaction-history-row-enter 520ms var(--paper-enter-ease) both;
+  animation: transaction-history-row-enter 520ms var(--higlobe-enter-ease) both;
   animation-delay: calc(260ms + var(--transaction-row-index) * 52ms);
   will-change: transform, opacity, filter;
 }
@@ -2070,10 +2070,10 @@
 }
 
 .transactionIncoming {
-  --transaction-in-delay: calc(var(--paper-enter-lead, 0ms) + var(--paper-index) * var(--paper-enter-stagger) + var(--paper-enter-duration) + 280ms);
+  --transaction-in-delay: calc(var(--higlobe-enter-lead, 0ms) + var(--higlobe-index) * var(--higlobe-enter-stagger) + var(--higlobe-enter-duration) + 280ms);
   display: grid;
   grid-template-rows: 0fr;
-  animation: transaction-slot-open 900ms var(--paper-enter-ease) both;
+  animation: transaction-slot-open 900ms var(--higlobe-enter-ease) both;
   animation-delay: var(--transaction-in-delay);
 }
 
@@ -2083,12 +2083,12 @@
 }
 
 .transactionIncoming .transactionRow {
-  animation: transaction-row-flash 820ms var(--paper-enter-ease) both;
+  animation: transaction-row-flash 820ms var(--higlobe-enter-ease) both;
   animation-delay: calc(var(--transaction-in-delay) + 80ms);
 }
 
 .transactionIncoming .transactionRow > * {
-  animation: transaction-cell-in 720ms var(--paper-enter-ease) both;
+  animation: transaction-cell-in 720ms var(--higlobe-enter-ease) both;
 }
 
 .transactionIncoming .transactionRow > *:nth-child(1) {
