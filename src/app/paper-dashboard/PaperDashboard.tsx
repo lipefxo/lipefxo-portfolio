@@ -582,7 +582,9 @@ function SendChooser({ onSelect }: { onSelect: () => void }) {
                   alt=""
                 />
               ) : option.icon ? (
-                <span className={styles.sendOptionIcon}><Icon name={option.icon} size={38} /></span>
+                <span className={styles.sendOptionIcon} data-icon={option.icon}>
+                  <Icon name={option.icon} size={38} />
+                </span>
               ) : null}
               <span className={styles.sendOptionArrow}><Icon name="arrow" size={18} /></span>
             </span>

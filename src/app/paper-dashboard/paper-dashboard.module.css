@@ -261,17 +261,41 @@
 }
 
 .sendOptionIcon {
+  --send-icon-size: 38px;
+  --send-icon-x: -8px;
+  --send-icon-y: 5px;
   display: grid;
+  flex: 0 0 56px;
   width: 56px;
   height: 56px;
-  place-items: center;
+  place-items: start;
   color: var(--accent);
 }
 
+.sendOptionIcon[data-icon="group"] {
+  --send-icon-x: -4px;
+  --send-icon-y: 7px;
+}
+
+.sendOptionIcon svg {
+  display: block;
+  width: var(--send-icon-size);
+  height: var(--send-icon-size);
+  transform: translate(var(--send-icon-x), var(--send-icon-y));
+}
+
 .sendOptionImage {
+  display: block;
+  flex: 0 0 56px;
   width: 56px;
   height: 56px;
   object-fit: contain;
+  transform: translateX(-10px);
+}
+
+.sendOptionCard .featureCopy {
+  width: 100%;
+  align-items: flex-start;
 }
 
 .sendOptionArrow {
@@ -2237,7 +2261,24 @@
   .featureCard.sendOptionCard { height: 154px; padding: 20px; }
   .sendOptionTop { min-height: 46px; }
   .sendOptionIcon,
-  .sendOptionImage { width: 46px; height: 46px; }
+  .sendOptionImage {
+    width: 46px;
+    height: 46px;
+    flex-basis: 46px;
+  }
+
+  .sendOptionIcon {
+    --send-icon-size: 32px;
+    --send-icon-x: -7px;
+    --send-icon-y: 4px;
+  }
+
+  .sendOptionIcon[data-icon="group"] {
+    --send-icon-x: -3px;
+    --send-icon-y: 6px;
+  }
+
+  .sendOptionImage { transform: translateX(-8px); }
 
   .recipientSearch { padding-inline: 16px; }
   .featureCard.addRecipientCard { padding-inline: 18px; }

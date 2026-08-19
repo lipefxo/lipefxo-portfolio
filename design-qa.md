@@ -141,6 +141,7 @@ Both source screenshots were opened at original resolution. They establish the s
 - [x] Recipient search receives focus when its animated state mounts.
 - [x] Desktop three-column chooser and stacked mobile chooser styles are present.
 - [x] Existing Higlobe, Bitso, flag, and recipient assets are reused; Hugeicons supply interface icons.
+- [x] Send chooser artwork uses `User03Icon`, `UserGroup03Icon`, and the Bitso asset in common 56 px layout slots; the people glyphs render at a deliberately lighter 38 px while Bitso retains its existing 56 px asset size, with per-asset optical offsets preserving the shared title axis (scaled proportionally at the narrow breakpoint).
 - [x] Reduced-motion behavior removes spatial transition timing.
 - [x] Targeted ESLint passes for the changed React components.
 - [x] TypeScript and the production build pass.
