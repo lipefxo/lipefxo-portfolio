@@ -1,0 +1,55 @@
+.shell {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+}
+
+.borderCone,
+.fill,
+.glow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.borderCone,
+.fill {
+  inset: 0;
+  z-index: 2;
+}
+
+.borderRing {
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background-repeat: no-repeat;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+.fill {
+  mix-blend-mode: soft-light;
+  mask-composite: subtract, add, add, add, add, add;
+  -webkit-mask-composite: source-out, source-over, source-over, source-over, source-over, source-over;
+}
+
+.glow {
+  z-index: 0;
+}
+
+.glowInner {
+  position: absolute;
+  border-radius: inherit;
+}

@@ -1,0 +1,3700 @@
+.viewport {
+  --accent: #ff1469;
+  --ink: #1a1a1a;
+  --muted: #6f6f6f;
+  --line: #ececec;
+  --surface: #fefefe;
+  --panel-inset: 24px;
+  --higlobe-enter-y: 30px;
+  --higlobe-enter-scale: 0.985;
+  --higlobe-enter-duration: 720ms;
+  --higlobe-enter-stagger: 92ms;
+  --higlobe-enter-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --interaction-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --button-font-size: 14px;
+  --button-font-weight: 600;
+  min-height: 100dvh;
+  width: 100%;
+  overflow-x: clip;
+  overflow-y: visible;
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--font-higlobe), "Inter", Arial, sans-serif;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.viewport button {
+  font-family: inherit;
+  font-size: var(--button-font-size);
+  font-weight: var(--button-font-weight);
+}
+
+.dashboardLayer {
+  display: contents;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 154px minmax(0, 808px);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 53px;
+  min-height: 100dvh;
+  width: min(100%, 1079px);
+  margin: 0 auto;
+  padding: 64px 32px;
+  overflow: visible;
+  background: #fff;
+}
+
+.motionItem {
+  min-width: 0;
+  overflow: visible;
+  animation: higlobe-enter var(--higlobe-enter-duration) var(--higlobe-enter-ease) both;
+  animation-delay: calc(var(--higlobe-enter-lead, 0ms) + var(--higlobe-index) * var(--higlobe-enter-stagger));
+  will-change: transform, opacity, filter;
+}
+
+.motionItem[data-phase="content"] {
+  --higlobe-enter-lead: var(--higlobe-enter-stagger);
+}
+
+.balanceCardLayer {
+  position: relative;
+  z-index: 2;
+  overflow: visible;
+}
+
+@keyframes higlobe-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--higlobe-enter-y)) scale(var(--higlobe-enter-scale));
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: none;
+  }
+}
+
+.sidebar {
+  position: sticky;
+  top: 64px;
+  display: flex;
+  align-self: start;
+  flex-direction: column;
+  gap: 56px;
+  width: 154px;
+  height: calc(100dvh - 128px);
+  min-height: 0;
+}
+
+.logo {
+  display: block;
+  width: 100px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.logoButton {
+  display: block;
+  width: max-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.logoButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.sidebar .logo {
+  margin-left: 12px;
+}
+
+.navWrap {
+  flex: 1;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav > .motionItem {
+  width: 100%;
+  min-width: 0;
+}
+
+.nav button,
+.accountButton {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 36px;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--ink);
+  font-size: var(--button-font-size);
+  font-weight: var(--button-font-weight);
+  letter-spacing: -0.02em;
+  text-align: left;
+  white-space: nowrap;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.nav button:hover {
+  border-color: #f0f0f0;
+  background: #f8f8f8;
+}
+
+.nav .navActive {
+  border-color: var(--line);
+  background: #fff;
+  color: var(--accent);
+  font-weight: var(--button-font-weight);
+  box-shadow: 0 1px 8px rgb(0 0 0 / 3%);
+}
+
+.iconSlot {
+  display: grid;
+  flex: 0 0 20px;
+  width: 20px;
+  place-items: center;
+}
+
+.accountWrap {
+  margin-top: auto;
+}
+
+.accountButton {
+  justify-content: flex-start;
+}
+
+.accountButton span {
+  flex: 1;
+}
+
+.responsiveHeader,
+.compactNavWrap {
+  display: none;
+}
+
+.mainColumn {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  gap: 40px;
+  overflow: visible;
+}
+
+.mainColumn[data-flow-active="true"] {
+  min-height: calc(100dvh - 128px);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.moneyFlow {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.recipientSearch {
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #fefefe 0%, #fff 100%);
+  box-shadow: 0 1px 8.2px rgb(0 0 0 / 3%);
+}
+
+.flowStage,
+.flowStepPage {
+  min-width: 0;
+}
+
+.flowStage {
+  min-height: 0;
+  --higlobe-enter-y: 12px;
+  --higlobe-enter-scale: 0.992;
+  --higlobe-enter-duration: 480ms;
+  --higlobe-enter-stagger: 52ms;
+  --higlobe-enter-lead: 70ms;
+}
+
+.flowIntroItem {
+  min-width: 0;
+}
+
+.flowStage[data-page="1"] .flowIntroItem,
+.flowStage[data-page="2"] .flowIntroItem {
+  animation: higlobe-enter var(--higlobe-enter-duration) var(--higlobe-enter-ease) both;
+  animation-delay: calc(var(--higlobe-enter-lead) + var(--higlobe-index) * var(--higlobe-enter-stagger));
+  will-change: transform, opacity, filter;
+}
+
+.flowChooser {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.featureCard.flowOptionCard {
+  height: 304px;
+  padding: 28px;
+}
+
+.recipientSearch:focus-within,
+.recipientRow:focus-visible {
+  border-color: #dedede;
+  outline: 2px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  outline-offset: 2px;
+}
+
+.flowOptionTop {
+  display: flex;
+  min-height: 56px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.flowOptionIcon {
+  --flow-icon-size: 32px;
+  --flow-icon-x: -7px;
+  --flow-icon-y: 6px;
+  --flow-icon-stroke: calc(1.75 * 32 / (var(--flow-icon-size) / 1px));
+  display: grid;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  overflow: visible;
+  place-items: start;
+  color: var(--accent);
+}
+
+.flowOptionIcon[data-icon="group"] {
+  --flow-icon-size: 37px;
+  --flow-icon-x: -3px;
+  --flow-icon-y: 4px;
+}
+
+.flowOptionIcon svg {
+  display: block;
+  width: var(--flow-icon-size);
+  height: var(--flow-icon-size);
+  transform: translate(var(--flow-icon-x), var(--flow-icon-y));
+}
+
+.flowOptionIcon svg path {
+  stroke-width: var(--flow-icon-stroke);
+}
+
+.flowOptionImage {
+  display: block;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  transform: translateX(-10px);
+}
+
+.flowOptionCard .featureCopy {
+  width: 100%;
+  align-items: flex-start;
+}
+
+.flowOptionArrow {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  color: #8b8b8b;
+  transition: color 180ms ease, transform 220ms var(--interaction-ease);
+}
+
+.flowOptionCard:hover .flowOptionArrow {
+  color: var(--ink);
+  transform: translate(2px, -2px);
+}
+
+.recipientPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.recipientSearch {
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  gap: 14px;
+  border-radius: 14px;
+  padding: 0 22px;
+  color: var(--ink);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.recipientSearch:focus-within {
+  box-shadow: 0 4px 16px rgb(0 0 0 / 5%);
+}
+
+.recipientSearch input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--button-font-size);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.recipientSearch input::placeholder {
+  color: #a5a5a5;
+  opacity: 1;
+}
+
+.featureCard.addRecipientCard {
+  display: flex;
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: row;
+  gap: 6px;
+  border-radius: 14px;
+  padding: 7px 14px;
+  color: var(--ink);
+  text-align: left;
+}
+
+.addRecipientCard svg {
+  flex: 0 0 auto;
+  color: var(--accent);
+}
+
+.transactionCard.recipientList {
+  overflow: hidden;
+}
+
+.transactionRow.recipientRow {
+  grid-template-columns: 28px minmax(0, 1fr);
+}
+
+.recipientEmpty {
+  display: flex;
+  min-height: 210px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.recipientEmpty strong {
+  color: var(--ink);
+  font-size: var(--button-font-size);
+  font-weight: var(--button-font-weight);
+  letter-spacing: -0.02em;
+}
+
+.recipientEmpty span {
+  font-size: 12px;
+  letter-spacing: -0.02em;
+}
+
+.flowFooter {
+  margin-top: auto;
+}
+
+.withdrawFlow {
+  width: min(100%, 720px);
+  margin: 0 auto;
+}
+
+.withdrawStep {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.withdrawHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+}
+
+.withdrawHeader > div {
+  min-width: 0;
+  text-align: center;
+}
+
+.withdrawHeader > div > span {
+  display: block;
+  margin-bottom: 6px;
+  color: #777;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.withdrawHeader h1 {
+  margin: 0;
+  outline: none;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.withdrawAmountPair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.withdrawAmountCard {
+  display: flex;
+  min-width: 0;
+  min-height: 132px;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px;
+  background: linear-gradient(180deg, #fefefe 0%, #fff 100%);
+  box-shadow: 0 1px 8px rgb(0 0 0 / 3%);
+  transition: border-color 160ms ease, box-shadow 180ms ease;
+}
+
+.withdrawAmountCard:focus-within {
+  border-color: #dedede;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 5%);
+}
+
+.withdrawAmountLabel {
+  display: flex;
+  min-height: 22px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #666;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.withdrawAmountControl {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+  margin-top: 9px;
+}
+
+.withdrawAmountControl input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 25px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.withdrawAmountControl input::placeholder {
+  color: #c2c2c2;
+  opacity: 1;
+}
+
+.withdrawAmountControl > span {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.withdrawAmountControl img,
+.withdrawBankCurrency img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.withdrawAmountCard > small {
+  margin-top: 9px;
+  color: #888;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.withdrawExchangeIcon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--accent);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 4%);
+}
+
+.withdrawValidation {
+  min-height: 17px;
+  margin: -16px 0 0;
+  color: #777;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.withdrawValidation[data-visible="true"] {
+  color: #c1094d;
+}
+
+.withdrawBankFieldset {
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.withdrawBankFieldset legend {
+  margin-bottom: 12px;
+  color: #555;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.withdrawBankList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.withdrawBankOption {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 10px;
+  min-width: 0;
+  min-height: 88px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 180ms ease;
+}
+
+.withdrawBankOption:hover {
+  border-color: #dedede;
+  background: #fdfdfd;
+  box-shadow: 0 3px 12px rgb(0 0 0 / 4%);
+}
+
+.withdrawBankOption:has(input:focus-visible) {
+  outline: 2px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  outline-offset: 2px;
+}
+
+.withdrawBankOption[data-selected="true"] {
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
+  background: color-mix(in srgb, var(--accent) 3%, white);
+}
+
+.withdrawBankCopy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.withdrawBankCopy strong {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.withdrawBankCopy small {
+  color: #777;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.withdrawBankCurrency {
+  display: inline-flex;
+  grid-column: 1 / 3;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+  color: #666;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.withdrawRadioMark {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  width: 19px;
+  height: 19px;
+  place-items: center;
+  border: 1px solid #d8d8d8;
+  border-radius: 50%;
+  background: #fff;
+  color: #fff;
+}
+
+.withdrawBankOption[data-selected="true"] .withdrawRadioMark {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.withdrawDetailList {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fff 0%, #fefefe 100%);
+  box-shadow: 0 1px 8px rgb(0 0 0 / 2%);
+}
+
+.actionButton.withdrawPrimaryButton {
+  align-self: end;
+}
+
+.withdrawReviewActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.withdrawReviewHero {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 30px 24px;
+  background: linear-gradient(180deg, #fff 0%, #fefefe 100%);
+  text-align: center;
+}
+
+.withdrawReviewHero > span {
+  color: #666;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.withdrawReviewHero > strong {
+  margin-top: 8px;
+  font-size: 34px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.withdrawReviewHero > small {
+  margin-top: 10px;
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.withdrawDetailList {
+  margin: 0;
+}
+
+.withdrawDetailList > div {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.7fr) minmax(0, 1.3fr);
+  gap: 24px;
+  border-bottom: 1px solid var(--line);
+  padding: 14px 16px;
+}
+
+.withdrawDetailList > div:last-child {
+  border-bottom: 0;
+}
+
+.withdrawDetailList dt,
+.withdrawDetailList dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+}
+
+.withdrawDetailList dt {
+  color: #777;
+}
+
+.withdrawDetailList dd {
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.withdrawSuccess {
+  position: relative;
+}
+
+.withdrawSuccessIcon {
+  display: grid;
+  width: 72px;
+  height: 72px;
+  align-self: center;
+  place-items: center;
+  border-radius: 50%;
+  background: #edf8f5;
+  color: #08765c;
+}
+
+.withdrawReference {
+  margin: -10px 0 0;
+  color: #777;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+.balanceCard,
+.featureCard,
+.transactionCard {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fefefe 0%, #fff 100%);
+  box-shadow: 0 1px 8.2px rgb(0 0 0 / 3%);
+}
+
+.balanceCard {
+  position: relative;
+  display: flex;
+  height: 200px;
+  overflow: visible;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--panel-inset);
+  isolation: isolate;
+  transition:
+    width var(--resize-dur) var(--resize-ease),
+    height var(--resize-dur) var(--resize-ease),
+    min-height var(--resize-dur) var(--resize-ease),
+    padding var(--resize-dur) var(--resize-ease),
+    gap var(--resize-dur) var(--resize-ease),
+    border-radius var(--resize-dur) var(--resize-ease);
+}
+
+.balanceCard[data-compact="true"] {
+  height: 72px;
+  min-height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row;
+  gap: 28px;
+  padding: 16px 24px;
+}
+
+.balanceCard[data-compact="true"] .exchangeRate {
+  order: 2;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.balanceCard[data-compact="true"] .currencyRate {
+  gap: 7px;
+}
+
+.balanceCard[data-compact="true"] .balanceBottom {
+  order: 1;
+  flex: 1;
+  align-items: center;
+}
+
+.balanceCard[data-compact="true"] .balanceValue strong {
+  min-width: 0;
+  font-size: 22px;
+  white-space: nowrap;
+}
+
+.balanceCard[data-compact="true"] > .exchangeRate,
+.balanceCard[data-compact="true"] > .balanceBottom {
+  animation: balance-morph-to-compact var(--resize-dur) var(--resize-ease) both;
+}
+
+.balanceCard[data-compact="false"] > .exchangeRate,
+.balanceCard[data-compact="false"] > .balanceBottom {
+  animation: balance-morph-to-expanded var(--resize-dur) var(--resize-ease) both;
+}
+
+@keyframes balance-morph-to-compact {
+  0% { opacity: 1; filter: blur(0); }
+  38% { opacity: 0.42; filter: blur(4px); }
+  62% { opacity: 0.5; filter: blur(3px); }
+  100% { opacity: 1; filter: blur(0); }
+}
+
+@keyframes balance-morph-to-expanded {
+  0% { opacity: 1; filter: blur(0); }
+  38% { opacity: 0.42; filter: blur(4px); }
+  62% { opacity: 0.5; filter: blur(3px); }
+  100% { opacity: 1; filter: blur(0); }
+}
+
+.balanceTopography {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: opacity 220ms var(--resize-ease);
+  -webkit-mask-image: linear-gradient(115deg, rgb(0 0 0 / 82%), #000 58%, rgb(0 0 0 / 66%));
+  mask-image: linear-gradient(115deg, rgb(0 0 0 / 82%), #000 58%, rgb(0 0 0 / 66%));
+}
+
+.exchangeRate,
+.balanceBottom {
+  position: relative;
+  z-index: 1;
+}
+
+.exchangeRate {
+  display: flex;
+  z-index: 2;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.currencyRate {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-block: 8px;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.currencySelector {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.currencyTrigger {
+  margin: -1px -5px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 8px 5px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  letter-spacing: inherit;
+  line-height: 1;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.exchangeRate .currencyTrigger {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.currencyTrigger:hover,
+.currencyTrigger[aria-expanded="true"] {
+  border-color: #e8e8e8;
+  background: rgb(255 255 255 / 78%);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 4%);
+}
+
+.currencyTrigger:focus-visible {
+  border-color: #dedede;
+  outline: 2px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  outline-offset: 2px;
+}
+
+.currencyTrigger:disabled,
+.currencyTrigger:disabled:hover {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  cursor: default;
+  opacity: 1;
+}
+
+.currencyMenu {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 7px);
+  display: flex;
+  width: 104px;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 6px;
+  background: rgb(255 255 255 / 96%);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 10%), 0 2px 8px rgb(0 0 0 / 5%);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  backdrop-filter: blur(12px);
+}
+
+.currencySelector[data-side="source"] .currencyMenu {
+  left: -5px;
+}
+
+.currencySelector[data-side="target"] .currencyMenu {
+  right: -5px;
+}
+
+.currencyMenuOption {
+  display: flex;
+  width: 100%;
+  min-height: 36px;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.currencyMenu .currencyMenuOption {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.exchangeRate .currencyMenuOption img {
+  width: 16px;
+  height: 16px;
+}
+
+.currencyMenuOption:hover,
+.currencyMenuOption:focus-visible {
+  outline: none;
+  background: #f6f6f6;
+}
+
+.currencyMenuOption[data-selected="true"] {
+  background: color-mix(in srgb, var(--accent) 9%, white);
+  color: var(--accent);
+}
+
+.exchangeRate img {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.exchangeIcon {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.targetRate {
+  min-width: 49px;
+}
+
+.rateDigits {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.rateDigit {
+  display: inline-block;
+}
+
+.rateDigitSlot {
+  display: inline-grid;
+  overflow: hidden;
+  height: 1em;
+  line-height: 1;
+}
+
+.rateDigitRoll {
+  display: grid;
+}
+
+.rateDigitRoll > span {
+  grid-area: 1 / 1;
+}
+
+.rateDigitRoll[data-direction="up"] .rateDigitOutgoing {
+  animation: rate-digit-out-up 520ms var(--interaction-ease) both;
+}
+
+.rateDigitRoll[data-direction="up"] .rateDigitIncoming {
+  animation: rate-digit-in-up 520ms var(--interaction-ease) both;
+}
+
+.rateDigitRoll[data-direction="down"] .rateDigitOutgoing {
+  animation: rate-digit-out-down 520ms var(--interaction-ease) both;
+}
+
+.rateDigitRoll[data-direction="down"] .rateDigitIncoming {
+  animation: rate-digit-in-down 520ms var(--interaction-ease) both;
+}
+
+@keyframes rate-digit-out-up {
+  from { transform: translateY(0); }
+  to { transform: translateY(-100%); }
+}
+
+@keyframes rate-digit-in-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes rate-digit-out-down {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+
+@keyframes rate-digit-in-down {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+.targetRate[data-direction="up"] {
+  animation: rate-flash-up 720ms ease-out both;
+}
+
+.targetRate[data-direction="down"] {
+  animation: rate-flash-down 720ms ease-out both;
+}
+
+@keyframes rate-flash-up {
+  0%, 32% { color: #059a75; }
+  100% { color: var(--ink); }
+}
+
+@keyframes rate-flash-down {
+  0%, 32% { color: #d50953; }
+  100% { color: var(--ink); }
+}
+
+.balanceBottom {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.balanceValue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+}
+
+.balanceValue strong {
+  min-width: 158px;
+  font-size: 32px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-align: left;
+  transition:
+    min-width var(--resize-dur) var(--resize-ease),
+    font-size var(--resize-dur) var(--resize-ease);
+}
+
+.tabularNumber {
+  display: inline-block;
+  min-width: 100%;
+}
+
+.positive {
+  color: #059a75;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.primaryActions,
+.supportRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 7px 14px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--button-font-size);
+  font-weight: var(--button-font-weight);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 180ms ease,
+    color 160ms ease;
+}
+
+.actionButton svg {
+  flex: 0 0 auto;
+}
+
+.actionButtonIcon {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+}
+
+.actionButton:hover {
+  border-color: #dcdcdc;
+  background: #f8f8f8;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
+}
+
+.actionButton:active {
+  border-color: #d6d6d6;
+  background: #f4f4f4;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 5%);
+}
+
+.actionButton:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 36%, transparent);
+  outline-offset: 2px;
+}
+
+.actionPrimary {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.actionPrimary:hover {
+  border-color: #ec0e61;
+  background: #ec0e61;
+  color: #fff;
+  box-shadow: 0 2px 9px rgb(255 20 105 / 22%);
+}
+
+.actionPrimary:active {
+  border-color: #df0d5b;
+  background: #df0d5b;
+}
+
+.depositTrigger[data-modal-open="true"] {
+  border-color: var(--line);
+  outline: none;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: none;
+  transition:
+    border-color 180ms ease,
+    background-color 160ms ease,
+    box-shadow 180ms ease,
+    color 160ms ease;
+}
+
+.depositTrigger[data-absorbed="true"] {
+  pointer-events: none;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  overflow: visible;
+}
+
+.featureCard {
+  display: flex;
+  width: 100%;
+  height: 172px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--panel-inset);
+  color: var(--ink);
+  text-align: left;
+  transition:
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 180ms ease,
+    box-shadow 240ms ease;
+}
+
+.featureCard:focus-visible {
+  z-index: 1;
+  border-color: #dedede;
+  outline: 2px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  outline-offset: 2px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 6%);
+  transform: scale(1.006);
+  --card-layer-back-transform: translate(-2px, 1px) rotate(-2deg);
+  --card-layer-middle-transform: translateY(-1px) rotate(-0.5deg);
+  --card-layer-front-transform: translate(2px, -2px) rotate(2deg);
+  --plane-body-transform: translate(4px, -4px) rotate(-3deg);
+  --plane-tail-transform: translate(-1px, 1px) rotate(2deg);
+  --bitso-body-transform: scale(1.035);
+  --bitso-left-transform: translateX(-1px);
+  --bitso-right-transform: translateX(1px);
+  --rate-left-transform: translateX(-2px) rotate(-2deg);
+  --rate-right-transform: translate(2px, -1px) rotate(2deg);
+  --rate-arrow-transform: translate(1px, -1px) rotate(-2deg);
+}
+
+.featureCard:active { transform: scale(0.998); }
+
+.inviteFeatureCard[data-modal-open="true"] {
+  border-color: var(--line);
+  outline: none;
+  pointer-events: none;
+  box-shadow: 0 1px 8.2px rgb(0 0 0 / 3%);
+  transform: none;
+  transition:
+    border-color 180ms ease,
+    box-shadow 240ms ease;
+  --plane-body-transform: translate(0);
+  --plane-tail-transform: translate(0);
+}
+
+.inviteFeatureCard[data-modal-open="true"] .featureTop > svg {
+  color: #8b8b8b;
+  transform: none;
+}
+
+.inviteCardPlane {
+  display: block;
+  width: 36px;
+  height: 28px;
+}
+
+.featureTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.featureTop > svg {
+  color: #8b8b8b;
+  transition: color 180ms ease, transform 220ms var(--interaction-ease);
+}
+
+.featureCard:hover .featureTop > svg,
+.featureCard:focus-visible .featureTop > svg {
+  color: var(--ink);
+  transform: translate(2px, -2px);
+}
+
+.featureCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mobileFeatureTitle { display: none; }
+
+.featureCopy h2,
+.promoCopy h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.featureCopy p,
+.promoCopy p {
+  margin: 0;
+  color: #444;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+}
+
+.featureArt {
+  display: block;
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.featureArtSvg {
+  display: block;
+  max-width: none;
+  overflow: visible;
+  pointer-events: none;
+  transform: translate(var(--feature-art-x), var(--feature-art-y));
+}
+
+.cardLayerBack,
+.cardLayerMiddle,
+.cardLayerFront,
+.planeBody,
+.planeTail,
+.bitsoBody,
+.bitsoHalfLeft,
+.bitsoHalfRight,
+.rateCoinLeft,
+.rateCoinRight,
+.rateArrow {
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.cardLayerBack {
+  transform: var(--card-layer-back-transform, translate(0));
+  transition: transform 340ms var(--interaction-ease);
+}
+
+.cardLayerMiddle {
+  transform: var(--card-layer-middle-transform, translate(0));
+  transition: transform 320ms var(--interaction-ease);
+}
+
+.cardLayerFront {
+  transform: var(--card-layer-front-transform, translate(0));
+  transition: transform 300ms var(--interaction-ease);
+}
+
+.planeBody {
+  transform: var(--plane-body-transform, translate(0));
+  transition: transform 340ms var(--interaction-ease);
+}
+
+.planeTail {
+  transform: var(--plane-tail-transform, translate(0));
+  transition: transform 300ms var(--interaction-ease);
+}
+
+.bitsoBody {
+  transform: var(--bitso-body-transform, scale(1));
+  transition: transform 340ms var(--interaction-ease);
+}
+
+.bitsoHalfLeft {
+  transform: var(--bitso-left-transform, translate(0));
+  transition: transform 300ms var(--interaction-ease);
+}
+
+.bitsoHalfRight {
+  transform: var(--bitso-right-transform, translate(0));
+  transition: transform 320ms var(--interaction-ease);
+}
+
+.rateCoinLeft {
+  transform: var(--rate-left-transform, translate(0));
+  transition: transform 340ms var(--interaction-ease);
+}
+
+.rateCoinRight {
+  transform: var(--rate-right-transform, translate(0));
+  transition: transform 340ms var(--interaction-ease);
+}
+
+.rateArrow {
+  transform: var(--rate-arrow-transform, translate(0));
+  transition: transform 300ms var(--interaction-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .featureCard:hover {
+    z-index: 1;
+    border-color: #dedede;
+    box-shadow: 0 6px 20px rgb(0 0 0 / 6%);
+    transform: scale(1.006);
+    --card-layer-back-transform: translate(-2px, 1px) rotate(-2deg);
+    --card-layer-middle-transform: translateY(-1px) rotate(-0.5deg);
+    --card-layer-front-transform: translate(2px, -2px) rotate(2deg);
+    --plane-body-transform: translate(4px, -4px) rotate(-3deg);
+    --plane-tail-transform: translate(-1px, 1px) rotate(2deg);
+    --bitso-body-transform: scale(1.035);
+    --bitso-left-transform: translateX(-1px);
+    --bitso-right-transform: translateX(1px);
+    --rate-left-transform: translateX(-2px) rotate(-2deg);
+    --rate-right-transform: translate(2px, -1px) rotate(2deg);
+    --rate-arrow-transform: translate(1px, -1px) rotate(-2deg);
+  }
+}
+
+.promoCard {
+  position: relative;
+  display: flex;
+  min-height: 200px;
+  align-items: flex-end;
+  justify-content: space-between;
+  overflow: hidden;
+  gap: 24px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 14px;
+  padding: var(--panel-inset);
+  background-image: url("/higlobe-prototype/global-hire.png");
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 1px 8.2px rgb(0 0 0 / 3%);
+}
+
+.promoCopy {
+  position: relative;
+  display: flex;
+  align-self: stretch;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #fff;
+}
+
+.promoCopy div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.promoCopy p { color: #fff; }
+
+.promoButton {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.transactionsSection,
+.articlesSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cardPage {
+  display: flex;
+  min-height: calc(100dvh - 264px);
+  flex: 1;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.cardObjectStage {
+  display: grid;
+  min-height: 332px;
+  place-items: center;
+  padding: 0 36px;
+}
+
+.physicalCardStage {
+  position: relative;
+  width: min(480px, 100%);
+  aspect-ratio: 1.586 / 1;
+  perspective: 1200px;
+}
+
+.physicalCardFloat,
+.physicalCardTilt,
+.physicalCard {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.physicalCardFloat {
+  position: relative;
+  z-index: 1;
+  animation: physical-card-float 8.8s var(--interaction-ease) infinite alternate;
+  will-change: transform;
+}
+
+.physicalCardStage[data-frozen="true"] .physicalCardFloat {
+  animation-play-state: paused;
+  transform: translateY(0) rotateZ(0);
+}
+
+.physicalCardStage:has(.physicalCardReveal:hover) .physicalCardFloat,
+.physicalCardStage:focus-within .physicalCardFloat,
+.physicalCardStage[data-face="back"] .physicalCardFloat {
+  animation-play-state: paused;
+}
+
+@keyframes physical-card-float {
+  0% { transform: translateY(-6px) rotateZ(-1.2deg); }
+  100% { transform: translateY(6px) rotateZ(1.2deg); }
+}
+
+.physicalCardTilt {
+  --card-tilt-x: -2deg;
+  --card-tilt-y: 4deg;
+  --card-light-x: 40%;
+  --card-light-y: 22%;
+  position: relative;
+  transform: rotateX(var(--card-tilt-x)) rotateY(var(--card-tilt-y));
+  transition: transform 520ms var(--interaction-ease);
+  will-change: transform;
+}
+
+.physicalCardTilt[data-frozen="true"],
+.physicalCardTilt[data-face="back"] {
+  transform: rotateX(0) rotateY(0);
+}
+
+.physicalCard {
+  position: relative;
+  border-radius: 26px;
+  filter: saturate(1) brightness(1);
+  transition: filter 580ms var(--interaction-ease);
+  will-change: transform, filter;
+}
+
+.physicalCard[data-frozen="true"] {
+  filter: saturate(0.42) brightness(0.92);
+}
+
+.physicalCardFace {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 34%);
+  border-radius: inherit;
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 40%),
+    inset 0 -1px 0 rgb(255 20 105 / 34%),
+    0 18px 40px rgb(58 12 36 / 17%);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.physicalCardFace[aria-hidden="true"] {
+  pointer-events: none;
+}
+
+.physicalCardFace[aria-hidden="false"] {
+  pointer-events: auto;
+}
+
+.physicalCardFront {
+  background:
+    radial-gradient(circle at 30% 8%, rgb(255 102 162 / 74%), transparent 38%),
+    linear-gradient(122deg, #ed176d 0%, #bc1457 42%, #6e174d 67%, #211021 100%);
+}
+
+.physicalCardBack {
+  background:
+    radial-gradient(circle at 74% 6%, rgb(230 78 142 / 50%), transparent 38%),
+    linear-gradient(122deg, #8f1249 0%, #5d1745 48%, #211021 100%);
+  transform: rotateY(180deg);
+}
+
+.physicalCardFace > *:not(.physicalCardTexture, .physicalCardSpecular) {
+  position: absolute;
+  z-index: 2;
+}
+
+.physicalCardLogo {
+  top: 12%;
+  left: 9%;
+  width: clamp(82px, 22%, 112px);
+  height: auto;
+  filter: grayscale(1) brightness(0) invert(1);
+}
+
+.physicalCardNfc {
+  top: 35%;
+  right: 9%;
+  display: grid;
+  color: rgb(255 255 255 / 92%);
+  place-items: center;
+  transform: rotate(90deg);
+}
+
+.physicalCardNfc svg {
+  width: clamp(30px, 7vw, 38px);
+  height: auto;
+}
+
+.physicalCardNumber,
+.physicalCardHolder,
+.physicalCardExpiry {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 18%);
+}
+
+.physicalCardNumber {
+  bottom: 24%;
+  left: 11%;
+  font-size: clamp(18px, 4vw, 24px);
+  font-weight: 550;
+  letter-spacing: 0.02em;
+}
+
+.physicalCardHolder {
+  bottom: 10%;
+  left: 11%;
+  font-size: clamp(14px, 3vw, 18px);
+  font-weight: 500;
+}
+
+.physicalCardExpiry {
+  right: 9%;
+  bottom: 12%;
+  font-size: clamp(14px, 3vw, 18px);
+  font-weight: 500;
+}
+
+.physicalCardTexture,
+.physicalCardSpecular {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.physicalCardTexture {
+  background-image:
+    repeating-linear-gradient(115deg, rgb(255 255 255 / 2%) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(25deg, rgb(19 5 14 / 2%) 0 1px, transparent 1px 6px);
+  mix-blend-mode: soft-light;
+}
+
+.physicalCardSpecular {
+  overflow: hidden;
+  background: radial-gradient(
+    circle at var(--card-light-x) var(--card-light-y),
+    rgb(255 255 255 / 30%),
+    transparent 29%
+  );
+  mix-blend-mode: screen;
+  opacity: 0.72;
+  transition: opacity 480ms ease;
+}
+
+.physicalCardSpecular::after {
+  position: absolute;
+  inset: -45%;
+  background: linear-gradient(105deg, transparent 40%, rgb(255 255 255 / 24%) 49%, transparent 58%);
+  content: "";
+  transform: translateX(-46%) rotate(7deg);
+  animation: physical-card-sweep 11s ease-in-out infinite;
+}
+
+.physicalCardStage[data-frozen="true"] .physicalCardSpecular {
+  opacity: 0.12;
+}
+
+.physicalCardStage[data-frozen="true"] .physicalCardSpecular::after {
+  animation-play-state: paused;
+}
+
+@keyframes physical-card-sweep {
+  0%, 22% { transform: translateX(-58%) rotate(7deg); }
+  56%, 100% { transform: translateX(58%) rotate(7deg); }
+}
+
+.physicalCardShadow {
+  position: absolute;
+  z-index: 0;
+  right: 12%;
+  bottom: -9%;
+  left: 12%;
+  height: 14%;
+  border-radius: 50%;
+  background: rgb(46 20 34 / 22%);
+  filter: blur(18px);
+  opacity: 0.72;
+  transform: scaleX(0.92);
+  transition: opacity 560ms ease, transform 560ms var(--interaction-ease);
+}
+
+.physicalCardStage[data-frozen="true"] .physicalCardShadow {
+  opacity: 0.48;
+  transform: scaleX(0.82);
+}
+
+.physicalCardStripe {
+  top: 17%;
+  right: 0;
+  left: 0;
+  height: 17%;
+  background: rgb(16 8 16 / 72%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 8%);
+}
+
+.physicalCardBackDetails {
+  right: 8%;
+  bottom: 10%;
+  left: 8%;
+  display: grid;
+  min-height: 42%;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  gap: 12px 18px;
+  padding: 4px 0;
+}
+
+.physicalCardDetailNumber {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+  grid-column: 1 / -1;
+}
+
+.physicalCardDetailNumber > span:first-child,
+.physicalCardDetailMeta small {
+  color: rgb(255 255 255 / 68%);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.physicalCardValueSwap {
+  display: grid;
+  min-width: 0;
+  align-items: center;
+}
+
+.physicalCardValueSwap > strong {
+  display: inline-flex;
+  min-width: 0;
+  grid-area: 1 / 1;
+}
+
+.physicalCardValuePart {
+  display: inline-block;
+  white-space: pre;
+}
+
+.physicalCardDetailNumber strong {
+  overflow: hidden;
+  font-size: clamp(14px, 3.2vw, 20px);
+  font-weight: 550;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.physicalCardDetailMeta {
+  display: flex;
+  align-items: flex-end;
+  gap: 22px;
+}
+
+.physicalCardDetailMeta > span {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.physicalCardDetailMeta strong {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.physicalCardReveal {
+  position: static !important;
+  display: inline-flex;
+  min-width: 82px;
+  height: 34px;
+  align-self: end;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid rgb(255 255 255 / 24%);
+  border-radius: 10px;
+  padding: 7px 10px;
+  background: rgb(255 255 255 / 13%);
+  color: #fff;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.physicalCardReveal:hover {
+  border-color: rgb(255 255 255 / 40%);
+  background: rgb(255 255 255 / 20%);
+}
+
+.physicalCardReveal:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.cardPageActions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: -8px;
+}
+
+.cardManagementAction {
+  width: 184px;
+  height: 42px;
+}
+
+.cardDetailsAction {
+  border-color: var(--accent);
+  color: #d50953;
+}
+
+.cardDetailsAction:hover {
+  border-color: #df0d5b;
+  background: #fff6f9;
+  color: #df0d5b;
+}
+
+.cardTransactionsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cardTransactionsExpand {
+  display: inline-flex;
+  min-height: 38px;
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid #dedede;
+  border-radius: 12px;
+  padding: 9px 14px;
+  background: #fff;
+  color: #555;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  transition:
+    border-color 300ms ease,
+    background-color 300ms ease,
+    color 300ms ease,
+    transform 300ms var(--interaction-ease);
+}
+
+.cardTransactionsExpand svg {
+  transition: transform 440ms var(--interaction-ease);
+}
+
+.cardTransactionsExpand[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.cardTransactionsExpand:hover {
+  border-color: #efb2c8;
+  background: #fff7fa;
+  color: #d50953;
+  transform: translateY(-1px);
+}
+
+.cardTransactionsExpand:active {
+  transform: translateY(0);
+}
+
+.cardTransactionsExpand:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.cardPageFooter {
+  margin-top: auto;
+}
+
+.transactionsPage {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.transactionsSection {
+  align-items: flex-end;
+}
+
+.sectionTitle {
+  align-self: stretch;
+  margin: 0;
+  color: #555;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.transactionCard {
+  width: 100%;
+  padding: 6px 8px;
+}
+
+.transactionRow {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto 14px;
+  width: 100%;
+  min-height: 60px;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 0 16px;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+}
+
+.transactionRow::before {
+  position: absolute;
+  z-index: -1;
+  inset: 4px 0 5px;
+  border-radius: 10px;
+  background: #f7f7f7;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.995);
+  transition:
+    opacity 160ms ease,
+    transform 180ms var(--interaction-ease);
+}
+
+.transactionRowEnter {
+  --transaction-row-index: 0;
+  animation: transaction-history-row-enter 520ms var(--higlobe-enter-ease) both;
+  animation-delay: calc(260ms + var(--transaction-row-index) * 52ms);
+  will-change: transform, opacity, filter;
+}
+
+@keyframes transaction-history-row-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.995);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: none;
+  }
+}
+
+.transactionCard > .transactionRow:last-child { border-bottom: 0; }
+.transactionRowCollapse {
+  overflow: hidden;
+}
+
+.transactionRowCollapse:last-child .transactionRow {
+  border-bottom: 0;
+}
+
+.transactionRow:hover::before,
+.transactionRow:focus-visible::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.transactionIncoming {
+  --transaction-in-delay: calc(var(--higlobe-enter-lead, 0ms) + var(--higlobe-index) * var(--higlobe-enter-stagger) + var(--higlobe-enter-duration) + 280ms);
+  display: grid;
+  grid-template-rows: 0fr;
+  animation: transaction-slot-open 900ms var(--higlobe-enter-ease) both;
+  animation-delay: var(--transaction-in-delay);
+}
+
+.transactionIncomingClip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.transactionIncoming .transactionRow {
+  animation: transaction-row-flash 820ms var(--higlobe-enter-ease) both;
+  animation-delay: calc(var(--transaction-in-delay) + 80ms);
+}
+
+.transactionIncoming .transactionRow > * {
+  animation: transaction-cell-in 720ms var(--higlobe-enter-ease) both;
+}
+
+.transactionIncoming .transactionRow > *:nth-child(1) {
+  animation-delay: calc(var(--transaction-in-delay) + 80ms);
+}
+
+.transactionIncoming .transactionRow > *:nth-child(2) {
+  animation-delay: calc(var(--transaction-in-delay) + 150ms);
+}
+
+.transactionIncoming .transactionRow > *:nth-child(3) {
+  animation-delay: calc(var(--transaction-in-delay) + 220ms);
+}
+
+.transactionIncoming .transactionRow > *:nth-child(4) {
+  animation-delay: calc(var(--transaction-in-delay) + 290ms);
+}
+
+@keyframes transaction-slot-open {
+  from { grid-template-rows: 0fr; }
+  to { grid-template-rows: 1fr; }
+}
+
+@keyframes transaction-row-flash {
+  from { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+  to { background: transparent; }
+}
+
+@keyframes transaction-cell-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: none;
+  }
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #eee;
+  object-fit: cover;
+}
+
+.transactionIconAvatar {
+  display: grid;
+  border: 1px solid rgb(26 26 26 / 6%);
+  place-items: center;
+}
+
+.transactionIconAvatar[data-tone="pink"] {
+  background: #fff0f5;
+  color: #d50953;
+}
+
+.transactionIconAvatar[data-tone="green"] {
+  background: #edf8f5;
+  color: #08765c;
+}
+
+.transactionIconAvatar[data-tone="amber"] {
+  background: #fff7e7;
+  color: #9a6200;
+}
+
+.transactionCopy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.transactionCopy strong {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.transactionCopy small {
+  color: #555;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.amount {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.negative { color: var(--accent); }
+
+.flag {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.viewAllButton { align-self: flex-end; }
+
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dots {
+  display: flex;
+  gap: 12px;
+}
+
+.dots button {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  background: #e2e2e2;
+  transition: transform 180ms ease, background-color 180ms ease;
+}
+
+.dots .dotActive {
+  background: var(--accent);
+  transform: scale(1.15);
+}
+
+.articleGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  overflow: visible;
+}
+
+.articleCard {
+  display: flex;
+  height: 300px;
+  align-items: flex-end;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: var(--panel-inset);
+  background-position: center;
+  background-size: cover;
+  color: #fff;
+  text-align: left;
+  box-shadow: 0 1px 8.2px rgb(0 0 0 / 3%);
+  transition:
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 180ms ease,
+    box-shadow 240ms ease;
+}
+
+.articleCard:hover {
+  border-color: #dedede;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 8%);
+  transform: scale(1.006);
+}
+
+.articleCard:active { transform: scale(0.998); }
+
+.articleCard span {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.supportRow {
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 2px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  opacity: 0.5;
+}
+
+.inviteModalLayer,
+.transactionModalLayer,
+.depositPopoverLayer {
+  --dialog-surface-padding: 40px;
+  --dialog-surface-radius: 20px;
+  --dialog-title-size: 22px;
+  --dialog-body-size: 14px;
+  --dialog-footer-size: 12px;
+}
+
+.inviteModalLayer,
+.transactionModalLayer {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  isolation: isolate;
+}
+
+.transactionModalLayer {
+  padding: 16px;
+}
+
+.depositPopoverLayer {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  isolation: isolate;
+  pointer-events: none;
+}
+
+.depositPopoverLayer[data-ready="false"] .depositModal {
+  visibility: hidden;
+}
+
+.inviteBackdrop {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: rgb(24 24 24 / 30%);
+  cursor: default;
+  backdrop-filter: blur(2px);
+}
+
+.inviteModal {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(700px, calc(100vw - 64px), calc(100dvh - 64px));
+  height: min(700px, calc(100vw - 64px), calc(100dvh - 64px));
+  max-height: calc(100dvh - 64px);
+  overflow-y: auto;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--dialog-surface-radius);
+  padding: var(--dialog-surface-padding);
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 28px 90px rgb(0 0 0 / 18%);
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+
+.inviteModal::-webkit-scrollbar {
+  display: none;
+}
+
+.transactionModal {
+  position: relative;
+  z-index: 1;
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--dialog-surface-radius);
+  padding: 40px;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 28px 90px rgb(0 0 0 / 18%);
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+
+.transactionModal::-webkit-scrollbar {
+  display: none;
+}
+
+.inviteCloseButton {
+  position: absolute;
+  z-index: 2;
+  top: 28px;
+  left: 28px;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 0;
+  border-radius: 12px;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.inviteCloseButton:hover {
+  background: #f4f4f4;
+}
+
+.inviteCloseButton:active {
+  transform: scale(0.96);
+}
+
+.inviteCloseButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.inviteCloseButton:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  outline-offset: 3px;
+}
+
+.transactionModal .inviteCloseButton {
+  top: 18px;
+  left: 18px;
+}
+
+.transactionModalHero {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding-top: 22px;
+  text-align: center;
+}
+
+.transactionModalVisual {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  margin-bottom: 18px;
+}
+
+.transactionModalVisual .avatar {
+  width: 64px;
+  height: 64px;
+}
+
+.transactionModalVisual .transactionIconAvatar svg {
+  width: 28px;
+  height: 28px;
+}
+
+.transactionModalHero p {
+  margin: 0;
+  color: #555;
+  font-size: var(--dialog-body-size);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.transactionModalAmount {
+  display: block;
+  margin: 8px 0 0;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.transactionModalAmount.transactionModalNegative {
+  color: var(--accent);
+}
+
+.transactionStatus {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  margin-top: 14px;
+  border: 1px solid #cde5df;
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: #f1faf7;
+  color: #05645e;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.transactionStatus[data-status="pending"] {
+  border-color: #f1dfb9;
+  background: #fff8ea;
+  color: #8a5a00;
+}
+
+.transactionDetailsList {
+  overflow: hidden;
+  margin: 32px 0 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fff 0%, #fefefe 100%);
+  box-shadow: 0 1px 8px rgb(0 0 0 / 2%);
+}
+
+.transactionDetailRow {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.75fr) minmax(0, 1.25fr);
+  gap: 24px;
+  align-items: start;
+  border-bottom: 1px solid var(--line);
+  padding: 14px 16px;
+}
+
+.transactionDetailRow:last-child {
+  border-bottom: 0;
+}
+
+.transactionDetailRow dt,
+.transactionDetailRow dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+}
+
+.transactionDetailRow dt {
+  color: #777;
+}
+
+.transactionDetailRow dd {
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  text-align: right;
+}
+
+.inviteHero {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.inviteModalPlane {
+  display: grid;
+  width: 54px;
+  height: 44px;
+  place-items: center;
+  margin-bottom: 18px;
+}
+
+.inviteModalPlane .featureArt {
+  transform: scale(1.5);
+  transform-origin: center;
+}
+
+.inviteHero h2 {
+  margin: 0;
+  font-size: var(--dialog-title-size);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.inviteHero > p {
+  margin: 9px 0 0;
+  color: #666;
+  font-size: var(--dialog-body-size);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.35;
+}
+
+.inviteRevealedContent {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.inviteSteps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+  margin-top: 42px;
+}
+
+.inviteStep {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.inviteStepIcon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  color: var(--accent);
+}
+
+.inviteStepIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.inviteStep h3 {
+  margin: 12px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.inviteStep p {
+  max-width: 190px;
+  margin: 6px 0 0;
+  color: #555;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+}
+
+.inviteActionPanel {
+  position: relative;
+  display: flex;
+  isolation: isolate;
+  overflow: hidden;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: 36px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 24px;
+  background: linear-gradient(180deg, #fff 0%, #fefefe 100%);
+  box-shadow: 0 1px 8px rgb(0 0 0 / 2%);
+}
+
+.inviteActionTopography {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(115deg, rgb(0 0 0 / 82%), #000 58%, rgb(0 0 0 / 66%));
+  mask-image: linear-gradient(115deg, rgb(0 0 0 / 82%), #000 58%, rgb(0 0 0 / 66%));
+}
+
+.inviteActionPanel h3 {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.inviteActions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.inviteActions .actionButton[data-confirmed="true"] {
+  border-color: #cde5df;
+  background: #f1faf7;
+  color: #05645e;
+}
+
+.inviteActions .actionPrimary[data-confirmed="true"] {
+  border-color: #df0d5b;
+  background: #df0d5b;
+  color: #fff;
+}
+
+.inviteFooter {
+  margin-top: 18px;
+  color: #777;
+  font-size: var(--dialog-footer-size);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.depositModal {
+  position: absolute;
+  z-index: 1;
+  top: var(--deposit-popover-top);
+  left: var(--deposit-popover-left);
+  display: flex;
+  width: min(400px, calc(100vw - 32px));
+  max-height: var(--deposit-popover-max-height);
+  overflow-y: auto;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--dialog-surface-radius);
+  padding: 24px;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 18px 52px rgb(0 0 0 / 16%);
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+}
+
+.depositModal::-webkit-scrollbar {
+  display: none;
+}
+
+.depositContent {
+  display: flex;
+  min-height: 0;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.depositRevealedContent {
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  align-items: center;
+  flex-direction: column;
+}
+
+.depositModal .inviteCloseButton {
+  top: 12px;
+  left: 12px;
+  width: 40px;
+  height: 40px;
+}
+
+.depositCoinsMorph {
+  display: grid;
+  width: 224px;
+  height: 112px;
+  flex: 0 0 auto;
+  place-items: center;
+  margin-top: 12px;
+}
+
+.depositCoins {
+  display: block;
+  width: 224px;
+  height: 112px;
+  object-fit: contain;
+}
+
+.depositContent h2 {
+  margin: 20px 0 0;
+  font-size: var(--dialog-title-size);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.depositDescription {
+  max-width: 46ch;
+  margin: 10px 0 0;
+  color: #666;
+  font-size: var(--dialog-body-size);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+
+.depositCode {
+  display: flex;
+  width: 100%;
+  height: 48px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding-inline: 12px;
+  background: #fcfcfc;
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 2%);
+  color: #555;
+}
+
+.depositCode code {
+  overflow: hidden;
+  font-family: inherit;
+  font-size: var(--dialog-body-size);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actionButton.depositCopyButton {
+  margin-top: 12px;
+}
+
+.depositCopyButton svg {
+  width: 15px;
+  height: 15px;
+}
+
+.depositCopyButton[data-confirmed="true"] {
+  border-color: #cde5df;
+  background: #f1faf7;
+  color: #05645e;
+}
+
+.depositFooter {
+  margin: 24px -12px 0;
+  color: #777;
+  font-size: var(--dialog-footer-size);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.4;
+}
+
+@media (max-width: 920px) {
+  .viewport {
+    --compact-nav-block-size: 66px;
+    --compact-nav-offset: max(16px, env(safe-area-inset-bottom));
+    --compact-nav-clearance: calc(
+      var(--compact-nav-block-size) + var(--compact-nav-offset) + 24px
+    );
+    scroll-padding-bottom: var(--compact-nav-clearance);
+  }
+
+  .dashboard {
+    grid-template-columns: minmax(0, 808px);
+    grid-template-rows: auto minmax(0, 1fr);
+    justify-content: center;
+    gap: 36px;
+    padding: 32px 32px var(--compact-nav-clearance);
+  }
+
+  .sidebar { display: none; }
+
+  .responsiveHeader {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .responsiveAccountButton {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 9px 13px;
+    background: rgb(255 255 255 / 94%);
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    box-shadow: 0 1px 8px rgb(0 0 0 / 3%);
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .responsiveAccountButton:hover {
+    border-color: #dedede;
+    background: #fafafa;
+    box-shadow: 0 3px 12px rgb(0 0 0 / 5%);
+  }
+
+  .responsiveAccountButton:focus-visible,
+  .compactNav button:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--accent) 36%, transparent);
+    outline-offset: 2px;
+  }
+
+  .responsiveAccountButton {
+    width: auto;
+  }
+
+  .responsiveAccountButton span { flex: 0 0 auto; }
+
+  .compactNavWrap {
+    position: fixed;
+    z-index: 45;
+    right: 32px;
+    bottom: var(--compact-nav-offset);
+    left: 32px;
+    display: block;
+    max-width: 808px;
+    margin-inline: auto;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 6px;
+    background: rgb(255 255 255 / 96%);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 5%);
+    backdrop-filter: blur(18px);
+  }
+
+  .compactNav {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .compactNav button {
+    display: flex;
+    width: 100%;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid transparent;
+    border-radius: 15px;
+    padding: 8px 12px;
+    background: transparent;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    transition:
+      color 180ms ease,
+      border-color 180ms ease,
+      background-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .compactNav button:hover {
+    border-color: #f0f0f0;
+    background: #f8f8f8;
+  }
+
+  .compactNav .navActive {
+    border-color: #ffd9e7;
+    background: #fff3f7;
+    color: var(--accent);
+    font-weight: var(--button-font-weight);
+    box-shadow: none;
+  }
+
+  .viewport :is(button, input, [tabindex]):focus-visible {
+    scroll-margin-bottom: var(--compact-nav-clearance);
+  }
+
+  .mainColumn { height: auto; }
+
+  .mainColumn[data-flow-active="true"] { min-height: auto; }
+
+  .cardPage { min-height: auto; }
+
+  .moneyFlow {
+    min-height: 0;
+    gap: 36px;
+  }
+}
+
+@media (max-width: 640px) {
+  .viewport {
+    --panel-inset: 30px;
+    --compact-nav-block-size: 78px;
+  }
+
+  .dashboard {
+    gap: 28px;
+    padding: 24px 22px var(--compact-nav-clearance);
+  }
+
+  .responsiveHeader {
+    height: 48px;
+  }
+
+  .responsiveHeader .logo {
+    display: block;
+    width: 92px;
+    height: auto;
+  }
+
+  .responsiveAccountButton {
+    width: auto;
+    min-height: 44px;
+    gap: 12px;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    font-size: clamp(18px, 3.6vw, 20px);
+    letter-spacing: -0.03em;
+  }
+
+  .responsiveAccountButton svg:first-child { width: 28px; height: 28px; }
+  .responsiveAccountButton svg:last-child { display: none; }
+
+  .compactNavWrap {
+    right: 22px;
+    left: 22px;
+    border-radius: 22px;
+  }
+
+  .compactNav button {
+    min-height: 64px;
+    gap: 10px;
+    border-radius: 18px;
+    padding: 8px;
+    font-size: clamp(16px, 3.6vw, 20px);
+    letter-spacing: -0.03em;
+  }
+
+  .compactNav .iconSlot {
+    flex-basis: 28px;
+    width: 28px;
+  }
+
+  .compactNav .iconSlot svg { width: 28px; height: 28px; }
+
+  .mainColumn { gap: 24px; }
+
+  .cardPage {
+    gap: 24px;
+  }
+
+  .cardObjectStage {
+    min-height: 320px;
+    padding-inline: 12px;
+  }
+
+  .cardPageActions {
+    width: 100%;
+    gap: 12px;
+  }
+
+  .cardManagementAction {
+    width: min(184px, 50%);
+    height: 48px;
+    border-radius: 14px;
+  }
+
+  .moneyFlow {
+    min-height: 0;
+    gap: 24px;
+  }
+
+  .withdrawStep {
+    gap: 22px;
+  }
+
+  .withdrawAmountPair {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .withdrawExchangeIcon {
+    position: relative;
+    z-index: 1;
+    margin: -20px auto;
+    transform: rotate(90deg);
+  }
+
+  .withdrawBankList {
+    grid-template-columns: 1fr;
+  }
+
+  .withdrawBankOption {
+    min-height: 72px;
+    grid-template-columns: minmax(0, 1fr) auto 24px;
+    grid-template-rows: 1fr;
+  }
+
+  .withdrawBankCurrency {
+    grid-column: auto;
+    margin-top: 0;
+  }
+
+  .withdrawRadioMark {
+    position: static;
+  }
+
+  .actionButton.withdrawPrimaryButton {
+    align-self: stretch;
+    width: 100%;
+    height: 64px;
+    gap: 12px;
+    border-radius: 20px;
+    padding: 12px 18px;
+    font-size: clamp(17px, 3.8vw, 20px);
+  }
+
+  .balanceCard[data-compact="true"] {
+    height: 80px;
+    min-height: 80px;
+    border-radius: 20px;
+    padding: 16px 22px;
+  }
+
+  .balanceCard[data-compact="true"] .exchangeRate {
+    gap: 6px;
+  }
+
+  .balanceCard[data-compact="true"] .currencyRate { gap: 5px; }
+
+  .balanceCard[data-compact="true"] .balanceBottom,
+  .balanceCard[data-compact="true"] .balanceValue {
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: row;
+    gap: 8px;
+    padding-top: 0;
+  }
+
+  .balanceCard[data-compact="true"] .balanceValue strong {
+    text-align: left;
+  }
+
+  .flowChooser {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .featureCard.flowOptionCard {
+    height: 168px;
+    border-radius: 20px;
+    padding: 24px;
+  }
+
+  .recipientPicker { gap: 20px; }
+
+  .recipientSearch,
+  .addRecipientCard {
+    border-radius: 20px;
+  }
+
+  .recipientSearch {
+    min-height: 62px;
+    padding-inline: 20px;
+  }
+
+  .flowFooter {
+    margin-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .balanceCard {
+    height: 436px;
+    border-radius: 20px;
+  }
+
+  .exchangeRate {
+    justify-content: center;
+    gap: 12px;
+    font-size: clamp(20px, 4.2vw, 24px);
+  }
+
+  .currencyRate { gap: 8px; }
+  .exchangeRate img { width: 24px; height: 24px; }
+  .exchangeIcon svg { width: 20px; height: 20px; }
+  .targetRate { min-width: 82px; }
+
+  .balanceBottom {
+    flex: 1;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .balanceValue {
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+    padding-top: 48px;
+  }
+
+  .balanceValue strong {
+    min-width: 0;
+    font-size: clamp(44px, 10vw, 58px);
+    text-align: center;
+  }
+
+  .positive { font-size: clamp(20px, 4.2vw, 24px); }
+
+  .primaryActions {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .primaryActions .actionButton {
+    width: 100%;
+    height: 64px;
+    gap: 12px;
+    border-radius: 20px;
+    padding: 12px 18px;
+    font-size: clamp(17px, 3.8vw, 20px);
+  }
+
+  .withdrawReviewActions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .withdrawReviewActions .actionButton {
+    width: auto;
+  }
+
+  .primaryActions .actionButton svg { width: 25px; height: 25px; }
+
+  .featureGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+  }
+
+  .featureCard {
+    height: 250px;
+    border-radius: 20px;
+    padding: 30px;
+  }
+
+  .featureTop > svg { display: none; }
+  .featureArt { transform: scale(1.35); transform-origin: top left; }
+  .featureCopy { gap: 12px; }
+  .desktopFeatureTitle { display: none; }
+  .mobileFeatureTitle { display: inline; }
+  .featureCopy h2 {
+    font-size: clamp(16px, 3.5vw, 20px);
+    line-height: 1.2;
+  }
+  .featureCopy p {
+    font-size: clamp(13px, 2.8vw, 16px);
+    line-height: 1.35;
+  }
+
+  .promoCard {
+    min-height: 250px;
+    align-items: flex-start;
+    flex-direction: column;
+    background-position: center;
+  }
+
+  .promoCopy { width: 100%; min-height: 132px; }
+
+  .transactionCard { padding: 6px; }
+  .transactionRow {
+    grid-template-columns: 28px minmax(0, 1fr) auto 14px;
+    gap: 9px;
+    padding-inline: 10px;
+  }
+  .amount { font-size: 13px; }
+
+  .articlesSection { overflow: hidden; margin-inline: -22px; padding-inline: 22px; }
+  .articleGrid {
+    display: flex;
+    width: max-content;
+    transition: transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .articleGrid[data-page="1"] { transform: translateX(calc(-100vw + 28px)); }
+  .articleGrid[data-page="2"] { transform: translateX(calc(-200vw + 56px)); }
+  .articleCard { width: calc(100vw - 48px); height: 300px; flex: 0 0 auto; }
+
+  .supportRow { flex-wrap: wrap; }
+  .supportRow .actionButton:first-child { width: 100%; }
+
+  .transactionModal {
+    max-height: calc(100dvh - 32px);
+    padding: 34px 20px 24px;
+  }
+
+  .transactionModal .inviteCloseButton {
+    top: 10px;
+    left: 10px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .transactionModalHero {
+    padding-top: 28px;
+  }
+
+  .transactionModalAmount {
+    font-size: 28px;
+  }
+
+  .transactionDetailsList {
+    margin-top: 28px;
+  }
+
+  .transactionDetailRow {
+    grid-template-columns: minmax(100px, 0.7fr) minmax(0, 1.3fr);
+    gap: 16px;
+    padding: 13px 14px;
+  }
+
+  .depositModal {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+    padding:
+      calc(52px + env(safe-area-inset-top))
+      22px
+      calc(30px + env(safe-area-inset-bottom));
+    box-shadow: none;
+  }
+
+  .depositModal .inviteCloseButton {
+    top: calc(14px + env(safe-area-inset-top));
+    left: 14px;
+  }
+
+  .depositContent {
+    min-height: 100%;
+    justify-content: center;
+  }
+
+  .depositCoinsMorph {
+    margin-top: 0;
+  }
+
+  .inviteModalLayer {
+    display: block;
+    padding: 0;
+  }
+
+  .inviteModal {
+    width: 100vw;
+    height: 100dvh;
+    max-height: none;
+    min-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    padding:
+      calc(28px + env(safe-area-inset-top))
+      22px
+      calc(30px + env(safe-area-inset-bottom));
+    box-shadow: none;
+  }
+
+  .inviteRevealedContent {
+    flex: 1;
+  }
+
+  .inviteCloseButton {
+    top: calc(14px + env(safe-area-inset-top));
+    left: 14px;
+  }
+
+  .inviteHero {
+    padding-top: 48px;
+  }
+
+  .inviteModalPlane {
+    margin-bottom: 18px;
+  }
+
+  .inviteHero h2 {
+    font-size: clamp(20px, 5.5vw, 22px);
+  }
+
+  .inviteHero > p {
+    max-width: 300px;
+    margin-top: 8px;
+    font-size: 14px;
+  }
+
+  .inviteSteps {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    margin-top: 34px;
+  }
+
+  .inviteStep {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: 14px;
+    text-align: left;
+  }
+
+  .inviteStepIcon {
+    grid-row: 1 / 3;
+    align-self: start;
+    width: 36px;
+    height: 36px;
+  }
+
+  .inviteStep h3 {
+    margin: 1px 0 0;
+    font-size: 15px;
+  }
+
+  .inviteStep p {
+    max-width: none;
+    margin-top: 4px;
+    font-size: 12px;
+  }
+
+  .inviteActionPanel {
+    margin-top: 32px;
+    border-radius: 14px;
+    padding: 24px;
+  }
+
+  .inviteActionPanel h3 {
+    font-size: 18px;
+  }
+
+  .inviteActions {
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  .inviteFooter {
+    margin-top: 18px;
+    padding-top: 0;
+    font-size: 12px;
+  }
+
+}
+
+@media (max-width: 430px) {
+  .viewport {
+    --panel-inset: 22px;
+    --compact-nav-block-size: 72px;
+  }
+
+  .dashboard { padding-inline: 14px; }
+  .responsiveHeader .logo { width: 86px; }
+  .compactNavWrap { right: 14px; left: 14px; }
+  .compactNav button { min-height: 58px; gap: 6px; padding-inline: 5px; }
+  .compactNav .iconSlot { flex-basis: 24px; width: 24px; }
+  .compactNav .iconSlot svg { width: 24px; height: 24px; }
+
+  .withdrawHeader h1 {
+    font-size: 20px;
+  }
+
+  .withdrawAmountCard {
+    min-height: 122px;
+    padding: 18px 16px;
+  }
+
+  .withdrawAmountControl input {
+    font-size: 23px;
+  }
+
+  .withdrawBankOption {
+    grid-template-columns: minmax(0, 1fr) auto 22px;
+    padding: 12px;
+  }
+
+  .withdrawDetailList > div {
+    grid-template-columns: minmax(100px, 0.75fr) minmax(0, 1.25fr);
+    gap: 14px;
+    padding: 13px 14px;
+  }
+
+  .withdrawReviewHero {
+    padding-inline: 16px;
+  }
+
+  .withdrawReviewHero > strong {
+    font-size: 30px;
+  }
+
+  .balanceCard[data-compact="true"] {
+    height: 120px;
+    min-height: 120px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .balanceCard[data-compact="true"] .exchangeRate {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .cardObjectStage {
+    min-height: 268px;
+    padding-inline: 0;
+  }
+
+  .physicalCard {
+    border-radius: 20px;
+  }
+
+  .physicalCardBackDetails {
+    gap: 8px 12px;
+  }
+
+  .physicalCardDetailMeta {
+    gap: 14px;
+  }
+
+  .cardPageActions {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .cardManagementAction {
+    width: 100%;
+  }
+
+  .featureCard.flowOptionCard { height: 154px; padding: 20px; }
+  .flowOptionTop { min-height: 46px; }
+  .flowOptionIcon,
+  .flowOptionImage {
+    width: 46px;
+    height: 46px;
+    flex-basis: 46px;
+  }
+
+  .flowOptionIcon {
+    --flow-icon-size: 27px;
+    --flow-icon-x: -6px;
+    --flow-icon-y: 4px;
+  }
+
+  .flowOptionIcon[data-icon="group"] {
+    --flow-icon-size: 31px;
+    --flow-icon-x: -3px;
+    --flow-icon-y: 3px;
+  }
+
+  .flowOptionImage { transform: translateX(-8px); }
+
+  .recipientSearch { padding-inline: 16px; }
+
+  .balanceCard { height: 410px; }
+  .balanceValue { gap: 16px; padding-top: 32px; }
+  .primaryActions { gap: 8px; }
+  .primaryActions .actionButton { height: 58px; padding-inline: 10px; }
+  .actionButton.withdrawPrimaryButton { height: 58px; padding-inline: 10px; }
+
+  .featureGrid { gap: 10px; }
+  .featureCard { height: 222px; padding: 20px; }
+  .featureArt { transform: scale(1.15); }
+
+  .inviteModal {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .depositFooter {
+    margin-inline: 0;
+  }
+
+  .inviteHero {
+    padding-top: 46px;
+  }
+
+  .inviteSteps {
+    margin-top: 32px;
+  }
+
+  .inviteActionPanel {
+    margin-top: 30px;
+  }
+
+  .articlesSection { margin-inline: -14px; padding-inline: 14px; }
+}
+
+@media (max-width: 430px) and (max-height: 700px) {
+  .viewport {
+    --compact-nav-block-size: 68px;
+    --compact-nav-offset: max(8px, env(safe-area-inset-bottom));
+  }
+
+  .dashboard {
+    gap: 18px;
+    padding-top: 16px;
+  }
+
+  .responsiveHeader { height: 42px; }
+  .mainColumn,
+  .cardPage,
+  .moneyFlow { gap: 18px; }
+
+  .balanceCard {
+    height: 340px;
+    padding: 20px;
+  }
+
+  .balanceCard[data-compact="true"] {
+    height: 104px;
+    min-height: 104px;
+    padding: 14px 18px;
+  }
+
+  .balanceBottom { gap: 18px; }
+  .balanceValue { gap: 12px; padding-top: 18px; }
+  .balanceValue strong { font-size: clamp(38px, 13vw, 46px); }
+  .positive { font-size: 19px; }
+
+  .primaryActions .actionButton,
+  .actionButton.withdrawPrimaryButton {
+    height: 52px;
+    min-height: 52px;
+  }
+
+  .compactNav button { min-height: 54px; }
+  .flowChooser { gap: 10px; }
+  .featureCard.flowOptionCard { height: 142px; }
+
+  .depositModal {
+    padding-top: calc(44px + env(safe-area-inset-top));
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+
+  .depositCoinsMorph,
+  .depositCoins {
+    width: 176px;
+    height: 88px;
+  }
+
+  .depositContent h2 { margin-top: 12px; }
+  .depositDescription { margin-top: 8px; }
+  .depositCode { margin-top: 16px; }
+  .depositFooter { margin-top: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motionItem,
+  .flowIntroItem,
+  .balanceCard > .exchangeRate,
+  .balanceCard > .balanceBottom,
+  .targetRate,
+  .transactionRowEnter,
+  .transactionIncoming,
+  .transactionIncoming .transactionRow,
+  .transactionIncoming .transactionRow > * {
+    animation: none !important;
+  }
+
+  .physicalCardFloat,
+  .physicalCardSpecular::after {
+    animation: none !important;
+  }
+
+  .physicalCardTilt {
+    transform: none !important;
+  }
+
+  .physicalCardSpecular {
+    opacity: 0.18;
+  }
+
+  .transactionIncoming { grid-template-rows: 1fr; }
+
+  .rateDigitOutgoing { display: none; }
+  .rateDigitIncoming {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .featureCard,
+  .flowOptionCard,
+  .recipientSearch,
+  .addRecipientCard,
+  .recipientRow,
+  .transactionRow::before,
+  .balanceTopography,
+  .balanceValue strong,
+  .articleCard,
+  .actionButton,
+  .withdrawAmountCard,
+  .withdrawBankOption,
+  .cardTransactionsExpand,
+  .cardTransactionsExpand svg,
+  .inviteCloseButton,
+  .articleGrid {
+    transition: none !important;
+  }
+
+  .cardLayerBack,
+  .cardLayerMiddle,
+  .cardLayerFront,
+  .planeBody,
+  .planeTail,
+  .bitsoBody,
+  .bitsoHalfLeft,
+  .bitsoHalfRight,
+  .rateCoinLeft,
+  .rateCoinRight,
+  .rateArrow {
+    transition: none !important;
+    transform: none !important;
+  }
+
+}

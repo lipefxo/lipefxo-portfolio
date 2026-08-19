@@ -66,6 +66,15 @@ const nextConfig: NextConfig = {
     // crossfade is styled in globals.css (::view-transition-*(root)).
     viewTransition: true,
   },
+  async redirects() {
+    return [
+      {
+        source: "/paper-dashboard",
+        destination: "/higlobe-prototype",
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     return [
       {

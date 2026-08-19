@@ -1,341 +1,252 @@
-# Listening Console 3D perspective design QA
+# Higlobe Card Page Design QA
 
-## Shared-plane desk gear correction (v2)
+- Source visual truth: `/Users/lipe/.codex/generated_images/01a01a87-6904-7002-9dc5-1e484ebd444e/exec-3fec128e-95a1-42f9-9af2-9a093d3e90c2.png`
+- Implementation route: `/higlobe-prototype`, with `Higlobe Card` selected
+- Target state: active card, front face, details hidden
+- Source dimensions: 1487 × 1058 px
+- Intended implementation viewport: 1440 × 1024 CSS px; the generated source does not establish a device-pixel density
+- Implementation screenshot: unavailable because the browser runtime reports no available in-app or connected browser backend.
 
-- Re-rendered each product against two locked turntable cameras:
-  - Desktop uses the integrated console's front-center, shallow 0.62 surface
-    compression.
-  - Mobile uses the standalone turntable's front-left three-quarter azimuth.
-- Desktop and mobile now load separate versioned assets. The previous cutouts
-  remain unreferenced for non-destructive comparison.
-- The ATH-M50x pads sit on the plane with both exterior logo plates
-  foreshortened, the Magi65 deck is visibly compressed, and the mouse and open
-  AirPods case have grounded base footprints instead of catalog-style overhead
-  angles.
-- Chroma-key removal, edge contraction, despill, tight cropping, and alpha-WebP
-  optimization were completed locally. The previous horizontal edge streaks
-  are absent.
-- Alpha QA across split light/dark backgrounds:
-  `.context/desk-gear-v2-alpha-qa.jpg`.
-- Static perspective and placement checks:
-  - Desktop: `.context/listening-console-shared-plane-v2-static.jpg`.
-  - Mobile: `.context/listening-console-shared-plane-v2-mobile-static.jpg`.
-- Every object retains its independent outer position layer, stable
-  `data-gear-id`, `data-gear-motion` wrapper, and item-specific transform
-  origin. Variant-specific bottom anchors now place each cutout by its contact
-  point.
-- Per-object CSS contact ellipses and a shared upper-left directional drop
-  shadow ground the set consistently without baking shadows into the assets.
-- The decorative layer remains pointer-transparent, assistive-technology
-  hidden, reveal-driven, and instantaneous under reduced motion.
+## Full-view and focused comparison evidence
 
-### Shared-plane verification completed
+The selected Gallery Stage mock was opened at original resolution. It establishes the compact balance header, a centered pink-to-plum physical card with restrained depth and specular light, two actions, three recent card transactions, and the standard footer. The implementation follows that composition and reuses the dashboard's existing typography, surfaces, controls, transaction rows, motion curve, navigation, and breakpoints.
 
-- `pnpm lint`: passed.
-- In-place Turbopack production build: passed.
-- Development server render: HTTP 200.
-- Rendered HTML contains all four stable gear identifiers.
-- All eight desktop/mobile v2 assets return HTTP 200.
-- All asset corners are fully transparent; the light/dark QA sheet shows no
-  visible chroma fringe, clipping, or horizontal alpha streak.
-- Final v2 asset payload before Next image optimization: 404,684 bytes.
-
-### Shared-plane verification remaining
-
-- Live browser captures at 1420px, 1024px, 390px, and 320px in both themes.
-- Pointer and keyboard regression pass for record inspection, platter
-  placement/ejection, and viewer overlay stacking.
-- The supported in-app browser control surface is not exposed in this
-  workspace, so live capture and interaction checks remain blocked.
-
-- Source visual truth: `.context/attachments/RECdcW/CleanShot 2026-07-28 at 06.58.47@2x.jpg`
-- Source pixels: `1420 × 594`
-- Rejected flat comparison: `.context/attachments/LH7WSj/CleanShot 2026-07-28 at 06.58.53@2x.jpg`
-- Previous implementation capture: `.context/attachments/MmcpVq/CleanShot 2026-07-28 at 07.24.15@2x.jpg`
-- Latest user-provided implementation capture: `.context/attachments/fSdxNR/CleanShot 2026-07-28 at 07.43.20@2x.jpg`
-- Latest implementation capture pixels: `2734 × 1189`, desktop light theme, initial interaction state
-- Latest 3D viewer feedback capture: `.context/attachments/cNOr1i/CleanShot 2026-07-28 at 08.11.15@2x.jpg`
-- Latest floating-view feedback capture: `.context/attachments/Kk8fkt/CleanShot 2026-07-28 at 08.15.34@2x.jpg`
-- Latest record-framing feedback capture: `.context/attachments/SZrtyD/CleanShot 2026-07-28 at 08.22.15@2x.jpg`
-- Latest width-boundary feedback capture: `.context/attachments/JVM0We/CleanShot 2026-07-28 at 08.23.17@2x.jpg`
-- Latest normalized comparison: `.context/listening-console-target-current-v3-comparison.jpg`
-- Intended final comparison viewport: `1420 × 594`, desktop light theme, initial interaction state
-- Implementation URL: local home page, `#on-rotation`
-- Post-fix implementation screenshot: unavailable
-- Density normalization: the supplied implementation capture was center-fit to
-  `1420 × 594` for structural comparison only; theme and viewport state differ.
-
-## Full-view comparison evidence
-
-The target and the user-provided implementation capture were placed together
-at a normalized size and inspected. That comparison exposed four P1 structural
-differences: a detached turntable, a duplicate detached control strip, a console
-that was too narrow, and live sleeves misaligned with the cabinet dividers.
-
-Those issues were rebuilt around one integrated generated shell and a matching
-foreground occlusion layer. A static asset composite was inspected at
-`.context/listening-console-v2-static-composite.jpg`; it confirms the revised
-asset geometry and overlay coordinates are aligned, but it is not a
-browser-rendered implementation screenshot.
-
-The latest light-theme capture isolates the remaining P1 defect: the lower
-foreground fascia/rail paints correctly, but the full integrated shell does not.
-That makes the scene appear cut across its middle and leaves the records and
-turntable controls floating over the page background. The full-resolution shell
-is now painted directly as the scene background instead of relying on a
-fill-positioned image layer; the foreground occlusion image and live controls
-remain above it.
-
-## Focused region comparison evidence
-
-Blocked after the fix because the required in-app Browser control surface is
-still unavailable. The final live page therefore cannot be captured in the same
-theme, viewport, and interaction state as the target.
-
-The same limitation applies to the new interactive 3D inspection state. Its
-record, sleeve, placement, ejection, and replacement states compile and are
-present in the production output, but still require a live screenshot and
-pointer/touch pass before visual QA can be marked complete.
-
-The supplied 3D viewer capture exposed an overly modal presentation: a large
-rounded frame, dark radial wash, inspection header, and shared cream action
-tray visually separated the object from the physical console. Those layers are
-now removed. The object and independent pill controls float directly above the
-shelf, whose brightness is preserved with only a 1.25px blur.
-
-The follow-up capture confirmed that the frame was gone, then isolated the
-remaining sleeve-view chrome and a dark rectangular ground-shadow plane beneath
-the model. The sleeve view now has no visible close or action controls, the
-Three.js shadow plane has been removed, and the shelf blur is reduced to 0.75px.
-Backdrop click and Escape remain the dismissal paths.
-
-The latest record capture exposed two final framing defects: the disc projection
-was clipped at the lower canvas edge, and the focused canvas drew a rounded white
-outline around the inspection area. The record camera is now pulled back and
-vertically centered so the complete tilted disc remains inside the transparent
-canvas, and the canvas-specific focus ring has been removed.
-
-The latest width-boundary feedback marks the page/text content bounds over the
-desktop scene. The previous console used `calc(100% + 12rem)` and an asymmetric
-horizontal translation, so it overflowed too far and unevenly on both sides of
-that frame. The desktop scene is now centered at `109.65%` of the section width:
-its 4.4% internal frame inset lands on the text/page boundary while only the
-outer wood shell bleeds past it. All percentage-positioned records, controls,
-imagery, and hit targets scale together.
+A browser-rendered implementation capture could not be created, so the required side-by-side full-view comparison and focused comparisons of the card scale, lighting, optical alignment, responsive layout, and interactive states remain blocked.
 
 ## Findings
 
-- P1 fixed in code: cabinet, turntable, and fascia are now one continuous object.
-- P1 fixed in code: the desktop console breaks out to nearly the full viewport
-  width, matching the source silhouette.
-- P1 fixed in code: record bays and sleeves share the generated shell's measured
-  coordinates; the foreground rail occludes sleeve bottoms.
-- P1 fixed in code: metadata now sits directly over the shell's blank brushed
-  metal panel instead of creating a second panel below it.
-- P1 fixed in code: the full shell is now a direct image background at the base
-  of the scene, restoring the bay backs, wood deck, and cream turntable recess
-  without the mid-shelf cutoff.
-- P2 fixed in code: the console is widened, shifted left, and vertically tightened
-  to match the target's normalized bounds.
-- P2 fixed in code: embedded fascia copy keeps dark ink on the light metal panel
-  in both themes.
-- Remaining: browser-rendered fidelity, console state, and live drag behavior
-  still require a post-fix capture.
-- P1 fixed in code: the turntable now starts empty and record/sleeve inspection
-  no longer shares the Spotify navigation action.
-- P1 fixed in code: the lazy 3D viewer includes physical vinyl and sleeve
-  materials, generated album-specific label/back/spine textures, explicit
-  placement actions, platter ejection, and sequential record replacement.
-- P1 fixed in code: the 3D viewer no longer reads as a modal card; the frame,
-  dark overlay, visual heading, and shared action container have been removed.
-- P1 fixed in code: sleeve inspection is now control-free and the generated
-  ground-shadow mesh/texture has been removed from the 3D scene.
-- P1 fixed in code: record inspection is also control-free; the visible rotation
-  helper has been removed, and Escape is registered as a document-level exit
-  shortcut while either 3D object is open.
-- P1 fixed in code: the record camera now provides enough projection margin for
-  the full disc at its idle angle, with no bottom-edge clipping.
-- P2 fixed in code: the canvas no longer paints a rounded white focus frame
-  around the floating record.
-- P2 fixed in code: the desktop console replaces the oversized 12rem breakout
-  with a centered 109.65% width, aligning its 4.4% internal frame with the
-  text/page boundary.
+- [Blocked] Browser-rendered visual and interaction evidence is unavailable.
+  - Location: `/higlobe-prototype` with Higlobe Card selected, at 1440 × 1024 CSS px and the planned responsive breakpoints.
+  - Evidence: browser discovery reports no available in-app or connected browser surface; the local route returns HTTP 200 and the production build succeeds.
+  - Impact: exact screenshot fidelity, live pointer tilt, freeze settling, front/back flip, keyboard behavior, console state, and responsive overflow cannot receive the required browser pass.
+  - Fix: connect the in-app browser, compare the active/front state beside the source, then exercise frozen, back, revealed, reduced-motion, 920 px, 640 px, and 430 px states.
 
-## Verification completed
+## Implementation checks
 
-- `pnpm lint`: passed.
-- `pnpm build`: passed.
-- Home page server render: passed.
-- The new integrated shell and foreground assets return HTTP 200.
-- The rendered home-page markup includes the section copy and Spotify album URL.
-- The production home page renders the empty-platter prompt.
-- The 545 KB uncompressed Three.js viewer chunk is absent from the initial HTML
-  and is requested only after viewer preload/open.
-- Source inspection confirms that only explicit Spotify anchors use the album
-  URL; viewer and placement actions contain no `window.open` call.
+- [x] Sidebar and homepage entry points activate Higlobe Card and use the dashboard's existing navigation reset behavior.
+- [x] The existing compact balance/rate card remains above the Higlobe Card content.
+- [x] Physical card is isolated behind explicit `status`, `face`, `detailsRevealed`, and `reducedMotion` inputs.
+- [x] Card reuses the Higlobe asset and Hugeicons for NFC, freeze, unfreeze, flip, view, and merchant categories; the file-like SIM-card glyph was removed in the refinement pass.
+- [x] Motion and CSS 3D provide restrained float, fine-pointer tilt, specular response, front/back faces, and a static reduced-motion path without a new dependency.
+- [x] Freeze/unfreeze updates status immediately, pauses motion and highlight behavior, settles and desaturates the card, and persists while the dashboard remains mounted.
+- [x] Show/Hide details uses a slower 780 ms flip; the back face pauses float and tilt, ignores hidden-face pointer events, and keeps Reveal/Hide reliably interactive. Card-number groups and individual CVV digits swap with a compact stagger while controlling whether full mock values are present in the DOM.
+- [x] Leaving the card page unmounts its local face and reveal state while preserving the parent-owned frozen state.
+- [x] Hidden faces are inert and hidden from assistive technology; action pressed states and status announcements are exposed.
+- [x] The private transaction model accepts either image or Hugeicons visuals and renders merchant-category icons for card purchases.
+- [x] The card ledger contains thirteen realistic mock purchases, remains collapsed to three rows by default, and exposes a centered Show 10 more / Show fewer control without linking to the full Transactions destination.
+- [x] No redundant View All or View Transactions action was added.
+- [x] Responsive styles cover desktop, 920 px, 640 px, and 430 px layouts with bottom-navigation clearance.
+- [x] Targeted ESLint, TypeScript, production build, `git diff --check`, and local HTTP checks pass.
+- [x] Full lint was rerun and reports only the pre-existing `BorderGlow.tsx` state-in-effect violation.
+- [ ] Browser interaction, console, responsive screenshot, and source-comparison verification.
 
 ## Comparison history
 
-- Initial pass: blocked before visual comparison because no supported in-app
-  Browser control tool was exposed.
-- User capture pass: structural comparison completed; four P1 issues identified
-  and rebuilt.
-- Second user capture pass: integrated construction confirmed; one P1 layering
-  issue and three P2 alignment/contrast issues fixed.
-- Light-theme user capture pass: isolated the cutoff to the integrated shell
-  layer; replaced that layer's rendering path while preserving the real asset.
-- Post-fix pass: blocked pending a live browser capture of this final adjustment.
+No visual iteration could be recorded because an implementation screenshot was unavailable.
 
-## Follow-up polish
+final result: blocked
 
-- Capture the initial desktop state at the source width, with the full section
-  visible.
-- Compare the full section and focused console region beside the selected source.
-- Exercise successful/missed drag, tap, keyboard, reduced-motion, mobile, and
-  dark-theme states; fix any P0/P1/P2 differences before marking QA passed.
+---
 
-## Warm amber CRT metadata display
+# Invite Friend Modal Design QA
+
+- Source visual truth: `.context/attachments/uVU9xk/CleanShot 2026-08-18 at 21.49.17@2x.jpg`
+- Implementation route: `/higlobe-prototype`
+- Target state: referral modal opened from `Invite a friend, earn $20`
+- Target viewport: 1138 × 1144 CSS px (source is 2276 × 2288 px at `@2x`)
+- Implementation screenshot: unavailable because no in-app or connected browser backend was available.
+
+## Source comparison evidence
+
+The source was inspected at original resolution. It establishes a centered white modal approximately 970 CSS px wide, a 24 px outer radius, a top-left close control, a centered paper-plane/title/subtitle group, three referral explanation columns, a bordered invitation panel with two actions, and a centered referral-validity footer. The screenshot's external `Frame 81` canvas label is intentionally excluded.
+
+The implementation preserves the supplied inline paper-plane art and shared layout identifiers for the source card shell, plane, title, and subtitle. Following the scale review, the modal was intentionally reduced from the source canvas proportions to align with the dashboard's 808 px content column: the desktop surface is now 840 × 740 px at its maximum, and its typography follows the dashboard's 12–22 px hierarchy.
+
+## Findings
+
+- [Blocked] Browser-rendered visual comparison is unavailable.
+  - Location: `/higlobe-prototype` at 1138 × 1144 CSS px, with the invite modal open.
+  - Evidence: the browser runtime reports no available in-app or connected browser backend.
+  - Impact: exact optical spacing, text wrapping, the shared-element interpolation, and animation reversal cannot receive a screenshot-based pass.
+  - Fix: connect a browser, capture the open modal at the target viewport, compare it beside the source, and repeat at 640 px and a narrow mobile width.
+
+## Implementation checks
+
+- [x] 840 px desktop surface, 20 px radius, 740 px viewport-aware maximum presentation height, internal scrolling, and hidden scrollbar.
+- [x] Plane, title, steps, action panel, buttons, and footer rescaled to the dashboard's existing visual hierarchy.
+- [x] Full-screen mobile surface below 640 px with safe-area padding, stacked steps, and stacked actions.
+- [x] Shared shell, plane, title, and subtitle transition using the existing smooth easing over 480 ms.
+- [x] Backdrop and revealed content fade after the morph begins.
+- [x] Closing presence keeps the source card inert and hover-free until the 480 ms reverse morph completes.
+- [x] Close-button and backdrop dismissal share the same reverse-transition path; modal-only content exits before the shared elements.
+- [x] Repeated cycles use one functional `closed → open → closing` state machine, preventing stale exit completion from overwriting a later opening.
+- [x] The invite card's CSS transition, focus outline, shadow, and plane hover transforms are neutralized while Motion owns the shared transform.
+- [x] Close button, Escape, and backdrop dismissal.
+- [x] Body scroll locking, focus trap, initial close-button focus, and trigger focus restoration.
+- [x] Background dashboard marked inert and hidden from assistive technology while open.
+- [x] Reduced-motion path removes spatial layout animation.
+- [x] Visual-only Copy Code and WhatsApp confirmation states; no clipboard write or external navigation.
+- [x] Hugeicons `Share08Icon`, `HappyIcon`, `Money03Icon`, `Copy02Icon`, and `WhatsappIcon` used as specified.
+- [x] Targeted lint, TypeScript, and production build pass.
+- [ ] Browser interaction, console, screenshot, and animation-reversal verification.
+
+final result: blocked
+
+---
+
+# Receive Flow Design QA
+
+- Source visual truth: `.context/attachments/ZvVQvO/CleanShot 2026-08-19 at 11.41.39@2x.jpg`
+- Implementation route: `/higlobe-prototype`, with `Receive` selected
+- Target state: Receive chooser
+- Source dimensions: 1784 × 1376 px at `@2x`
+- Density-normalized source size: 892 × 688 CSS px at device scale factor 2
+- Implementation screenshot: unavailable because the browser runtime reports no in-app or connected browser backend.
+
+## Full-view and focused comparison evidence
+
+The source was opened at original resolution. It establishes an active Receive navigation item and three equal action cards labeled Withdraw, Request a Payment, and Originators. The cards use pink Hugeicons, gray northeast arrows, the existing bordered surface treatment, and a footer aligned with the main content column. The source places the currency exchange on the left and the balance on the right, but the user's latest instruction explicitly supersedes that detail and restores the existing balance-left/exchange-right compact-card order.
+
+A browser-rendered implementation capture could not be created. The required combined full-view comparison and focused comparisons of the compact balance alignment, icon optical sizing, typography, spacing, responsive behavior, colors, and interaction states therefore remain blocked. The normalized CSS size assumes the CleanShot `@2x` filename reflects an unscaled Retina capture; this assumption must be confirmed during the eventual browser capture.
+
+## Findings
+
+- [Blocked] Browser-rendered visual and interaction evidence is unavailable.
+  - Location: `/higlobe-prototype` with Receive selected, at the normalized source viewport and responsive breakpoints.
+  - Evidence: browser discovery returned no available in-app or connected browser surfaces; the existing local Next.js server returns HTTP 200 for `/higlobe-prototype`.
+  - Impact: exact screenshot fidelity, breakpoint behavior, hover/focus/tap states, currency-menu interaction, Send regression behavior, console state, and live motion quality cannot receive the required browser pass.
+  - Fix: connect the in-app browser, capture Receive beside the source at the confirmed source viewport, then repeat at desktop, 920 px, 640 px, and 430 px or narrower.
+
+## Implementation checks
+
+- [x] Receive navigation renders the shared compact money-flow shell and keeps Receive active across desktop, compact, and collapsed navigation.
+- [x] Receive reuses the same flow chooser component, card structure, staggered entrance, responsive grid, hover/focus treatment, arrow motion, and footer layout as Send.
+- [x] Receive actions use existing Hugeicons for Withdraw, Request a Payment, and Originators; no custom or placeholder artwork was added.
+- [x] Receive remains a chooser-only scope: Withdraw enters its implemented flow, while Request a Payment and Originators provide polite prototype-status feedback instead of silently doing nothing.
+- [x] Send retains its chooser-to-recipient transition, search state, and focus behavior through the same shared chooser component.
+- [x] Send, Receive, and Transactions compact balance cards retain the restored balance-first/exchange-second order.
+- [x] At 430 px and narrower, the restored order remains balance first and exchange second in the stacked compact card.
+- [x] Expanded Home balance layout, currency selection, live-rate animation, reduced motion, modal behavior, and transaction rendering remain on their existing code paths.
+- [x] Targeted ESLint passes for `HiglobePrototype.tsx`.
+- [x] TypeScript, `git diff --check`, and the production build pass.
+- [x] Full lint still reports only the pre-existing `BorderGlow.tsx` `react-hooks/set-state-in-effect` violation.
+- [ ] Browser interaction, console inspection, responsive screenshots, and combined source comparison.
+
+## Comparison history
+
+No visual iteration could be recorded because browser discovery returned no connected browser surfaces.
+
+final result: blocked
+
+---
+
+# Deposit Button-to-Card Expansion Design QA
+
+- Source visual truth: `.context/attachments/N9weAc/CleanShot 2026-08-19 at 08.41.56@2x.jpg`
+- Implementation route: `/higlobe-prototype`, with the Deposit dropdown opened from the balance card
+- Source dimensions: 1190 × 1060 px at `@2x`
+- Normalized CSS viewport: 595 × 530 px at device scale factor 2
+- Intended implementation surface: a 400 px maximum-width card expanding leftward and downward from the trigger's top-right corner, with 16 px viewport clamping at every breakpoint
+- Implementation screenshot: unavailable because browser discovery returned no in-app or connected browser surfaces.
+
+## Full-view and focused comparison evidence
+
+The source was opened at original resolution and normalized to its 595 × 530 CSS-pixel target. Its close control, centered pink–teal–pink coin cluster, title and two-line explanation, rounded PIX-code field, Copy Code action, and final-rate note are retained inside the selected compact dropdown treatment. The generated transparent coin asset was inspected independently at 448 × 224 px and matches the source composition and palette.
+
+A browser-rendered implementation capture could not be created, so the required combined full-view comparison and focused typography, spacing, color, image-quality, and copy comparison remain blocked.
+
+## Findings
+
+- [Blocked] Browser-rendered visual and interaction evidence is unavailable.
+  - Location: `/higlobe-prototype` at desktop, 640 px, and 390 px responsive widths.
+  - Evidence: the in-app browser runtime reported no available browser surfaces; the existing local Next.js server returned HTTP 200 for `/higlobe-prototype`.
+  - Impact: optical spacing, trigger alignment, viewport clamping, internal overflow, dropdown animation, keyboard focus movement, repeated open/close behavior, and browser console state cannot receive a live verification pass.
+  - Fix: connect the in-app browser, capture the expansion on desktop, verify that the shell begins at the exact trigger bounds with no gap, then repeat at 640 px and 390 px.
+
+## Implementation checks
+
+- [x] Hero secondary action changed from Details to Deposit using the same `MoneyReceiveCircleIcon` as Receive navigation.
+- [x] Deposit and Invite share one `closed → open → closing` dashboard state machine, preventing simultaneous overlay presentation.
+- [x] The Deposit button and dropdown share shell, icon/artwork, and label/title layout identities using the Invite modal's 480 ms layout transition and easing.
+- [x] Motion crossfading is disabled for the three destination elements so the dropdown is the sole visible shared-layout lead rather than appearing alongside a duplicate source button.
+- [x] The source trigger retains its layout box and ref without an explicit opacity handoff; it remains pointer-inert, removed from Tab order, and hidden from assistive technology throughout open and closing phases.
+- [x] Description, PIX field, Copy Code action, footer, and close control wait 140 ms before revealing and exit before the shared shell, artwork, and title reverse into the trigger.
+- [x] The expanded surface begins at the trigger's top edge with no gap, keeps its right edge aligned when viewport space permits, and grows leftward and downward.
+- [x] The same top-right-pinned geometry applies at 640 px and below using `min(400px, 100vw - 32px)`; viewport clamping replaces the former centered-card breakpoint treatment.
+- [x] Placement is recalculated on open, resize, and captured scroll events; height is constrained to the space below the pinned top edge with internal scrolling and contained overscroll.
+- [x] Deposit is a non-modal anchored `role="dialog"` above 640 px. At the existing full-screen mobile breakpoint it becomes an `aria-modal` dialog, locks body scrolling, and makes the covered dashboard inert and hidden from assistive technology.
+- [x] The closed trigger opens Deposit and is fully absorbed while open. Outside pointer-down, Escape, and the close control dismiss it; Escape and explicit close restore trigger focus, while outside dismissal preserves the clicked target's focus.
+- [x] Initial focus moves to the close control. Desktop preserves natural popover Tab traversal, while the full-screen mobile presentation traps focus until dismissal.
+- [x] Invite remains the only true modal and retains its backdrop, body scroll lock, focus trap, inert background, and trigger-focus restoration.
+- [x] The dropdown retains the Invite modal's 20 px radius, 22 px title, 14 px body/code/button, 12 px footer, and current coin scale, with only internal spacing compacted for the smaller surface.
+- [x] PIX copy remains preview-only and changes to Copied! for 1.4 seconds without calling the Clipboard API.
+- [x] Dedicated transparent 448 × 224 PNG coin asset rendered through Next Image; no CSS-drawn or placeholder artwork.
+- [x] Targeted ESLint passes for the changed React components.
+- [x] TypeScript, `git diff --check`, and the production build pass.
+- [x] Full lint still reports only the pre-existing `BorderGlow.tsx` `react-hooks/set-state-in-effect` violation.
+- [ ] Browser interaction, console, responsive screenshot, combined visual comparison, and invite-modal visual regression verification.
+
+## Comparison history
+
+No visual iteration could be recorded because browser discovery returned no connected browser surfaces after the shared-element morph update.
+
+final result: blocked
+
+---
+
+# Send Flow Design QA
 
 - Source visual truth:
-  - Metadata placement:
-    `.context/attachments/0Zova5/CleanShot 2026-07-28 at 08.36.38@2x.jpg`
-    (`892 × 320` pixels).
-  - CRT material reference:
-    `.context/attachments/TGdI44/CleanShot 2026-07-28 at 08.36.34@2x.jpg`
-    (`582 × 462` pixels).
-  - Pre-change metadata crop:
-    `.context/attachments/7KV12Q/CleanShot 2026-07-28 at 08.35.40@2x.jpg`
-    (`1012 × 318` pixels).
-  - First CRT implementation feedback:
-    `.context/attachments/fd6Kps/CleanShot 2026-07-28 at 10.03.56@2x.jpg`
-    (`1056 × 492` pixels).
-  - Proportional CRT implementation feedback:
-    `.context/attachments/MzZmo1/CleanShot 2026-07-28 at 10.15.26@2x.jpg`
-    (`2302 × 848` pixels).
-- Generated asset:
-  `public/on-rotation/crt-amber-display.png` (`1400 × 211` pixels).
-- Implementation route/state: local home page, `#on-rotation`, desktop light
-  theme, initial Bad Bunny selection.
-- Browser DOM viewport checked: `1596 × 1050` CSS pixels at device pixel ratio
-  `2`.
-- Post-fix implementation screenshot: pending the user's visual verification
-  pass.
+  - `.context/attachments/MtrCfe/CleanShot 2026-08-19 at 08.26.58@2x.jpg` (chooser)
+  - `.context/attachments/n4AXrX/CleanShot 2026-08-19 at 08.27.03@2x.jpg` (recipients)
+- Implementation route: `/higlobe-prototype`, with `Send` selected
+- Target states: Send chooser and recipient picker
+- Source dimensions: 2546 × 1968 px each at `@2x`
+- Target CSS viewport: 1273 × 984 px at device scale factor 2
+- Implementation screenshot: unavailable because the browser runtime reports no in-app or connected browser backend.
 
-### CRT verification completed
+## Full-view and focused comparison evidence
 
-- Generated raster asset was opened and inspected before integration. The blank
-  screen has a 6.64:1 aspect ratio, a thin dark bezel, warm smoked glass,
-  embedded scanlines, and no baked text or logos.
-- The live browser rendered the visible CRT as `DeBÍ TiRAR MáS FOToS` /
-  `Bad Bunny`; the optimized visible image loaded at `420 × 63` intrinsic
-  pixels.
-- Selecting the Multitude sleeve changed the visible CRT to `Multitude` /
-  `Stromae`, kept the correct Spotify album URL, opened the existing inspection
-  dialog, and restored focus to the same sleeve after Escape.
-- Decorative glass/signal layers are hidden from assistive technology while
-  title and artist remain real DOM text.
-- Reduced-motion takes the static branch for both the continuous signal motion
-  and album-change transition.
-- `pnpm lint`, `pnpm build`, `git diff --check`, home-page HTTP response, and
-  CRT asset HTTP response all passed.
+Both source screenshots were opened at original resolution. They establish the shared sidebar, compact balance/rate card, three equal payment-option cards, recipient search, add-recipient action, and three-row recipient list. A browser-rendered implementation capture could not be created, so neither the required full-view side-by-side comparison nor focused comparisons of typography, spacing, colors, asset rendering, and copy can be completed.
 
-### CRT sizing correction
+## Findings
 
-- P1 identified from the first user capture: the screen was visibly compressed
-  into a thin strip and clipped the metadata.
-- Browser measurement confirmed the mismatch: the raster rendered at
-  `354.13 × 12.85` CSS pixels (`27.56:1`) while the source asset is `6.64:1`.
-- Fixed by sizing the raster inside a flex slot, replacing percentage block
-  padding with a stable 3px inset, and using a pre-transform `1498:211` aspect
-  ratio that compensates for the console's existing `scaleY(1.07)`.
-- Post-fix browser measurement is `281.26 × 42.39` CSS pixels (`6.635:1`);
-  the visible title/artist area is `241.88 × 30.54` CSS pixels and both lines
-  fit without clipping.
-- Post-fix `pnpm lint` and `pnpm build`: passed.
+- [Blocked] Browser-rendered visual and interaction evidence is unavailable.
+  - Location: `/higlobe-prototype` at 1273 × 984 CSS px in both Send states, plus responsive widths.
+  - Evidence: browser discovery returned no available in-app or connected browser surfaces.
+  - Impact: exact typography, spacing rhythm, color rendering, image sharpness/crop, responsive overflow, focus movement, console state, and visual transition quality cannot receive the required comparison pass.
+  - Fix: connect an in-app browser, capture both Send states at the normalized target viewport, compare each capture beside its source, then repeat at 920 px and a narrow mobile width.
 
-### CRT perspective and alignment correction
+## Implementation checks
 
-- P2 identified from the proportional user capture: the scale was correct, but
-  the screen remained front-on and sat too far inside the metadata track.
-- The embedded screen is now left-anchored with a measured `4.48px` track inset
-  instead of the previous approximately `46px` centered inset.
-- Follow-up capture
-  `.context/attachments/frvJXa/CleanShot 2026-07-28 at 10.22.29@2x.jpg`
-  (`1202 × 554` pixels) showed that the `skewY` correction still read as a
-  straight, pasted-on parallelogram rather than the shelf's receding plane.
-- Replaced that two-dimensional skew with
-  `perspective(900px) rotateY(3deg) skewX(1.1deg)`, anchored at `left center`.
-  The complete bezel, glass, signal effects, and live text now share one
-  trapezoidal transform while retaining the approved scale and left inset.
-- The mobile treatment remains flat and unchanged.
-- Prior live DOM verification retained the initial Bad Bunny title/artist and
-  the corrected source aspect. For this perspective revision, `pnpm lint`,
-  `pnpm build`, and `git diff --check`: passed.
+- [x] Send entry and re-click reset to the chooser and clear the recipient query.
+- [x] Home and Send share one persistent balance-card component; Motion reshapes the same mounted shell and the animated balance value is not restarted during navigation.
+- [x] The balance shell now uses the shared 300 ms resize curve while its rate and value use the same-duration layout interpolation; topography and non-compact controls fade within that single coordinated morph.
+- [x] The compact Send balance is 22 px at every responsive width, keeping it only modestly larger than the 16–24 px currency indicator while preserving the homepage hero's 32 px desktop and 44–58 px mobile scale.
+- [x] Send options reuse the homepage feature-card structure and hover/focus/pressed behavior.
+- [x] Recipient results reuse the homepage transaction-card and transaction-row structure and table behavior.
+- [x] Send typography inherits the homepage scale directly: balance/rate styles from the shared hero, feature-card heading styles for actions, transaction-row text for recipients and search, and 12 px supporting copy.
+- [x] Individual, Group, and Bitso controls share the same transition into recipient selection.
+- [x] Only the active Send panel is mounted in normal document flow; stage changes use a 280 ms fade/8 px rise while the item wrappers retain the existing staggered entrance language.
+- [x] Removing the persistent absolute-positioned page pair eliminates both recipient-over-chooser painting and the large stage-1-sized vertical offset shown in the 09:28 implementation capture.
+- [x] Active Send content reuses the homepage `higlobe-enter` animation language with a tighter 12 px travel, subtle scale/blur, and 52 ms item stagger; chooser cards and recipient search/action/table animate through neutral wrappers so existing card transforms remain intact.
+- [x] The moving balance and rate groups soften to 42% opacity with a 4 px mid-morph blur before resolving, reducing the perceived speed of their long layout interpolation without interrupting the persistent balance counter.
+- [x] Inactive Send panels are inert and hidden from assistive technology; search focus moves only after the recipient panel becomes active.
+- [x] Search filters Avengers LLC, Bank of Westeros, and Wayne Enterprises case-insensitively and provides an empty state.
+- [x] Add-recipient and recipient selections produce lightweight in-app feedback without adding another route or flow step.
+- [x] Recipient search receives focus when its animated state mounts.
+- [x] Desktop three-column chooser and stacked mobile chooser styles are present.
+- [x] Existing Higlobe, Bitso, flag, and recipient assets are reused; Hugeicons supply interface icons.
+- [x] Send chooser artwork uses `User03Icon`, `UserGroup03Icon`, and the Bitso asset in common 56 px layout slots; the people glyphs render at a deliberately lighter 38 px while Bitso retains its existing 56 px asset size, with per-asset optical offsets preserving the shared title axis (scaled proportionally at the narrow breakpoint).
+- [x] Reduced-motion behavior removes spatial transition timing.
+- [x] Targeted ESLint passes for the changed React components.
+- [x] TypeScript and the production build pass.
+- [x] `/higlobe-prototype` returns HTTP 200 after the motion refinement, and `git diff --check` passes.
+- [x] Full lint was rerun and still reports only the pre-existing `BorderGlow.tsx` state-in-effect violation.
+- [ ] Browser interaction, console, responsive screenshot, and source-comparison verification.
 
-### CRT visual comparison status
+## Comparison history
 
-- Full-view comparison evidence: pending the user's visual pass.
-- Focused metadata comparison evidence: pending the user's visual pass.
-- Fonts/typography: Geist Mono hierarchy and verbatim title capitalization are
-  implemented; visual optical-weight confirmation is pending.
-- Spacing/layout rhythm: the CRT remains inside the first control-panel track;
-  desktop, tablet, and stacked-mobile visual confirmation is pending.
-- Colors/tokens: warm amber text and dark smoked glass are implemented in both
-  themes; contrast and bloom balance require visual confirmation.
-- Image quality: the project uses the generated raster surface rather than CSS
-  art; final resampling and corner treatment require visual confirmation.
-- Copy/content: title, artist, and Spotify mapping are functionally verified.
-- Blocking finding: visual evidence is still required at desktop light/dark,
-  1024px, 390px, and 320px before the CRT change can receive a passing design-QA
-  result.
-
-## Platter alignment and vinyl groove correction
-
-- Source visual truth:
-  `.context/attachments/BwskoL/CleanShot 2026-07-28 at 13.01.29@2x.jpg`
-  (`712 × 552` pixels).
-- Source state: desktop light theme with a record placed on the platter.
-- Implementation route/state: local home page, `#on-rotation`, matching platter
-  state after placing a record.
-- Implementation screenshot: unavailable because the supported in-app browser
-  and local Computer Use browser surfaces did not respond in this workspace.
-- Intended comparison viewport: the same `712 × 552` focused console crop at
-  `@2x`; density normalization cannot be completed without a post-fix capture.
-
-### Findings and fixes
-
-- P1 fixed in code: the record anchor previously began at `14.5%` with a `51%`
-  diameter, while the photographed rubber mat begins farther right and is
-  narrower. The anchor is now centered at the mat's measured position with
-  `left: 17%`, `top: 17%`, `size: 49%`, and a `0.6` perspective compression.
-- P2 fixed in code: the non-WebGL fallback record had an additional `2%` inset,
-  making it visibly smaller than the persistent record. The inset is now `0.5%`
-  so both rendering paths use the corrected platter footprint.
-- P2 fixed in code: the 3D vinyl's concentric grooves were only a low-amplitude
-  bump map and disappeared at the platter angle. The existing high-resolution
-  vinyl texture now drives roughness and clearcoat roughness, while the
-  procedural groove map has a stronger bump scale. The texture remains
-  non-color data, so its baked generic label colors do not leak around the live
-  album label.
-
-### Required fidelity surfaces
-
-- Fonts and typography: unchanged by this correction.
-- Spacing and layout rhythm: platter anchor geometry corrected from the supplied
-  focused capture; live confirmation is pending.
-- Colors and visual tokens: the existing physical-vinyl color and album accent
-  lighting are preserved.
-- Image quality and asset fidelity: the existing `1254 × 1254` vinyl raster is
-  reused as a material response map with anisotropic filtering; no placeholder
-  or code-drawn replacement asset was introduced.
-- Copy and content: unchanged.
-
-### Verification
-
-- `pnpm lint`: passed.
-- `pnpm build`: passed.
-- `git diff --check`: passed.
-- Focused post-fix comparison: blocked pending a browser-rendered capture in the
-  same state and crop.
+No visual iteration could be recorded because an implementation screenshot was unavailable.
 
 final result: blocked
