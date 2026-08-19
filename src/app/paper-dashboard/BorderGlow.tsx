@@ -175,11 +175,18 @@ export function BorderGlow({
 
     const angleStart = 110;
     const angleEnd = 465;
-    setSweepActive(true);
-    setCursorAngle(angleStart);
-
+    let sweepStarted = false;
     const cancels = [
-      animateValue({ duration: 500, onUpdate: (value) => setEdgeProximity(value / 100) }),
+      animateValue({
+        duration: 500,
+        onUpdate: (value) => {
+          if (!sweepStarted) {
+            sweepStarted = true;
+            setSweepActive(true);
+          }
+          setEdgeProximity(value / 100);
+        },
+      }),
       animateValue({
         ease: easeInCubic,
         duration: 1500,

@@ -28,6 +28,14 @@ const DEPOSIT_LAYOUT_TRANSITION = {
 };
 const POPOVER_WIDTH = 400;
 const VIEWPORT_MARGIN = 16;
+const FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+].join(",");
 
 type PopoverPosition = {
   left: number;
@@ -62,12 +70,14 @@ function measurePopover(trigger: HTMLButtonElement | null): PopoverPosition {
 }
 
 interface DepositFundsModalProps {
+  modal: boolean;
   open: boolean;
   onClose: () => void;
   triggerRef: RefObject<HTMLButtonElement | null>;
 }
 
 export function DepositFundsModal({
+  modal,
   open,
   onClose,
   triggerRef,
@@ -76,9 +86,14 @@ export function DepositFundsModal({
   const closeRef = useRef<HTMLButtonElement>(null);
   const copyResetRef = useRef<number | null>(null);
   const restoreTriggerFocusRef = useRef(true);
+  const modalRef = useRef(modal);
   const [copyConfirmed, setCopyConfirmed] = useState(false);
   const [position, setPosition] = useState<PopoverPosition>(initialPosition);
   const reducedMotion = Boolean(useReducedMotion());
+
+  useEffect(() => {
+    modalRef.current = modal;
+  }, [modal]);
 
   const updatePosition = useCallback(() => {
     setPosition(measurePopover(triggerRef.current));
@@ -110,6 +125,30 @@ export function DepositFundsModal({
         event.preventDefault();
         restoreTriggerFocusRef.current = true;
         onClose();
+        return;
+      }
+
+      if (event.key !== "Tab" || !modalRef.current) return;
+
+      const focusableElements = Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) ?? [],
+      ).filter((element) => !element.hasAttribute("disabled") && element.offsetParent !== null);
+
+      if (focusableElements.length === 0) {
+        event.preventDefault();
+        closeRef.current?.focus();
+        return;
+      }
+
+      const first = focusableElements[0];
+      const last = focusableElements[focusableElements.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
 
@@ -134,6 +173,18 @@ export function DepositFundsModal({
       }
     };
   }, [onClose, open, triggerRef]);
+
+  useEffect(() => {
+    if (!open || !modal) return;
+
+    const previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [modal, open]);
 
   useEffect(() => () => {
     if (copyResetRef.current !== null) window.clearTimeout(copyResetRef.current);
@@ -179,6 +230,7 @@ export function DepositFundsModal({
         ref={dialogRef}
         className={styles.depositModal}
         role="dialog"
+        aria-modal={modal || undefined}
         aria-labelledby="deposit-funds-title"
         aria-describedby="deposit-funds-description"
         layoutId={reducedMotion ? undefined : "deposit-button-shell"}

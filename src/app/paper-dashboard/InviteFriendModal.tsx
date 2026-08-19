@@ -105,12 +105,9 @@ export function InviteFriendModal({
     if (!open) return;
 
     const previousOverflow = document.body.style.overflow;
-    const previousPaddingRight = document.body.style.paddingRight;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     const triggerElement = triggerRef.current;
 
     document.body.style.overflow = "hidden";
-    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
 
     const focusFrame = window.requestAnimationFrame(() => closeRef.current?.focus());
 
@@ -151,7 +148,6 @@ export function InviteFriendModal({
       window.cancelAnimationFrame(focusFrame);
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
-      document.body.style.paddingRight = previousPaddingRight;
       window.requestAnimationFrame(() => triggerElement?.focus());
     };
   }, [onClose, open, triggerRef]);

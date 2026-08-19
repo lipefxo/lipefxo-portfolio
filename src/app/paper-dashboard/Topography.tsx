@@ -41,6 +41,7 @@ type TopographyContext = {
     time: number;
   };
   renderFrame: (time: number) => void;
+  requestFrame: () => void;
 };
 
 const contextMap = new WeakMap<HTMLDivElement, TopographyContext>();
@@ -302,7 +303,6 @@ export default function Topography({
       renderer.render({ scene: mesh });
     };
 
-    contextMap.set(container, { renderer, program, mesh, motion, renderFrame });
     renderFrame(0);
 
     const setSize = () => {
@@ -328,20 +328,30 @@ export default function Topography({
       targetMouse[0] = (event.clientX - rect.left) / rect.width;
       targetMouse[1] = 1 - (event.clientY - rect.top) / rect.height;
       mouseActiveTarget = 1;
+      tryStart();
     };
 
     const onMouseLeave = () => {
       mouseActiveTarget = 0;
+      tryStart();
     };
-
-    canvas.addEventListener("mousemove", onMouseMove);
-    canvas.addEventListener("mouseleave", onMouseLeave);
 
     let animationFrame = 0;
     let isVisible = true;
     let isPageVisible = !document.hidden;
     const startTime = performance.now();
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const hasContinuousMotion = () => (
+      Math.abs(motion.speed) > 0.0001
+      || Number(program.uniforms.uGrain.value) > 0.5
+    );
+
+    const hasPendingMouseMotion = () => (
+      Math.abs(currentMouse[0] - targetMouse[0]) > 0.0001
+      || Math.abs(currentMouse[1] - targetMouse[1]) > 0.0001
+      || Math.abs(mouseActive - mouseActiveTarget) > 0.001
+    );
 
     const loop = (timestamp: number) => {
       const time = (timestamp - startTime) * 0.001;
@@ -354,21 +364,36 @@ export default function Topography({
       mouseActive += 0.05 * (mouseActiveTarget - mouseActive);
       program.uniforms.uMouseActive.value = mouseActive;
       renderFrame(time);
-      animationFrame = window.requestAnimationFrame(loop);
-    };
-
-    const tryStart = () => {
-      if (!reduceMotion && isVisible && isPageVisible && animationFrame === 0) {
+      if (hasContinuousMotion() || hasPendingMouseMotion()) {
         animationFrame = window.requestAnimationFrame(loop);
+      } else {
+        animationFrame = 0;
       }
     };
 
-    const tryStop = () => {
+    function tryStart() {
+      if (!reduceMotion && isVisible && isPageVisible && animationFrame === 0) {
+        animationFrame = window.requestAnimationFrame(loop);
+      }
+    }
+
+    function tryStop() {
       if (animationFrame !== 0) {
         window.cancelAnimationFrame(animationFrame);
         animationFrame = 0;
       }
-    };
+    }
+
+    contextMap.set(container, {
+      renderer,
+      program,
+      mesh,
+      motion,
+      renderFrame,
+      requestFrame: tryStart,
+    });
+    canvas.addEventListener("mousemove", onMouseMove);
+    canvas.addEventListener("mouseleave", onMouseLeave);
 
     const intersectionObserver = new IntersectionObserver(([entry]) => {
       isVisible = entry.isIntersecting;
@@ -404,7 +429,7 @@ export default function Topography({
     const context = contextMap.get(container);
     if (!context) return;
 
-    const { program, motion, renderFrame } = context;
+    const { program, motion, renderFrame, requestFrame } = context;
     const uniforms = program.uniforms;
     motion.speed = speed;
     motion.morphAmount = morphAmount;
@@ -429,6 +454,7 @@ export default function Topography({
     uniforms.uMouseRadius.value = mouseRadius;
     uniforms.uMouseStrength.value = mouseStrength;
     renderFrame(motion.time);
+    requestFrame();
   }, [
     bands,
     brightness,
