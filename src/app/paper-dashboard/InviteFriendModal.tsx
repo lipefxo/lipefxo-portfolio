@@ -10,23 +10,48 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Cancel01Icon,
+  Cash02Icon,
   Copy02Icon,
   CopyCheckIcon,
-  HappyIcon,
-  Money03Icon,
-  Share08Icon,
+  InLoveIcon,
+  Share01Icon,
   WhatsappIcon,
 } from "@hugeicons/core-free-icons";
+import dynamic from "next/dynamic";
 import { motion, useReducedMotion } from "motion/react";
 import { FeatureArt } from "./FeatureArt";
 import styles from "./paper-dashboard.module.css";
+
+const Topography = dynamic(() => import("./Topography"), { ssr: false });
+
+const ACTION_PANEL_TOPOGRAPHY = {
+  lowColor: "#707070",
+  midColor: "#575757",
+  highColor: "#757575",
+  speed: 0,
+  morphAmount: 6.2,
+  morphSpeed: 0.037,
+  bands: 4.5,
+  thickness: 0.006,
+  scale: 2.9,
+  pixelSize: 1,
+  glow: 0.095,
+  colorMode: "uniform" as const,
+  contrast: 1.2,
+  brightness: 1.38,
+  fillBands: false,
+  opacity: 0.06,
+  grain: false,
+  grainIntensity: 0.05,
+  mouseInteraction: true,
+  mouseRadius: 0.3,
+  mouseStrength: 0.4,
+};
 
 interface InviteFriendModalProps {
   open: boolean;
   onClose: () => void;
   triggerRef: RefObject<HTMLButtonElement | null>;
-  onCopyPreview: () => void;
-  onWhatsAppPreview: () => void;
 }
 
 const INVITE_LAYOUT_TRANSITION = {
@@ -38,17 +63,17 @@ const INVITE_LAYOUT_TRANSITION = {
 
 const steps = [
   {
-    icon: Share08Icon,
+    icon: Share01Icon,
     title: "Invite your friends",
     body: "Share your referral link with friends and colleagues",
   },
   {
-    icon: HappyIcon,
+    icon: InLoveIcon,
     title: "Track your referrals",
     body: "Your referral needs to join and receive their first payment",
   },
   {
-    icon: Money03Icon,
+    icon: Cash02Icon,
     title: "Receive your rewards!",
     body: "Receive your rewards directly in your balance",
   },
@@ -67,8 +92,6 @@ export function InviteFriendModal({
   open,
   onClose,
   triggerRef,
-  onCopyPreview,
-  onWhatsAppPreview,
 }: InviteFriendModalProps) {
   const dialogRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -141,16 +164,14 @@ export function InviteFriendModal({
   const handleCopyPreview = useCallback(() => {
     if (copyResetRef.current !== null) window.clearTimeout(copyResetRef.current);
     setCopyConfirmed(true);
-    onCopyPreview();
     copyResetRef.current = window.setTimeout(() => setCopyConfirmed(false), 1_400);
-  }, [onCopyPreview]);
+  }, []);
 
   const handleWhatsAppPreview = useCallback(() => {
     if (whatsappResetRef.current !== null) window.clearTimeout(whatsappResetRef.current);
     setWhatsappConfirmed(true);
-    onWhatsAppPreview();
     whatsappResetRef.current = window.setTimeout(() => setWhatsappConfirmed(false), 1_400);
-  }, [onWhatsAppPreview]);
+  }, []);
 
   const backdropTransition = reducedMotion
     ? { duration: 0 }
@@ -248,7 +269,7 @@ export function InviteFriendModal({
             {steps.map((step) => (
               <div className={styles.inviteStep} key={step.title}>
                 <span className={styles.inviteStepIcon}>
-                  <HugeiconsIcon icon={step.icon} size={30} strokeWidth={1.6} aria-hidden="true" />
+                  <HugeiconsIcon icon={step.icon} size={30} color="currentColor" strokeWidth={1.6} aria-hidden="true" />
                 </span>
                 <h3>{step.title}</h3>
                 <p>{step.body}</p>
@@ -257,31 +278,33 @@ export function InviteFriendModal({
           </div>
 
           <section className={styles.inviteActionPanel} aria-labelledby="invite-action-title">
+            <Topography className={styles.inviteActionTopography} {...ACTION_PANEL_TOPOGRAPHY} />
             <h3 id="invite-action-title">Invite your first friend</h3>
             <div className={styles.inviteActions}>
               <button
                 type="button"
-                className={styles.inviteActionButton}
+                className={styles.actionButton}
                 data-confirmed={copyConfirmed}
                 aria-live="polite"
                 onClick={handleCopyPreview}
               >
                 <HugeiconsIcon
                   icon={copyConfirmed ? CopyCheckIcon : Copy02Icon}
-                  size={24}
-                  strokeWidth={1.7}
+                  size={15}
+                  color="currentColor"
+                  strokeWidth={1.75}
                   aria-hidden="true"
                 />
                 <span>{copyConfirmed ? "Copied!" : "Copy Code"}</span>
               </button>
               <button
                 type="button"
-                className={`${styles.inviteActionButton} ${styles.inviteWhatsappButton}`}
+                className={`${styles.actionButton} ${styles.actionPrimary}`}
                 data-confirmed={whatsappConfirmed}
                 aria-live="polite"
                 onClick={handleWhatsAppPreview}
               >
-                <HugeiconsIcon icon={WhatsappIcon} size={25} strokeWidth={1.7} aria-hidden="true" />
+                <HugeiconsIcon icon={WhatsappIcon} size={15} color="currentColor" strokeWidth={1.75} aria-hidden="true" />
                 <span>{whatsappConfirmed ? "Ready!" : "WhatsApp"}</span>
               </button>
             </div>

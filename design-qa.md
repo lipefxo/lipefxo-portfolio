@@ -29,6 +29,8 @@ The implementation preserves the supplied inline paper-plane art and shared layo
 - [x] Backdrop and revealed content fade after the morph begins.
 - [x] Closing presence keeps the source card inert and hover-free until the 480 ms reverse morph completes.
 - [x] Close-button and backdrop dismissal share the same reverse-transition path; modal-only content exits before the shared elements.
+- [x] Repeated cycles use one functional `closed → open → closing` state machine, preventing stale exit completion from overwriting a later opening.
+- [x] The invite card's CSS transition, focus outline, shadow, and plane hover transforms are neutralized while Motion owns the shared transform.
 - [x] Close button, Escape, and backdrop dismissal.
 - [x] Body scroll locking, focus trap, initial close-button focus, and trigger focus restoration.
 - [x] Background dashboard marked inert and hidden from assistive technology while open.
@@ -37,5 +39,117 @@ The implementation preserves the supplied inline paper-plane art and shared layo
 - [x] Hugeicons `Share08Icon`, `HappyIcon`, `Money03Icon`, `Copy02Icon`, and `WhatsappIcon` used as specified.
 - [x] Targeted lint, TypeScript, and production build pass.
 - [ ] Browser interaction, console, screenshot, and animation-reversal verification.
+
+final result: blocked
+
+---
+
+# Deposit Button-to-Card Expansion Design QA
+
+- Source visual truth: `.context/attachments/N9weAc/CleanShot 2026-08-19 at 08.41.56@2x.jpg`
+- Implementation route: `/paper-dashboard`, with the Deposit dropdown opened from the balance card
+- Source dimensions: 1190 × 1060 px at `@2x`
+- Normalized CSS viewport: 595 × 530 px at device scale factor 2
+- Intended implementation surface: a 400 px maximum-width card expanding leftward and downward from the trigger's top-right corner, with 16 px viewport clamping at every breakpoint
+- Implementation screenshot: unavailable because browser discovery returned no in-app or connected browser surfaces.
+
+## Full-view and focused comparison evidence
+
+The source was opened at original resolution and normalized to its 595 × 530 CSS-pixel target. Its close control, centered pink–teal–pink coin cluster, title and two-line explanation, rounded PIX-code field, Copy Code action, and final-rate note are retained inside the selected compact dropdown treatment. The generated transparent coin asset was inspected independently at 448 × 224 px and matches the source composition and palette.
+
+A browser-rendered implementation capture could not be created, so the required combined full-view comparison and focused typography, spacing, color, image-quality, and copy comparison remain blocked.
+
+## Findings
+
+- [Blocked] Browser-rendered visual and interaction evidence is unavailable.
+  - Location: `/paper-dashboard` at desktop, 640 px, and 390 px responsive widths.
+  - Evidence: the in-app browser runtime reported no available browser surfaces; the existing local Next.js server returned HTTP 200 for `/paper-dashboard`.
+  - Impact: optical spacing, trigger alignment, viewport clamping, internal overflow, dropdown animation, keyboard focus movement, repeated open/close behavior, and browser console state cannot receive a live verification pass.
+  - Fix: connect the in-app browser, capture the expansion on desktop, verify that the shell begins at the exact trigger bounds with no gap, then repeat at 640 px and 390 px.
+
+## Implementation checks
+
+- [x] Hero secondary action changed from Details to Deposit using the same `MoneyReceiveCircleIcon` as Receive navigation.
+- [x] Deposit and Invite share one `closed → open → closing` dashboard state machine, preventing simultaneous overlay presentation.
+- [x] The Deposit button and dropdown share shell, icon/artwork, and label/title layout identities using the Invite modal's 480 ms layout transition and easing.
+- [x] Motion crossfading is disabled for the three destination elements so the dropdown is the sole visible shared-layout lead rather than appearing alongside a duplicate source button.
+- [x] The source trigger retains its layout box and ref without an explicit opacity handoff; it remains pointer-inert, removed from Tab order, and hidden from assistive technology throughout open and closing phases.
+- [x] Description, PIX field, Copy Code action, footer, and close control wait 140 ms before revealing and exit before the shared shell, artwork, and title reverse into the trigger.
+- [x] The expanded surface begins at the trigger's top edge with no gap, keeps its right edge aligned when viewport space permits, and grows leftward and downward.
+- [x] The same top-right-pinned geometry applies at 640 px and below using `min(400px, 100vw - 32px)`; viewport clamping replaces the former centered-card breakpoint treatment.
+- [x] Placement is recalculated on open, resize, and captured scroll events; height is constrained to the space below the pinned top edge with internal scrolling and contained overscroll.
+- [x] Deposit is a non-modal `role="dialog"` with no backdrop or `aria-modal`; the dashboard remains scrollable, interactive, and exposed to assistive technology while it is open.
+- [x] The closed trigger opens Deposit and is fully absorbed while open. Outside pointer-down, Escape, and the close control dismiss it; Escape and explicit close restore trigger focus, while outside dismissal preserves the clicked target's focus.
+- [x] Initial focus moves to the close control, while natural Tab traversal is preserved without a focus trap.
+- [x] Invite remains the only true modal and retains its backdrop, body scroll lock, focus trap, inert background, and trigger-focus restoration.
+- [x] The dropdown retains the Invite modal's 20 px radius, 22 px title, 14 px body/code/button, 12 px footer, and current coin scale, with only internal spacing compacted for the smaller surface.
+- [x] PIX copy remains preview-only and changes to Copied! for 1.4 seconds without calling the Clipboard API.
+- [x] Dedicated transparent 448 × 224 PNG coin asset rendered through Next Image; no CSS-drawn or placeholder artwork.
+- [x] Targeted ESLint passes for the changed React components.
+- [x] TypeScript, `git diff --check`, and the production build pass.
+- [x] Full lint still reports only the pre-existing `BorderGlow.tsx` `react-hooks/set-state-in-effect` violation.
+- [ ] Browser interaction, console, responsive screenshot, combined visual comparison, and invite-modal visual regression verification.
+
+## Comparison history
+
+No visual iteration could be recorded because browser discovery returned no connected browser surfaces after the shared-element morph update.
+
+final result: blocked
+
+---
+
+# Send Flow Design QA
+
+- Source visual truth:
+  - `.context/attachments/MtrCfe/CleanShot 2026-08-19 at 08.26.58@2x.jpg` (chooser)
+  - `.context/attachments/n4AXrX/CleanShot 2026-08-19 at 08.27.03@2x.jpg` (recipients)
+- Implementation route: `/paper-dashboard`, with `Send` selected
+- Target states: Send chooser and recipient picker
+- Source dimensions: 2546 × 1968 px each at `@2x`
+- Target CSS viewport: 1273 × 984 px at device scale factor 2
+- Implementation screenshot: unavailable because the browser runtime reports no in-app or connected browser backend.
+
+## Full-view and focused comparison evidence
+
+Both source screenshots were opened at original resolution. They establish the shared sidebar, compact balance/rate card, three equal payment-option cards, recipient search, add-recipient action, and three-row recipient list. A browser-rendered implementation capture could not be created, so neither the required full-view side-by-side comparison nor focused comparisons of typography, spacing, colors, asset rendering, and copy can be completed.
+
+## Findings
+
+- [Blocked] Browser-rendered visual and interaction evidence is unavailable.
+  - Location: `/paper-dashboard` at 1273 × 984 CSS px in both Send states, plus responsive widths.
+  - Evidence: browser discovery returned no available in-app or connected browser surfaces.
+  - Impact: exact typography, spacing rhythm, color rendering, image sharpness/crop, responsive overflow, focus movement, console state, and visual transition quality cannot receive the required comparison pass.
+  - Fix: connect an in-app browser, capture both Send states at the normalized target viewport, compare each capture beside its source, then repeat at 920 px and a narrow mobile width.
+
+## Implementation checks
+
+- [x] Send entry and re-click reset to the chooser and clear the recipient query.
+- [x] Home and Send share one persistent balance-card component; Motion reshapes the same mounted shell and the animated balance value is not restarted during navigation.
+- [x] The balance shell now uses the shared 300 ms resize curve while its rate and value use the same-duration layout interpolation; topography and non-compact controls fade within that single coordinated morph.
+- [x] The compact Send balance is 22 px at every responsive width, keeping it only modestly larger than the 16–24 px currency indicator while preserving the homepage hero's 32 px desktop and 44–58 px mobile scale.
+- [x] Send options reuse the homepage feature-card structure and hover/focus/pressed behavior.
+- [x] Recipient results reuse the homepage transaction-card and transaction-row structure and table behavior.
+- [x] Send typography inherits the homepage scale directly: balance/rate styles from the shared hero, feature-card heading styles for actions, transaction-row text for recipients and search, and 12 px supporting copy.
+- [x] Individual, Group, and Bitso controls share the same transition into recipient selection.
+- [x] Only the active Send panel is mounted in normal document flow; stage changes use a 280 ms fade/8 px rise while the item wrappers retain the existing staggered entrance language.
+- [x] Removing the persistent absolute-positioned page pair eliminates both recipient-over-chooser painting and the large stage-1-sized vertical offset shown in the 09:28 implementation capture.
+- [x] Active Send content reuses the homepage `paper-enter` animation language with a tighter 12 px travel, subtle scale/blur, and 52 ms item stagger; chooser cards and recipient search/action/table animate through neutral wrappers so existing card transforms remain intact.
+- [x] The moving balance and rate groups soften to 42% opacity with a 4 px mid-morph blur before resolving, reducing the perceived speed of their long layout interpolation without interrupting the persistent balance counter.
+- [x] Inactive Send panels are inert and hidden from assistive technology; search focus moves only after the recipient panel becomes active.
+- [x] Search filters Avengers LLC, Bank of Westeros, and Wayne Enterprises case-insensitively and provides an empty state.
+- [x] Add-recipient and recipient selections produce lightweight in-app feedback without adding another route or flow step.
+- [x] Recipient search receives focus when its animated state mounts.
+- [x] Desktop three-column chooser and stacked mobile chooser styles are present.
+- [x] Existing Higlobe, Bitso, flag, and recipient assets are reused; Hugeicons supply interface icons.
+- [x] Reduced-motion behavior removes spatial transition timing.
+- [x] Targeted ESLint passes for the changed React components.
+- [x] TypeScript and the production build pass.
+- [x] `/paper-dashboard` returns HTTP 200 after the motion refinement, and `git diff --check` passes.
+- [x] Full lint was rerun and still reports only the pre-existing `BorderGlow.tsx` state-in-effect violation.
+- [ ] Browser interaction, console, responsive screenshot, and source-comparison verification.
+
+## Comparison history
+
+No visual iteration could be recorded because an implementation screenshot was unavailable.
 
 final result: blocked
