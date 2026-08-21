@@ -284,11 +284,15 @@ export const site: SiteConfig = {
   experience: [
     {
       company: "SecureBags",
-      role: "Design Engineer & Acting Product Manager",
-      period: "Oct 2025 — Present",
+      role: "Founding Product Designer + Design Engineer",
+      period: "Mar 2023 — Present",
       summary:
-        "I own the product roadmap and prioritization while building product experiences directly in the production codebase. The role combines product discovery, React and TypeScript implementation, multi-agent development workflows, analytics, and internal operations tooling.",
+        "I joined SecureBags as its founding designer and established the design foundations, workflows, and cross-functional processes that supported the company’s rapid growth. The role has grown into design engineering: I now own the product roadmap and build product experiences directly in the production codebase, combining product discovery, React and TypeScript implementation, multi-agent development workflows, analytics, and internal operations tooling.",
       highlights: [
+        "Joined with no existing design infrastructure; established design foundations, workflows, and cross-functional processes that scaled through the company’s rapid growth.",
+        "Owned complete UX and UI for a new SaaS platform covering onboarding, account management, dashboards, lending workflows, and integrations, from research through high-fidelity handoff; streamlined onboarding and key flows to reduce drop-off and improve retention.",
+        "Built a Figma-to-production pipeline using Cursor, React, Chakra UI, and MCP, and created a modular design system of reusable, dynamically structured components, cutting design-to-development delivery time by 40%.",
+        "Identified operational bottlenecks creating manual overhead for the support team; designed and shipped internal back-office tooling in Retool for financial review, customer onboarding, and operations.",
         "Owned the product roadmap and prioritization, running discovery and product sessions with engineering and stakeholders; established the team’s development cycle, working processes, and documentation standards from scratch.",
         "Built components and end-to-end flows directly in the production codebase rather than specifying them for handoff, shipping React and TypeScript and refining spacing, states, motion, and interaction details in code where they can actually be judged.",
         "Set up and ran multi-agent development workflows using Claude Code, Codex, Conductor, and Cursor, running agents in parallel across isolated Git worktrees — enabling sustained concurrent delivery across back-end and front-end as a single contributor — and authored the documentation, reusable agent skills, and workflow conventions that made it a repeatable team practice.",
@@ -297,26 +301,13 @@ export const site: SiteConfig = {
       ],
     },
     {
-      company: "SecureBags",
-      role: "Senior Product Designer (founding designer)",
-      period: "Mar 2023 — Oct 2025",
-      summary:
-        "I joined SecureBags as its founding designer and established the design foundations, workflows, and cross-functional processes that supported the company’s rapid growth. I owned the SaaS platform’s UX/UI, design system, and internal tooling from research through production.",
-      highlights: [
-        "Joined with no existing design infrastructure; established design foundations, workflows, and cross-functional processes that scaled through the company’s rapid growth.",
-        "Owned complete UX and UI for a new SaaS platform covering onboarding, account management, dashboards, lending workflows, and integrations, from research through high-fidelity handoff; streamlined onboarding and key flows to reduce drop-off and improve retention.",
-        "Built a Figma-to-production pipeline using Cursor, React, Chakra UI, and MCP, and created a modular design system of reusable, dynamically structured components, cutting design-to-development delivery time by 40%.",
-        "Identified operational bottlenecks creating manual overhead for the support team; designed and shipped internal back-office tooling in Retool for financial review, customer onboarding, and operations.",
-      ],
-    },
-    {
       company: "Suflex",
-      role: "Lead Product Designer (promoted from Product Designer)",
+      role: "Founding Product Designer",
       period: "Aug 2020 — Jan 2023",
       summary:
-        "I joined Suflex as its founding designer and grew into the Lead Product Designer role, owning design operations and direction across two SaaS products while partnering with engineering and business leadership.",
+        "I joined Suflex as its founding product designer, owning design operations and direction across two SaaS products while partnering with engineering and business leadership.",
       highlights: [
-        "Joined as founding designer and promoted to Lead Product Designer; owned design operations, coached junior designers, and presented design direction to engineering and business leadership.",
+        "Joined as founding product designer; owned design operations, coached junior designers, and presented design direction to engineering and business leadership.",
         "Led design for two SaaS products (B2B and B2C) from concept to MVP launch, owning discovery, research, journey mapping, prototyping, and developer handoff.",
         "Established the Suflex Design System with a unified component library and design guidelines, reducing feature delivery time by 30% and ensuring cross-platform consistency.",
         "Partnered with engineering and product management to align roadmaps, scope initiatives, and fold user feedback into iteration, contributing to product-market fit.",
