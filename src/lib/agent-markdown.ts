@@ -171,16 +171,6 @@ export function getAgentMarkdown() {
     );
   }
 
-  lines.push(
-    "## On rotation",
-    "",
-    ...site.onRotation.map(
-      (album) =>
-        `- [${album.title}](${album.spotifyUrl}) — ${album.artist}`,
-    ),
-    "",
-  );
-
   lines.push("## Selected work", "", ...publicWork.flatMap((project) => [projectMarkdown(project), ""]));
 
   return lines.join("\n").trimEnd() + "\n";
