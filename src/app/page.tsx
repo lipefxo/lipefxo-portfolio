@@ -5,7 +5,6 @@ import { Hero } from "@/components/Hero";
 import { About } from "@/components/About";
 import { Experience } from "@/components/Experience";
 import { Projects } from "@/components/Projects";
-import { OnRotation } from "@/components/OnRotation";
 import { DarkVeil } from "@/components/DarkVeil";
 import { IntroReveal } from "@/components/IntroReveal";
 import { SocialIconLinks } from "@/components/SocialIconLinks";
@@ -57,7 +56,6 @@ export default async function Home() {
 
         <div className="mt-16 space-y-16">
           <Projects work={workDetails} />
-          <OnRotation />
           <footer
             className="t-intro-item pt-8 text-xs text-zinc-400 dark:text-zinc-600"
             style={{ "--intro-index": 8 } as CSSProperties}
