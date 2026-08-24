@@ -7,8 +7,8 @@
   inset: 0;
   isolation: isolate;
   overflow: hidden;
-  background: #02040b;
-  color: var(--ui-ink);
+  background: var(--space-bg, #02040b);
+  color: var(--ui-ink, #dce8ed);
   font-family: var(--font-geist-mono), "SFMono-Regular", Consolas, monospace;
   font-synthesis: none;
   touch-action: none;
@@ -37,48 +37,13 @@
     radial-gradient(circle at 50% 44%, transparent 0, rgb(0 0 0 / 6%) 58%, rgb(0 0 0 / 34%) 100%),
     repeating-linear-gradient(0deg, rgb(148 189 199 / 1.4%) 0 1px, transparent 1px 4px);
   mix-blend-mode: screen;
-  opacity: 0.52;
+  opacity: var(--pixel-wash-opacity, 0.52);
 }
 
 .interfaceControl {
   pointer-events: auto;
 }
 
-.mapTitle {
-  position: absolute;
-  z-index: 5;
-  top: max(26px, env(safe-area-inset-top));
-  left: max(28px, env(safe-area-inset-left));
-  pointer-events: none;
-  text-transform: uppercase;
-  text-shadow: 0 2px 12px #02040b;
-}
-
-.mapTitle > span {
-  display: block;
-  margin-bottom: 7px;
-  color: #657987;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-}
-
-.mapTitle h1 {
-  margin: 0;
-  color: #ecf4ef;
-  font-size: clamp(18px, 2vw, 25px);
-  font-weight: 760;
-  letter-spacing: -0.055em;
-  line-height: 1;
-}
-
-.mapTitle p {
-  margin: 8px 0 0;
-  color: #778a93;
-  font-size: 10px;
-  letter-spacing: 0.035em;
-  text-transform: none;
-}
 
 .bodyLayer {
   position: absolute;
@@ -163,7 +128,7 @@
 
 .bodyLabel {
   position: absolute;
-  top: calc(50% - max(var(--visual-size), 18px) * 0.5 - 31px);
+  top: calc(50% - max(var(--visual-size), 18px) * 0.5 - var(--label-offset, 31px));
   left: 50%;
   display: block;
   min-width: max-content;
@@ -171,10 +136,10 @@
   border: 1px solid rgb(103 142 153 / 26%);
   background: rgb(3 7 13 / 68%);
   box-shadow: 0 3px 16px rgb(0 0 0 / 36%);
-  color: #b9c8ca;
-  font-size: 8px;
+  color: var(--label-fill, #b9c8ca);
+  font-size: var(--label-size, 8px);
   font-weight: 720;
-  letter-spacing: 0.11em;
+  letter-spacing: var(--label-tracking, 0.11em);
   line-height: 1;
   text-transform: uppercase;
   opacity: 0;
@@ -203,7 +168,7 @@
 .bodyTarget[aria-pressed="true"] .bodyLabel {
   border-color: rgb(133 190 200 / 48%);
   background: rgb(4 11 18 / 90%);
-  color: #e2eff0;
+  color: var(--label-active-fill, #e2eff0);
 }
 
 .selectionCard {
@@ -213,7 +178,7 @@
   z-index: 8;
   top: var(--card-y);
   left: var(--card-x);
-  width: min(326px, calc(100vw - 36px));
+  width: min(var(--card-width, 326px), calc(100vw - 36px));
   padding: 18px 42px 18px 18px;
   border: 1px solid rgb(123 166 176 / 32%);
   background:
@@ -250,7 +215,7 @@
 .helpPanel h2 {
   margin: 0;
   color: #e9f3ef;
-  font-size: 17px;
+  font-size: var(--card-title-size, 17px);
   font-weight: 750;
   letter-spacing: -0.045em;
 }
@@ -259,7 +224,7 @@
   margin: 9px 0 0;
   color: #91a4a9;
   font-family: var(--font-geist-sans), Arial, sans-serif;
-  font-size: 13px;
+  font-size: var(--card-body-size, 13px);
   line-height: 1.48;
 }
 
@@ -292,7 +257,7 @@
 .gestureHint {
   position: absolute;
   z-index: 7;
-  bottom: max(31px, calc(env(safe-area-inset-bottom) + 18px));
+  bottom: max(calc(var(--nav-bottom, 24px) + var(--nav-size, 42px) + 16px), calc(env(safe-area-inset-bottom) + 66px));
   left: 50%;
   display: flex;
   align-items: center;
@@ -347,26 +312,28 @@
 .navigator {
   position: absolute;
   z-index: 9;
-  bottom: max(24px, env(safe-area-inset-bottom));
-  left: max(28px, env(safe-area-inset-left));
+  bottom: max(var(--nav-bottom, 24px), env(safe-area-inset-bottom));
+  left: 50%;
   display: flex;
   padding: 3px;
   border: 1px solid rgb(109 150 161 / 25%);
-  background: rgb(3 8 14 / 84%);
+  background: var(--nav-fill, rgb(3 8 14 / 84%));
   box-shadow: 0 12px 38px rgb(0 0 0 / 34%);
+  transform: translateX(-50%);
+  opacity: var(--nav-opacity, 1);
   backdrop-filter: blur(12px);
 }
 
 .navigator button {
   display: grid;
-  width: 42px;
-  height: 42px;
+  width: var(--nav-size, 42px);
+  height: var(--nav-size, 42px);
   place-items: center;
   padding: 0 0 2px;
   border: 0;
   border-right: 1px solid rgb(104 144 154 / 19%);
   background: transparent;
-  color: #82969c;
+  color: var(--nav-ink, #82969c);
   font: 17px/1 var(--font-geist-mono), monospace;
   transition: color 90ms steps(2, end), background-color 90ms steps(2, end);
 }
@@ -380,15 +347,17 @@
 .navigator button[aria-expanded="true"] {
   outline: none;
   background: rgb(116 172 183 / 10%);
-  color: #dbe8e7;
+  color: var(--nav-active-ink, #dbe8e7);
 }
 
 .helpPanel {
   position: absolute;
   z-index: 10;
-  right: max(28px, env(safe-area-inset-right));
-  bottom: max(24px, env(safe-area-inset-bottom));
+  left: 50%;
+  right: auto;
+  bottom: max(calc(var(--nav-bottom, 24px) + var(--nav-size, 42px) + 16px), calc(env(safe-area-inset-bottom) + 66px));
   width: min(338px, calc(100vw - 36px));
+  transform: translateX(-50%);
   padding: 19px;
   border: 1px solid rgb(118 161 172 / 32%);
   background: var(--ui-panel);
@@ -436,33 +405,6 @@
   color: #71858c;
 }
 
-.scaleLegend {
-  position: absolute;
-  z-index: 4;
-  right: max(28px, env(safe-area-inset-right));
-  top: max(31px, env(safe-area-inset-top));
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: #4f636d;
-  font-size: 7px;
-  letter-spacing: 0.12em;
-  pointer-events: none;
-}
-
-.scaleLegend span {
-  position: relative;
-  width: 42px;
-  height: 5px;
-  border-right: 1px solid #546c75;
-  border-bottom: 1px solid #546c75;
-  border-left: 1px solid #546c75;
-}
-
-.scaleLegend b {
-  font-weight: 700;
-}
-
 .srOnly {
   position: absolute;
   width: 1px;
@@ -494,36 +436,18 @@
 }
 
 @media (max-width: 700px) {
-  .mapTitle {
-    top: max(18px, env(safe-area-inset-top));
-    left: max(18px, env(safe-area-inset-left));
-  }
-
-  .mapTitle > span {
-    font-size: 7px;
-  }
-
-  .mapTitle h1 {
-    font-size: 18px;
-  }
-
-  .mapTitle p,
-  .scaleLegend {
-    display: none;
-  }
-
   .navigator {
     bottom: max(14px, env(safe-area-inset-bottom));
-    left: max(14px, env(safe-area-inset-left));
+    left: 50%;
   }
 
   .navigator button {
-    width: 44px;
-    height: 44px;
+    width: max(44px, var(--nav-size, 42px));
+    height: max(44px, var(--nav-size, 42px));
   }
 
   .gestureHint {
-    top: max(62px, calc(env(safe-area-inset-top) + 52px));
+    top: max(18px, env(safe-area-inset-top));
     bottom: auto;
     width: max-content;
     max-width: calc(100vw - 28px);
@@ -549,6 +473,7 @@
     bottom: max(72px, calc(env(safe-area-inset-bottom) + 66px));
     left: 14px;
     width: auto;
+    transform: none;
   }
 
   .bodyLabel {

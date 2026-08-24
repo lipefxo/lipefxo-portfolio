@@ -1,5 +1,7 @@
 "use client";
 
+import "dialkit/styles.css";
+import dynamic from "next/dynamic";
 import {
   useCallback,
   useEffect,
@@ -11,6 +13,12 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import styles from "./space.module.css";
+import { hexToRgba, useSpaceDials, type SpaceDials } from "./useSpaceDials";
+
+const SpaceDialRoot = dynamic(
+  () => import("dialkit").then((module) => module.DialRoot),
+  { ssr: false },
+);
 
 type BodyId =
   | "sun"
@@ -88,7 +96,6 @@ const TAU = Math.PI * 2;
 const SYSTEM_RADIUS = 820;
 const ORBIT_SAMPLE_COUNT = 144;
 const MAX_DPR = 2;
-const LABEL_HEIGHT = 22;
 
 const CELESTIAL_BODIES: readonly CelestialBody[] = [
   {
@@ -256,17 +263,18 @@ function distance(a: Point, b: Point) {
   return Math.hypot(b.x - a.x, b.y - a.y);
 }
 
-function isometricProject(point: Point): Point {
+function isometricProject(point: Point, yFactor: number): Point {
   return {
     x: point.x - point.y,
-    y: (point.x + point.y) * 0.5,
+    y: (point.x + point.y) * yFactor,
   };
 }
 
-function isometricUnproject(point: Point): Point {
+function isometricUnproject(point: Point, yFactor: number): Point {
+  const sum = yFactor === 0 ? 0 : point.y / yFactor;
   return {
-    x: point.y + point.x * 0.5,
-    y: point.y - point.x * 0.5,
+    x: (sum + point.x) * 0.5,
+    y: (sum - point.x) * 0.5,
   };
 }
 
@@ -274,9 +282,10 @@ function worldToScreen(
   world: Point,
   camera: CameraState,
   viewport: ViewportState,
+  yFactor: number,
 ): Point {
-  const projectedWorld = isometricProject(world);
-  const projectedCamera = isometricProject(camera);
+  const projectedWorld = isometricProject(world, yFactor);
+  const projectedCamera = isometricProject(camera, yFactor);
   return {
     x: viewport.width * 0.5 + (projectedWorld.x - projectedCamera.x) * camera.zoom,
     y: viewport.height * 0.5 + (projectedWorld.y - projectedCamera.y) * camera.zoom,
@@ -287,25 +296,60 @@ function screenToWorld(
   screen: Point,
   camera: CameraState,
   viewport: ViewportState,
+  yFactor: number,
 ): Point {
-  const projectedCamera = isometricProject(camera);
+  const projectedCamera = isometricProject(camera, yFactor);
   const projected = {
     x: projectedCamera.x + (screen.x - viewport.width * 0.5) / camera.zoom,
     y: projectedCamera.y + (screen.y - viewport.height * 0.5) / camera.zoom,
   };
-  return isometricUnproject(projected);
+  return isometricUnproject(projected, yFactor);
 }
 
-function computeFitZoom(width: number, height: number) {
-  const usableWidth = Math.max(280, width - 64);
-  const usableHeight = Math.max(300, height - 154);
-  const projectedWidth = SYSTEM_RADIUS * Math.SQRT2 * 2;
-  const projectedHeight = SYSTEM_RADIUS * Math.SQRT2;
+function computeFitZoom(
+  width: number,
+  height: number,
+  systemRadius: number,
+  paddingX: number,
+  paddingY: number,
+  fitScale: number,
+) {
+  const usableWidth = Math.max(280, width - paddingX);
+  const usableHeight = Math.max(300, height - paddingY);
+  const projectedWidth = systemRadius * Math.SQRT2 * 2;
+  const projectedHeight = systemRadius * Math.SQRT2;
   return clamp(
-    Math.min(usableWidth / projectedWidth, usableHeight / projectedHeight) * 0.94,
+    Math.min(usableWidth / projectedWidth, usableHeight / projectedHeight) * fitScale,
     0.12,
     0.88,
   );
+}
+
+function planetTune(dials: SpaceDials, id: BodyId) {
+  return dials.planets[id];
+}
+
+function resolveBody(body: CelestialBody, dials: SpaceDials): CelestialBody {
+  const tune = planetTune(dials, body.id);
+  const orbitScale = dials.bodies.spacingScale;
+  const motionSpeed = Math.max(0.001, dials.scene.motionSpeed);
+  return {
+    ...body,
+    displaySize: tune.size * dials.bodies.sizeScale,
+    minDisplaySize: tune.minSize * dials.bodies.minSizeScale,
+    orbitRadius: "orbit" in tune ? tune.orbit * orbitScale : 0,
+    orbitPeriod: "period" in tune ? Math.max(1, tune.period / motionSpeed) : body.orbitPeriod,
+  };
+}
+
+function resolveBodies(dials: SpaceDials) {
+  return CELESTIAL_BODIES.map((body) => resolveBody(body, dials));
+}
+
+function systemRadiusForDials(dials: SpaceDials) {
+  const bodies = resolveBodies(dials);
+  const farthest = bodies.reduce((max, body) => Math.max(max, body.orbitRadius), 0);
+  return Math.max(SYSTEM_RADIUS, farthest + 30);
 }
 
 function hashNumber(value: number) {
@@ -324,11 +368,15 @@ function orbitPosition(radius: number, angle: number): Point {
   };
 }
 
-function getBodyWorldPositions(elapsedSeconds: number, reducedMotion: boolean) {
+function getBodyWorldPositions(
+  bodies: readonly CelestialBody[],
+  elapsedSeconds: number,
+  reducedMotion: boolean,
+) {
   const positions = new Map<BodyId, Point>();
 
-  for (let index = 0; index < CELESTIAL_BODIES.length; index += 1) {
-    const body = CELESTIAL_BODIES[index];
+  for (let index = 0; index < bodies.length; index += 1) {
+    const body = bodies[index];
     if (body.id === "sun") {
       positions.set(body.id, { x: 0, y: 0 });
       continue;
@@ -352,12 +400,14 @@ function drawInfiniteStarfield(
   viewport: ViewportState,
   elapsedSeconds: number,
   reducedMotion: boolean,
+  yFactor: number,
+  dials: SpaceDials,
 ) {
-  const projectedCamera = isometricProject(camera);
+  const projectedCamera = isometricProject(camera, yFactor);
   const layers = [
-    { parallax: 0.045, tile: 260, stars: 12, seed: 11, alpha: 0.42 },
-    { parallax: 0.09, tile: 320, stars: 9, seed: 37, alpha: 0.66 },
-    { parallax: 0.16, tile: 400, stars: 6, seed: 73, alpha: 0.92 },
+    { parallax: 0.045, tile: 260, stars: 12, seed: 11, alpha: dials.starfield.farAlpha },
+    { parallax: 0.09, tile: 320, stars: 9, seed: 37, alpha: dials.starfield.midAlpha },
+    { parallax: 0.16, tile: 400, stars: 6, seed: 73, alpha: dials.starfield.nearAlpha },
   ] as const;
 
   context.save();
@@ -386,13 +436,13 @@ function drawInfiniteStarfield(
           const bright = hashNumber(seed + 47);
           const twinkle = reducedMotion
             ? 0.84
-            : 0.72 + Math.sin(elapsedSeconds * (0.55 + bright) + seed) * 0.22;
-          const alpha = clamp(layer.alpha * twinkle, 0.12, 1);
+            : 0.72 + Math.sin(elapsedSeconds * (0.55 + bright) * dials.starfield.twinkle + seed) * 0.22;
+          const alpha = clamp(layer.alpha * twinkle * dials.starfield.opacity, 0.04, 1);
           const size = bright > 0.92 ? 2 : 1;
           const colorRoll = hashNumber(seed + 88);
           context.globalAlpha = alpha;
           context.fillStyle =
-            colorRoll > 0.94 ? "#edc99c" : colorRoll < 0.08 ? "#9bc9e8" : "#dce4ef";
+            colorRoll > 0.94 ? dials.starfield.warm : colorRoll < 0.08 ? dials.starfield.cool : dials.starfield.white;
           context.fillRect(Math.round(x), Math.round(y), size, size);
 
           if (bright > 0.975 && layerIndex === 2) {
@@ -412,6 +462,8 @@ function drawOrbit(
   radius: number,
   camera: CameraState,
   viewport: ViewportState,
+  yFactor: number,
+  dials: SpaceDials,
   parent: Point = { x: 0, y: 0 },
   moonOrbit = false,
 ) {
@@ -424,15 +476,18 @@ function drawOrbit(
       { x: local.x + parent.x, y: local.y + parent.y },
       camera,
       viewport,
+      yFactor,
     );
     if (index === 0) context.moveTo(point.x, point.y);
     else context.lineTo(point.x, point.y);
   }
   context.closePath();
-  context.setLineDash(moonOrbit ? [2, 5] : [2, 8]);
+  context.setLineDash(moonOrbit ? [2, dials.orbits.moonDash] : [2, dials.orbits.dash]);
   context.lineDashOffset = moonOrbit ? 0 : 2;
   context.lineWidth = 1;
-  context.strokeStyle = moonOrbit ? "rgba(150, 183, 215, 0.24)" : "rgba(95, 130, 166, 0.18)";
+  context.strokeStyle = moonOrbit
+    ? hexToRgba(dials.orbits.moonColor, dials.orbits.moonOpacity)
+    : hexToRgba(dials.orbits.color, dials.orbits.opacity);
   context.stroke();
   context.restore();
 }
@@ -443,15 +498,18 @@ function drawAsteroidBelt(
   viewport: ViewportState,
   elapsedSeconds: number,
   reducedMotion: boolean,
+  yFactor: number,
+  dials: SpaceDials,
 ) {
-  const motion = reducedMotion ? 0 : elapsedSeconds / 260;
+  const motion = reducedMotion ? 0 : (elapsedSeconds / 260) * dials.asteroids.speed;
+  const count = Math.round(dials.asteroids.count);
   context.save();
-  for (let index = 0; index < 210; index += 1) {
+  for (let index = 0; index < count; index += 1) {
     const seededAngle = hashNumber(index * 31 + 8) * TAU;
-    const radius = 380 + (hashNumber(index * 83 + 19) - 0.5) * 54;
+    const radius = dials.asteroids.radius + (hashNumber(index * 83 + 19) - 0.5) * dials.asteroids.spread;
     const drift = motion * (0.72 + hashNumber(index + 91) * 0.45);
     const position = orbitPosition(radius, seededAngle + drift);
-    const screen = worldToScreen(position, camera, viewport);
+    const screen = worldToScreen(position, camera, viewport, yFactor);
     if (
       screen.x < -4 ||
       screen.x > viewport.width + 4 ||
@@ -461,8 +519,8 @@ function drawAsteroidBelt(
       continue;
     }
     const size = hashNumber(index * 17) > 0.9 ? 2 : 1;
-    context.globalAlpha = 0.32 + hashNumber(index * 57) * 0.38;
-    context.fillStyle = hashNumber(index * 13) > 0.72 ? "#a18b72" : "#655f62";
+    context.globalAlpha = (0.32 + hashNumber(index * 57) * 0.38) * dials.asteroids.opacity;
+    context.fillStyle = hashNumber(index * 13) > 0.72 ? dials.asteroids.warm : dials.asteroids.cool;
     context.fillRect(Math.round(screen.x), Math.round(screen.y), size, size);
   }
   context.restore();
@@ -655,12 +713,16 @@ function drawBodyGlow(
   rendered: RenderedBody,
   elapsedSeconds: number,
   reducedMotion: boolean,
+  dials: SpaceDials,
 ) {
   const { body, screen, visualSize } = rendered;
   if (body.id !== "sun" && body.id !== "moon" && body.id !== "earth") return;
+  const intensity = body.id === "sun" ? dials.glow.sun : body.id === "moon" ? dials.glow.moon : dials.glow.earth;
+  if (intensity <= 0) return;
   const pulse = reducedMotion ? 1 : 1 + Math.sin(elapsedSeconds * 1.65) * 0.055;
   const glowRadius =
-    body.id === "sun" ? visualSize * 1.3 * pulse : body.id === "moon" ? visualSize * 0.72 : visualSize * 0.58;
+    (body.id === "sun" ? visualSize * 1.3 * pulse : body.id === "moon" ? visualSize * 0.72 : visualSize * 0.58) * intensity;
+  if (!Number.isFinite(visualSize) || !Number.isFinite(glowRadius) || glowRadius <= 0) return;
   const gradient = context.createRadialGradient(
     screen.x,
     screen.y,
@@ -670,15 +732,15 @@ function drawBodyGlow(
     glowRadius,
   );
   if (body.id === "sun") {
-    gradient.addColorStop(0, "rgba(255, 209, 91, 0.38)");
-    gradient.addColorStop(0.32, "rgba(255, 135, 35, 0.2)");
-    gradient.addColorStop(1, "rgba(255, 88, 20, 0)");
+    gradient.addColorStop(0, hexToRgba(dials.glow.sunCore, 0.38 * intensity));
+    gradient.addColorStop(0.32, hexToRgba(dials.glow.sunMid, 0.2 * intensity));
+    gradient.addColorStop(1, hexToRgba(dials.glow.sunEdge, 0));
   } else if (body.id === "moon") {
-    gradient.addColorStop(0, "rgba(194, 220, 244, 0.16)");
-    gradient.addColorStop(1, "rgba(123, 174, 219, 0)");
+    gradient.addColorStop(0, hexToRgba("#c2dcf4", 0.16 * intensity));
+    gradient.addColorStop(1, hexToRgba("#7baedb", 0));
   } else {
-    gradient.addColorStop(0, "rgba(61, 153, 211, 0.1)");
-    gradient.addColorStop(1, "rgba(61, 153, 211, 0)");
+    gradient.addColorStop(0, hexToRgba("#3d99d3", 0.1 * intensity));
+    gradient.addColorStop(1, hexToRgba("#3d99d3", 0));
   }
   context.save();
   context.globalCompositeOperation = "screen";
@@ -697,18 +759,21 @@ function drawSolarMotes(
   sun: RenderedBody,
   elapsedSeconds: number,
   reducedMotion: boolean,
+  dials: SpaceDials,
 ) {
+  const count = Math.round(dials.glow.motes);
+  if (count <= 0) return;
   const motion = reducedMotion ? 0 : elapsedSeconds * 0.18;
   context.save();
-  for (let index = 0; index < 28; index += 1) {
+  for (let index = 0; index < count; index += 1) {
     const seed = hashNumber(index * 43 + 17);
     const angle = seed * TAU + motion * (0.65 + hashNumber(index + 7));
     const radius = sun.visualSize * (0.53 + hashNumber(index * 19) * 0.65);
     const x = sun.screen.x + Math.cos(angle) * radius;
     const y = sun.screen.y + Math.sin(angle) * radius * 0.52;
     const alpha = 0.18 + hashNumber(index * 67) * 0.42;
-    context.globalAlpha = alpha;
-    context.fillStyle = index % 3 === 0 ? "#ffcf58" : "#f06b25";
+    context.globalAlpha = alpha * dials.glow.sun;
+    context.fillStyle = index % 3 === 0 ? dials.glow.moteHot : dials.glow.moteEmber;
     context.fillRect(Math.round(x), Math.round(y), index % 7 === 0 ? 2 : 1, 1);
   }
   context.restore();
@@ -756,6 +821,7 @@ function positionBodyControls(
   hoveredId: BodyId | null,
   viewport: ViewportState,
   camera: CameraState,
+  labelHeight: number,
 ) {
   const sorted = [...renderedBodies].sort(
     (a, b) => b.body.labelPriority - a.body.labelPriority,
@@ -787,7 +853,7 @@ function positionBodyControls(
     const box: DOMRectLike = {
       left: screen.x - width * 0.5,
       right: screen.x + width * 0.5,
-      top: screen.y - Math.max(visualSize, 18) * 0.5 - LABEL_HEIGHT - 8,
+      top: screen.y - Math.max(visualSize, 18) * 0.5 - labelHeight - 8,
       bottom: screen.y - Math.max(visualSize, 18) * 0.5 - 8,
     };
     const collides = occupied.some((other) => rectanglesOverlap(box, other));
@@ -825,7 +891,7 @@ function getTwoPointers(pointers: Map<number, PointerInfo>) {
 
 function HelpPanel({ onClose }: { onClose: () => void }) {
   return (
-    <section className={styles.helpPanel} role="dialog" aria-label="Map controls">
+    <section className={`${styles.helpPanel} ${styles.interfaceControl}`} role="dialog" aria-label="Map controls">
       <div className={styles.panelHeading}>
         <div>
           <span className={styles.panelKicker}>NAVIGATION LOG</span>
@@ -846,6 +912,8 @@ function HelpPanel({ onClose }: { onClose: () => void }) {
 }
 
 export function SpaceExplorer() {
+  const dials = useSpaceDials();
+  const dialsRef = useRef(dials);
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const selectionCardRef = useRef<HTMLElement>(null);
@@ -885,13 +953,26 @@ export function SpaceExplorer() {
     requestDrawRef.current();
   }, [hoveredId]);
 
+  useEffect(() => {
+    dialsRef.current = dials;
+    requestDrawRef.current();
+  }, [dials]);
+
   const markInteracted = useCallback(() => {
     setHasInteracted((current) => current || true);
   }, []);
 
   const resetCamera = useCallback(() => {
     const viewport = viewportRef.current;
-    const fitZoom = computeFitZoom(viewport.width, viewport.height);
+    const current = dialsRef.current;
+    const fitZoom = computeFitZoom(
+      viewport.width,
+      viewport.height,
+      systemRadiusForDials(current),
+      current.camera.fitPaddingX,
+      current.camera.fitPaddingY,
+      current.camera.fitScale,
+    );
     cameraRef.current = { x: 0, y: 0, zoom: fitZoom };
     minZoomRef.current = fitZoom * 0.72;
     maxZoomRef.current = Math.max(3.4, fitZoom * 6);
@@ -904,12 +985,13 @@ export function SpaceExplorer() {
     const camera = cameraRef.current;
     const viewport = viewportRef.current;
     const target = anchor ?? { x: viewport.width * 0.5, y: viewport.height * 0.5 };
-    const worldAnchor = screenToWorld(target, camera, viewport);
+    const yFactor = dialsRef.current.scene.isometricY;
+    const worldAnchor = screenToWorld(target, camera, viewport, yFactor);
     const zoom = clamp(nextZoom, minZoomRef.current, maxZoomRef.current);
     const projectedOffset = isometricUnproject({
       x: (target.x - viewport.width * 0.5) / zoom,
       y: (target.y - viewport.height * 0.5) / zoom,
-    });
+    }, yFactor);
     cameraRef.current = {
       x: worldAnchor.x - projectedOffset.x,
       y: worldAnchor.y - projectedOffset.y,
@@ -948,28 +1030,31 @@ export function SpaceExplorer() {
       context.setTransform(viewport.dpr, 0, 0, viewport.dpr, 0, 0);
       context.globalAlpha = 1;
       context.globalCompositeOperation = "source-over";
-      context.fillStyle = "#02040b";
+      const dials = dialsRef.current;
+      const yFactor = dials.scene.isometricY;
+      const bodies = resolveBodies(dials);
+      context.fillStyle = dials.scene.background;
       context.fillRect(0, 0, viewport.width, viewport.height);
 
-      drawInfiniteStarfield(context, camera, viewport, elapsedSeconds, reducedMotion);
+      drawInfiniteStarfield(context, camera, viewport, elapsedSeconds, reducedMotion, yFactor, dials);
 
-      const positions = getBodyWorldPositions(elapsedSeconds, reducedMotion);
-      for (let index = 1; index < CELESTIAL_BODIES.length; index += 1) {
-        const body = CELESTIAL_BODIES[index];
+      const positions = getBodyWorldPositions(bodies, elapsedSeconds, reducedMotion);
+      for (let index = 1; index < bodies.length; index += 1) {
+        const body = bodies[index];
         if (body.parentId) {
           const parent = positions.get(body.parentId) ?? { x: 0, y: 0 };
-          drawOrbit(context, body.orbitRadius, camera, viewport, parent, true);
+          drawOrbit(context, body.orbitRadius, camera, viewport, yFactor, dials, parent, true);
         } else {
-          drawOrbit(context, body.orbitRadius, camera, viewport);
+          drawOrbit(context, body.orbitRadius, camera, viewport, yFactor, dials);
         }
       }
-      drawAsteroidBelt(context, camera, viewport, elapsedSeconds, reducedMotion);
+      drawAsteroidBelt(context, camera, viewport, elapsedSeconds, reducedMotion, yFactor, dials);
 
       const renderedBodies: RenderedBody[] = [];
-      for (let index = 0; index < CELESTIAL_BODIES.length; index += 1) {
-        const body = CELESTIAL_BODIES[index];
+      for (let index = 0; index < bodies.length; index += 1) {
+        const body = bodies[index];
         const world = positions.get(body.id) ?? { x: 0, y: 0 };
-        const screen = worldToScreen(world, camera, viewport);
+        const screen = worldToScreen(world, camera, viewport, yFactor);
         const compactScale = clamp(viewport.width / 700, 0.54, 1);
         const visualSize = Math.max(
           body.minDisplaySize * compactScale,
@@ -980,19 +1065,19 @@ export function SpaceExplorer() {
           world,
           screen,
           visualSize,
-          hitSize: Math.max(22, visualSize * 0.58),
+          hitSize: Math.max(22, visualSize * 0.58 * dials.bodies.hitScale),
         });
       }
       renderedBodies.sort((a, b) => a.screen.y - b.screen.y);
       renderedBodiesRef.current = renderedBodies;
 
       for (let index = 0; index < renderedBodies.length; index += 1) {
-        drawBodyGlow(context, renderedBodies[index], elapsedSeconds, reducedMotion);
+        drawBodyGlow(context, renderedBodies[index], elapsedSeconds, reducedMotion, dials);
       }
 
       const sun = renderedBodies.find((item) => item.body.id === "sun");
       const sunScreen = sun?.screen ?? { x: viewport.width * 0.5, y: viewport.height * 0.5 };
-      if (sun) drawSolarMotes(context, sun, elapsedSeconds, reducedMotion);
+      if (sun) drawSolarMotes(context, sun, elapsedSeconds, reducedMotion, dials);
       for (let index = 0; index < renderedBodies.length; index += 1) {
         drawCelestialBody(context, renderedBodies[index], sunScreen);
       }
@@ -1004,6 +1089,7 @@ export function SpaceExplorer() {
         hoveredIdRef.current,
         viewport,
         camera,
+        Math.max(16, dials.labels.fontSize * 2.75),
       );
 
       const selectionCard = selectionCardRef.current;
@@ -1041,7 +1127,15 @@ export function SpaceExplorer() {
       canvas.height = Math.round(height * dpr);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
-      const fitZoom = computeFitZoom(width, height);
+      const current = dialsRef.current;
+      const fitZoom = computeFitZoom(
+        width,
+        height,
+        systemRadiusForDials(current),
+        current.camera.fitPaddingX,
+        current.camera.fitPaddingY,
+        current.camera.fitScale,
+      );
       minZoomRef.current = fitZoom * 0.72;
       maxZoomRef.current = Math.max(3.4, fitZoom * 6);
       if (!cameraMovedRef.current) {
@@ -1137,7 +1231,7 @@ export function SpaceExplorer() {
         const center = midpoint(pair[0], pair[1]);
         pinchRef.current = {
           distance: Math.max(1, distance(pair[0], pair[1])),
-          worldAnchor: screenToWorld(center, cameraRef.current, viewportRef.current),
+          worldAnchor: screenToWorld(center, cameraRef.current, viewportRef.current, dialsRef.current.scene.isometricY),
         };
       }
     }
@@ -1159,17 +1253,18 @@ export function SpaceExplorer() {
         minZoomRef.current,
         maxZoomRef.current,
       );
+      const yFactor = dialsRef.current.scene.isometricY;
       const projectedOffset = isometricUnproject({
         x: (center.x - viewportRef.current.width * 0.5) / nextZoom,
         y: (center.y - viewportRef.current.height * 0.5) / nextZoom,
-      });
+      }, yFactor);
       cameraRef.current = {
         x: pinch.worldAnchor.x - projectedOffset.x,
         y: pinch.worldAnchor.y - projectedOffset.y,
         zoom: nextZoom,
       };
       pinch.distance = Math.max(1, distance(pair[0], pair[1]));
-      pinch.worldAnchor = screenToWorld(center, cameraRef.current, viewportRef.current);
+      pinch.worldAnchor = screenToWorld(center, cameraRef.current, viewportRef.current, dialsRef.current.scene.isometricY);
       movedRef.current = true;
       cameraMovedRef.current = true;
       requestDrawRef.current();
@@ -1184,7 +1279,7 @@ export function SpaceExplorer() {
     const worldDelta = isometricUnproject({
       x: -screenDelta.x / startCamera.zoom,
       y: -screenDelta.y / startCamera.zoom,
-    });
+    }, dialsRef.current.scene.isometricY);
     cameraRef.current = {
       x: startCamera.x + worldDelta.x,
       y: startCamera.y + worldDelta.y,
@@ -1228,7 +1323,7 @@ export function SpaceExplorer() {
       const center = midpoint(remaining[0], remaining[1]);
       pinchRef.current = {
         distance: Math.max(1, distance(remaining[0], remaining[1])),
-        worldAnchor: screenToWorld(center, cameraRef.current, viewportRef.current),
+        worldAnchor: screenToWorld(center, cameraRef.current, viewportRef.current, dialsRef.current.scene.isometricY),
       };
     } else {
       const single = pointersRef.current.values().next().value as PointerInfo | undefined;
@@ -1266,22 +1361,22 @@ export function SpaceExplorer() {
     let handled = true;
     switch (event.key) {
       case "ArrowLeft": {
-        const delta = isometricUnproject({ x: -panPixels / camera.zoom, y: 0 });
+        const delta = isometricUnproject({ x: -panPixels / camera.zoom, y: 0 }, dialsRef.current.scene.isometricY);
         cameraRef.current = { ...camera, x: camera.x + delta.x, y: camera.y + delta.y };
         break;
       }
       case "ArrowRight": {
-        const delta = isometricUnproject({ x: panPixels / camera.zoom, y: 0 });
+        const delta = isometricUnproject({ x: panPixels / camera.zoom, y: 0 }, dialsRef.current.scene.isometricY);
         cameraRef.current = { ...camera, x: camera.x + delta.x, y: camera.y + delta.y };
         break;
       }
       case "ArrowUp": {
-        const delta = isometricUnproject({ x: 0, y: -panPixels / camera.zoom });
+        const delta = isometricUnproject({ x: 0, y: -panPixels / camera.zoom }, dialsRef.current.scene.isometricY);
         cameraRef.current = { ...camera, x: camera.x + delta.x, y: camera.y + delta.y };
         break;
       }
       case "ArrowDown": {
-        const delta = isometricUnproject({ x: 0, y: panPixels / camera.zoom });
+        const delta = isometricUnproject({ x: 0, y: panPixels / camera.zoom }, dialsRef.current.scene.isometricY);
         cameraRef.current = { ...camera, x: camera.x + delta.x, y: camera.y + delta.y };
         break;
       }
@@ -1319,10 +1414,36 @@ export function SpaceExplorer() {
     setSelectedId(null);
   }, []);
 
+  const chromeStyle = {
+    "--space-bg": dials.scene.background,
+    "--pixel-wash-opacity": String(dials.scene.pixelWashOpacity),
+    "--ui-ink": dials.ui.ink,
+    "--ui-muted": dials.ui.muted,
+    "--ui-line": hexToRgba(dials.ui.line, dials.ui.lineOpacity),
+    "--ui-panel": hexToRgba(dials.card.fill, dials.card.fillOpacity),
+    "--nav-size": `${dials.navigator.buttonSize}px`,
+    "--nav-bottom": `${dials.navigator.bottom}px`,
+    "--nav-opacity": String(dials.navigator.opacity),
+    "--nav-ink": dials.navigator.ink,
+    "--nav-active-ink": dials.navigator.activeInk,
+    "--nav-fill": hexToRgba(dials.navigator.fill, dials.navigator.fillOpacity),
+    "--label-size": `${dials.labels.fontSize}px`,
+    "--label-tracking": `${dials.labels.letterSpacing}em`,
+    "--label-offset": `${dials.labels.offset}px`,
+    "--label-fill": dials.labels.fill,
+    "--label-active-fill": dials.labels.activeFill,
+    "--card-width": `${dials.card.width}px`,
+    "--card-title-size": `${dials.card.titleSize}px`,
+    "--card-body-size": `${dials.card.bodySize}px`,
+  } as CSSProperties;
+
   return (
+    <>
+    <SpaceDialRoot theme="dark" position="top-right" defaultOpen />
     <main
       ref={rootRef}
       className={styles.space}
+      style={chromeStyle}
       data-dragging="false"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -1335,12 +1456,6 @@ export function SpaceExplorer() {
     >
       <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
       <div className={styles.pixelWash} aria-hidden="true" />
-
-      <header className={`${styles.mapTitle} ${styles.interfaceControl}`}>
-        <span>SECTOR 00 · LOCAL STAR</span>
-        <h1>Solar System</h1>
-        <p>Drag the dark. Find a world.</p>
-      </header>
 
       <div className={styles.bodyLayer} aria-label="Celestial bodies">
         {CELESTIAL_BODIES.map((body) => (
@@ -1426,14 +1541,10 @@ export function SpaceExplorer() {
 
       {helpOpen ? <HelpPanel onClose={() => setHelpOpen(false)} /> : null}
 
-      <div className={`${styles.scaleLegend} ${styles.interfaceControl}`} aria-hidden="true">
-        <span />
-        <b>ART-DIRECTED SCALE</b>
-      </div>
-
       <div className={styles.srOnly} aria-live="polite">
         {selectedBody ? `${selectedBody.name}. ${selectedBody.flavor}` : "No celestial body selected."}
       </div>
     </main>
+    </>
   );
 }
