@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 import {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -14,23 +13,31 @@ import {
 } from "react";
 import styles from "./space.module.css";
 import { hexToRgba, useSpaceDials, type SpaceDials } from "./useSpaceDials";
+import {
+  createEventScheduler,
+  drawLivingEventBackLayers,
+  drawLivingEventFrontLayers,
+  drawLivingSurface,
+  getBodyBaseSpin,
+  updateLivingEvents,
+  type EventSchedulerState,
+  type LivingBodyId as BodyId,
+} from "./livingDiorama";
+import {
+  drawMission,
+  drawMissionTrails,
+  getRenderedMissions,
+  MISSION_BY_ID,
+  MISSION_DEFINITIONS,
+  type MissionDefinition,
+  type MissionId,
+  type RenderedMission,
+} from "./missionDiorama";
 
 const SpaceDialRoot = dynamic(
   () => import("dialkit").then((module) => module.DialRoot),
   { ssr: false },
 );
-
-type BodyId =
-  | "sun"
-  | "mercury"
-  | "venus"
-  | "earth"
-  | "moon"
-  | "mars"
-  | "jupiter"
-  | "saturn"
-  | "uranus"
-  | "neptune";
 
 type BodyKind = "star" | "planet" | "moon";
 type SpriteRecipe =
@@ -58,7 +65,6 @@ type CelestialBody = {
   spritePixels: number;
   palette: readonly [string, string, string, string, string];
   recipe: SpriteRecipe;
-  labelPriority: number;
   flavor: string;
 };
 
@@ -82,6 +88,14 @@ type RenderedBody = {
   hitSize: number;
 };
 
+type MapSelection =
+  | { kind: "body"; id: BodyId }
+  | { kind: "mission"; id: MissionId };
+
+type SceneItem =
+  | { kind: "body"; rendered: RenderedBody }
+  | { kind: "mission"; rendered: RenderedMission };
+
 type PointerInfo = {
   x: number;
   y: number;
@@ -90,6 +104,33 @@ type PointerInfo = {
 type PinchState = {
   distance: number;
   worldAnchor: Point;
+};
+
+type BodyInteractionState = {
+  rotationPhase: number;
+  angularVelocity: number;
+  dragging: boolean;
+  pulseElapsed: number;
+};
+
+type SpinDragState = {
+  pointerId: number;
+  bodyId: BodyId;
+  origin: Point;
+  lastPoint: Point;
+  lastTime: number;
+};
+
+type MissionPressState = {
+  pointerId: number;
+  missionId: MissionId;
+};
+
+type SpriteBuffer = {
+  canvas: HTMLCanvasElement;
+  context: CanvasRenderingContext2D | null;
+  lightStep: number;
+  rotationStep: number;
 };
 
 const TAU = Math.PI * 2;
@@ -110,7 +151,6 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     spritePixels: 35,
     palette: ["#b92f16", "#e95d1d", "#ff9728", "#ffd45a", "#fff2a1"],
     recipe: "sun",
-    labelPriority: 100,
     flavor: "A small god of fire, holding every wandering world in its light.",
   },
   {
@@ -125,7 +165,6 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     spritePixels: 11,
     palette: ["#302d31", "#625d61", "#8e8581", "#b9aaa1", "#ded0bd"],
     recipe: "rock",
-    labelPriority: 70,
     flavor: "A scorched iron bead racing through the Sun’s brightest silence.",
   },
   {
@@ -140,7 +179,6 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     spritePixels: 17,
     palette: ["#5d2c2b", "#9c5837", "#d28a48", "#f2bd69", "#ffe1a0"],
     recipe: "venus",
-    labelPriority: 74,
     flavor: "Cloud-wrapped and brilliant, hiding a furnace beneath gold.",
   },
   {
@@ -155,7 +193,6 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     spritePixels: 19,
     palette: ["#0b2454", "#16538d", "#238bc1", "#65cce3", "#d9f4e8"],
     recipe: "earth",
-    labelPriority: 96,
     flavor: "An improbable blue ember carrying oceans through the dark.",
   },
   {
@@ -171,7 +208,6 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     spritePixels: 9,
     palette: ["#292f3c", "#5b6472", "#9299a3", "#c8cbd0", "#f3f0e8"],
     recipe: "rock",
-    labelPriority: 48,
     flavor: "Earth’s pale companion, pulling quietly at every shore.",
   },
   {
@@ -186,7 +222,6 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     spritePixels: 15,
     palette: ["#421d20", "#773025", "#aa4930", "#d16b42", "#ef9b68"],
     recipe: "mars",
-    labelPriority: 76,
     flavor: "A rust-red memory of rivers, turning beneath a thin sky.",
   },
   {
@@ -201,7 +236,6 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     spritePixels: 29,
     palette: ["#4d3030", "#8f5d50", "#c68a68", "#edbd88", "#f8dfb4"],
     recipe: "jupiter",
-    labelPriority: 90,
     flavor: "A striped giant whose storms have outlived empires.",
   },
   {
@@ -216,7 +250,6 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     spritePixels: 25,
     palette: ["#4a3d32", "#827057", "#bda275", "#e1ca92", "#f6e7ba"],
     recipe: "saturn",
-    labelPriority: 92,
     flavor: "A quiet colossus wearing ice and dust like a crown.",
   },
   {
@@ -231,7 +264,6 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     spritePixels: 21,
     palette: ["#183c48", "#286878", "#4b9aa5", "#83c8c9", "#c3ece5"],
     recipe: "ice",
-    labelPriority: 80,
     flavor: "A cyan world rolling sideways through the outer cold.",
   },
   {
@@ -246,14 +278,13 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     spritePixels: 21,
     palette: ["#111c51", "#193b8a", "#275fc2", "#4b91e2", "#a4c9f2"],
     recipe: "ice",
-    labelPriority: 84,
     flavor: "The last blue lantern before the solar dark.",
   },
 ] as const;
 
 const BODY_BY_ID = new Map(CELESTIAL_BODIES.map((body) => [body.id, body]));
 const BODY_INDEX = new Map(CELESTIAL_BODIES.map((body, index) => [body.id, index]));
-const spriteCache = new Map<string, HTMLCanvasElement>();
+const spriteBuffers = new Map<BodyId, SpriteBuffer>();
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -261,6 +292,91 @@ function clamp(value: number, min: number, max: number) {
 
 function distance(a: Point, b: Point) {
   return Math.hypot(b.x - a.x, b.y - a.y);
+}
+
+function wrapAngle(angle: number) {
+  const wrapped = angle % TAU;
+  return wrapped < 0 ? wrapped + TAU : wrapped;
+}
+
+function createBodyInteractionStates(surfaceSpeed: number) {
+  const states = new Map<BodyId, BodyInteractionState>();
+  for (let index = 0; index < CELESTIAL_BODIES.length; index += 1) {
+    const id = CELESTIAL_BODIES[index].id;
+    states.set(id, {
+      rotationPhase: 0,
+      angularVelocity: getBodyBaseSpin(id) * surfaceSpeed,
+      dragging: false,
+      pulseElapsed: -1,
+    });
+  }
+  return states;
+}
+
+function stepBodyInteractions(
+  states: Map<BodyId, BodyInteractionState>,
+  deltaSeconds: number,
+  reducedMotion: boolean,
+  dials: SpaceDials,
+) {
+  for (const [id, state] of states) {
+    if (reducedMotion) {
+      state.angularVelocity = 0;
+      state.pulseElapsed = -1;
+      continue;
+    }
+
+    if (!state.dragging) {
+      const baseline = getBodyBaseSpin(id) * dials.living.surfaceSpeed;
+      const damping = Math.exp((-3 * deltaSeconds) / dials.interaction.settleTime);
+      state.angularVelocity = baseline + (state.angularVelocity - baseline) * damping;
+      if (Math.abs(state.angularVelocity - baseline) < 0.0001) {
+        state.angularVelocity = baseline;
+      }
+      state.rotationPhase = wrapAngle(
+        state.rotationPhase + state.angularVelocity * deltaSeconds,
+      );
+    }
+
+    if (state.pulseElapsed >= 0) {
+      state.pulseElapsed += deltaSeconds;
+      if (state.pulseElapsed >= dials.interaction.pulseDuration) {
+        state.pulseElapsed = -1;
+      }
+    }
+  }
+}
+
+function pulseEnvelope(
+  state: BodyInteractionState,
+  reducedMotion: boolean,
+  duration: number,
+) {
+  if (reducedMotion || state.pulseElapsed < 0 || duration <= 0) return 0;
+  const progress = clamp(state.pulseElapsed / duration, 0, 1);
+  return Math.sin(progress * Math.PI);
+}
+
+function bodyIdFromTarget(target: EventTarget | null) {
+  if (!(target instanceof Element)) return null;
+  const rawId = target.closest<HTMLElement>("[data-body-id]")?.dataset.bodyId;
+  if (!rawId || !BODY_BY_ID.has(rawId as BodyId)) return null;
+  return rawId as BodyId;
+}
+
+function missionIdFromTarget(target: EventTarget | null) {
+  if (!(target instanceof Element)) return null;
+  const rawId = target.closest<HTMLElement>("[data-mission-id]")?.dataset.missionId;
+  if (!rawId || !MISSION_BY_ID.has(rawId as MissionId)) return null;
+  return rawId as MissionId;
+}
+
+function selectionMatches(
+  selection: MapSelection | null,
+  kind: MapSelection["kind"],
+  id: BodyId | MissionId,
+) {
+  return selection?.kind === kind && selection.id === id;
 }
 
 function isometricProject(point: Point, yFactor: number): Point {
@@ -536,24 +652,24 @@ function shadeIndex(value: number) {
 
 function getSurfaceColor(
   body: CelestialBody,
-  x: number,
-  y: number,
-  nx: number,
-  ny: number,
+  textureX: number,
+  textureY: number,
+  surfaceX: number,
+  surfaceY: number,
   lighting: number,
 ) {
   const baseIndex = shadeIndex(lighting);
-  const noise = hash2d(x, y, BODY_INDEX.get(body.id) ?? 0);
+  const noise = hash2d(textureX, textureY, BODY_INDEX.get(body.id) ?? 0);
 
   if (body.recipe === "earth") {
     const continent =
-      Math.sin(nx * 8.4 + Math.sin(ny * 7.2) * 1.6) +
-        Math.cos(ny * 10.7 - nx * 2.2) +
+      Math.sin(surfaceX * 8.4 + Math.sin(surfaceY * 7.2) * 1.6) +
+        Math.cos(surfaceY * 10.7 - surfaceX * 2.2) +
         noise * 1.7 >
       1.25;
     const cloud =
       lighting > -0.1 &&
-      Math.sin(ny * 18 + nx * 4.5) + noise * 1.25 > 1.78;
+      Math.sin(surfaceY * 18 + surfaceX * 4.5) + noise * 1.25 > 1.78;
     if (cloud) return lighting > 0.42 ? "#f4fbf3" : "#a7c8ce";
     if (continent) {
       const landPalette = ["#17372d", "#24543d", "#39734c", "#6a9b5b", "#b7c47b"];
@@ -562,21 +678,28 @@ function getSurfaceColor(
   }
 
   if (body.recipe === "jupiter") {
-    const band = Math.sin(ny * 25 + noise * 2.4);
-    const spot = ((nx - 0.35) / 0.27) ** 2 + ((ny - 0.18) / 0.13) ** 2 < 1;
+    const band = Math.sin(surfaceY * 25 + noise * 2.4);
+    const longitudinalDistance = Math.min(
+      Math.abs(surfaceX - 0.35),
+      2 - Math.abs(surfaceX - 0.35),
+    );
+    const spot =
+      (longitudinalDistance / 0.27) ** 2 + ((surfaceY - 0.18) / 0.13) ** 2 < 1;
     if (spot) return lighting > 0.32 ? "#d66c4f" : "#833b36";
     const adjustment = band > 0.5 ? 1 : band < -0.48 ? -1 : 0;
     return body.palette[clamp(baseIndex + adjustment, 0, 4)];
   }
 
   if (body.recipe === "saturn" || body.recipe === "venus" || body.recipe === "ice") {
-    const band = Math.sin(ny * (body.recipe === "venus" ? 17 : 24) + noise * 1.8);
+    const band = Math.sin(
+      surfaceY * (body.recipe === "venus" ? 17 : 24) + noise * 1.8,
+    );
     const adjustment = band > 0.68 ? 1 : band < -0.7 ? -1 : 0;
     return body.palette[clamp(baseIndex + adjustment, 0, 4)];
   }
 
   if (body.recipe === "mars" || body.recipe === "rock") {
-    const crater = noise > 0.82 && hash2d(x + 1, y, 4) > 0.52;
+    const crater = noise > 0.82 && hash2d(textureX + 1, textureY, 4) > 0.52;
     const fleck = noise < 0.13;
     if (crater) return body.palette[Math.max(0, baseIndex - 1)];
     if (fleck) return body.palette[Math.min(4, baseIndex + 1)];
@@ -592,6 +715,7 @@ function drawPixelSphere(
   centerY: number,
   radius: number,
   lightAngle: number,
+  rotationPhase: number,
 ) {
   const lightX = Math.cos(lightAngle) * 0.72;
   const lightY = Math.sin(lightAngle) * 0.72;
@@ -604,8 +728,21 @@ function drawPixelSphere(
       const radiusSquared = nx * nx + ny * ny;
       if (radiusSquared > 1) continue;
       const nz = Math.sqrt(Math.max(0, 1 - radiusSquared));
+      const longitude = wrapAngle(Math.atan2(nx, nz) + rotationPhase + Math.PI) - Math.PI;
+      const latitude = Math.asin(clamp(ny, -1, 1));
+      const surfaceX = longitude / Math.PI;
+      const surfaceY = latitude / (Math.PI * 0.5);
+      const textureX = Math.floor((surfaceX + 1) * body.spritePixels);
+      const textureY = Math.floor((surfaceY + 1) * body.spritePixels * 0.5);
       const lighting = nx * lightX + ny * lightY + nz * lightZ - 0.08;
-      context.fillStyle = getSurfaceColor(body, x, y, nx, ny, lighting);
+      context.fillStyle = getSurfaceColor(
+        body,
+        textureX,
+        textureY,
+        surfaceX,
+        surfaceY,
+        lighting,
+      );
       context.fillRect(x, y, 1, 1);
     }
   }
@@ -617,37 +754,41 @@ function drawPixelSun(
   centerX: number,
   centerY: number,
   radius: number,
+  rotationPhase: number,
 ) {
   for (let y = Math.floor(centerY - radius - 2); y <= Math.ceil(centerY + radius + 2); y += 1) {
     for (let x = Math.floor(centerX - radius - 2); x <= Math.ceil(centerX + radius + 2); x += 1) {
       const nx = (x + 0.5 - centerX) / radius;
       const ny = (y + 0.5 - centerY) / radius;
       const radial = Math.hypot(nx, ny);
-      const noise = hash2d(x, y, 99);
       if (radial > 1) {
+        const noise = hash2d(x, y, 99);
         if (radial < 1.12 && noise > 0.64) {
           context.fillStyle = noise > 0.87 ? body.palette[3] : body.palette[1];
           context.fillRect(x, y, 1, 1);
         }
         continue;
       }
-      const hotSpot = Math.sin(x * 1.23) * Math.cos(y * 0.91) + noise * 1.2;
+      const nz = Math.sqrt(Math.max(0, 1 - radial * radial));
+      const longitude = wrapAngle(Math.atan2(nx, nz) + rotationPhase + Math.PI) - Math.PI;
+      const latitude = Math.asin(clamp(ny, -1, 1));
+      const surfaceX = longitude / Math.PI;
+      const surfaceY = latitude / (Math.PI * 0.5);
+      const textureX = Math.floor((surfaceX + 1) * body.spritePixels);
+      const textureY = Math.floor((surfaceY + 1) * body.spritePixels * 0.5);
+      const noise = hash2d(textureX, textureY, 99);
+      const hotSpot =
+        Math.sin(surfaceX * 12.3) * Math.cos(surfaceY * 9.1) + noise * 1.2;
       const level = clamp(Math.floor((1 - radial) * 3.4 + hotSpot * 0.65 + 1.1), 0, 4);
       context.fillStyle = body.palette[level];
       context.fillRect(x, y, 1, 1);
     }
   }
-
-  context.fillStyle = body.palette[4];
-  context.fillRect(Math.round(centerX - radius * 0.34), Math.round(centerY - radius * 0.42), 3, 2);
-  context.fillRect(Math.round(centerX + radius * 0.18), Math.round(centerY + radius * 0.12), 2, 1);
 }
 
-function createBodySprite(body: CelestialBody, lightStep: number) {
-  const cacheKey = `${body.id}:${lightStep}`;
-  const cached = spriteCache.get(cacheKey);
+function getBodySpriteBuffer(body: CelestialBody) {
+  const cached = spriteBuffers.get(body.id);
   if (cached) return cached;
-
   const ringed = body.recipe === "saturn";
   const padding = body.recipe === "sun" ? 8 : 4;
   const width = ringed ? body.spritePixels * 2 + 12 : body.spritePixels + padding * 2;
@@ -656,13 +797,35 @@ function createBodySprite(body: CelestialBody, lightStep: number) {
   canvas.width = width;
   canvas.height = height;
   const context = canvas.getContext("2d");
-  if (!context) return canvas;
-  context.imageSmoothingEnabled = false;
+  if (context) context.imageSmoothingEnabled = false;
+  const buffer = { canvas, context, lightStep: -1, rotationStep: -1 };
+  spriteBuffers.set(body.id, buffer);
+  return buffer;
+}
 
-  const centerX = width * 0.5;
-  const centerY = height * 0.5;
+function renderBodySprite(
+  body: CelestialBody,
+  lightStep: number,
+  rotationPhase: number,
+) {
+  const buffer = getBodySpriteBuffer(body);
+  const rotationColumns = Math.max(8, body.spritePixels * 2);
+  const rotationStep = Math.round((wrapAngle(rotationPhase) / TAU) * rotationColumns) %
+    rotationColumns;
+  if (buffer.lightStep === lightStep && buffer.rotationStep === rotationStep) {
+    return buffer.canvas;
+  }
+
+  const { canvas, context } = buffer;
+  if (!context) return canvas;
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  const centerX = canvas.width * 0.5;
+  const centerY = canvas.height * 0.5;
   const radius = body.spritePixels * 0.5;
   const lightAngle = (lightStep / 16) * TAU;
+  const quantizedPhase = (rotationStep / rotationColumns) * TAU;
+  const ringed = body.recipe === "saturn";
 
   if (ringed) {
     context.save();
@@ -682,9 +845,17 @@ function createBodySprite(body: CelestialBody, lightStep: number) {
   }
 
   if (body.recipe === "sun") {
-    drawPixelSun(context, body, centerX, centerY, radius);
+    drawPixelSun(context, body, centerX, centerY, radius, quantizedPhase);
   } else {
-    drawPixelSphere(context, body, centerX, centerY, radius, lightAngle);
+    drawPixelSphere(
+      context,
+      body,
+      centerX,
+      centerY,
+      radius,
+      lightAngle,
+      quantizedPhase,
+    );
   }
 
   if (ringed) {
@@ -704,7 +875,8 @@ function createBodySprite(body: CelestialBody, lightStep: number) {
     context.restore();
   }
 
-  spriteCache.set(cacheKey, canvas);
+  buffer.lightStep = lightStep;
+  buffer.rotationStep = rotationStep;
   return canvas;
 }
 
@@ -713,11 +885,15 @@ function drawBodyGlow(
   rendered: RenderedBody,
   elapsedSeconds: number,
   reducedMotion: boolean,
+  selectedId: BodyId | null,
   dials: SpaceDials,
 ) {
   const { body, screen, visualSize } = rendered;
   if (body.id !== "sun" && body.id !== "moon" && body.id !== "earth") return;
-  const intensity = body.id === "sun" ? dials.glow.sun : body.id === "moon" ? dials.glow.moon : dials.glow.earth;
+  const baseIntensity = body.id === "sun" ? dials.glow.sun : body.id === "moon" ? dials.glow.moon : dials.glow.earth;
+  const selectedMultiplier =
+    selectedId === body.id ? 1 + (dials.living.selectedBoost - 1) * 0.55 : 1;
+  const intensity = baseIntensity * selectedMultiplier;
   if (intensity <= 0) return;
   const pulse = reducedMotion ? 1 : 1 + Math.sin(elapsedSeconds * 1.65) * 0.055;
   const glowRadius =
@@ -759,11 +935,14 @@ function drawSolarMotes(
   sun: RenderedBody,
   elapsedSeconds: number,
   reducedMotion: boolean,
+  selectedId: BodyId | null,
   dials: SpaceDials,
 ) {
   const count = Math.round(dials.glow.motes);
   if (count <= 0) return;
-  const motion = reducedMotion ? 0 : elapsedSeconds * 0.18;
+  const motion = reducedMotion ? 0 : elapsedSeconds * 0.18 * dials.living.surfaceSpeed;
+  const selectedMultiplier =
+    selectedId === "sun" ? 1 + (dials.living.selectedBoost - 1) * 0.45 : 1;
   context.save();
   for (let index = 0; index < count; index += 1) {
     const seed = hashNumber(index * 43 + 17);
@@ -772,7 +951,7 @@ function drawSolarMotes(
     const x = sun.screen.x + Math.cos(angle) * radius;
     const y = sun.screen.y + Math.sin(angle) * radius * 0.52;
     const alpha = 0.18 + hashNumber(index * 67) * 0.42;
-    context.globalAlpha = alpha * dials.glow.sun;
+    context.globalAlpha = alpha * dials.glow.sun * selectedMultiplier;
     context.fillStyle = index % 3 === 0 ? dials.glow.moteHot : dials.glow.moteEmber;
     context.fillRect(Math.round(x), Math.round(y), index % 7 === 0 ? 2 : 1, 1);
   }
@@ -783,14 +962,16 @@ function drawCelestialBody(
   context: CanvasRenderingContext2D,
   rendered: RenderedBody,
   sunScreen: Point,
+  rotationPhase: number,
+  pulseScale: number,
 ) {
   const { body, screen, visualSize } = rendered;
   const lightAngle = Math.atan2(sunScreen.y - screen.y, sunScreen.x - screen.x);
   const lightStep = body.id === "sun" ? 0 : Math.round(((lightAngle + TAU) % TAU) / TAU * 16) % 16;
-  const sprite = createBodySprite(body, lightStep);
+  const sprite = renderBodySprite(body, lightStep, rotationPhase);
   const aspect = sprite.width / sprite.height;
-  const targetWidth = Math.max(1, Math.round(visualSize));
-  const targetHeight = Math.max(1, Math.round(visualSize / aspect));
+  const targetWidth = Math.max(1, Math.round(visualSize * pulseScale));
+  const targetHeight = Math.max(1, Math.round((visualSize * pulseScale) / aspect));
   context.save();
   context.imageSmoothingEnabled = false;
   context.drawImage(
@@ -803,70 +984,58 @@ function drawCelestialBody(
   context.restore();
 }
 
-function rectanglesOverlap(a: DOMRectLike, b: DOMRectLike) {
-  return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+function positionTargetControl(
+  button: HTMLButtonElement | undefined,
+  screen: Point,
+  visualSize: number,
+  hitSize: number,
+  revealed: boolean,
+  viewport: ViewportState,
+) {
+  if (!button) return;
+  const inside =
+    revealed &&
+    screen.x > -hitSize &&
+    screen.x < viewport.width + hitSize &&
+    screen.y > -hitSize &&
+    screen.y < viewport.height + hitSize;
+  button.style.display = inside ? "grid" : "none";
+  if (!inside) return;
+
+  button.style.setProperty("--body-x", `${screen.x}px`);
+  button.style.setProperty("--body-y", `${screen.y}px`);
+  button.style.setProperty("--hit-size", `${hitSize * 2}px`);
+  button.style.setProperty("--visual-size", `${visualSize}px`);
 }
 
-type DOMRectLike = {
-  left: number;
-  right: number;
-  top: number;
-  bottom: number;
-};
-
-function positionBodyControls(
+function positionMapControls(
   renderedBodies: readonly RenderedBody[],
+  renderedMissions: readonly RenderedMission[],
   bodyButtons: Map<BodyId, HTMLButtonElement>,
-  selectedId: BodyId | null,
-  hoveredId: BodyId | null,
+  missionButtons: Map<MissionId, HTMLButtonElement>,
   viewport: ViewportState,
-  camera: CameraState,
-  labelHeight: number,
 ) {
-  const sorted = [...renderedBodies].sort(
-    (a, b) => b.body.labelPriority - a.body.labelPriority,
-  );
-  const occupied: DOMRectLike[] = [];
-  const visibleLabels = new Set<BodyId>();
-
-  for (let index = 0; index < sorted.length; index += 1) {
-    const rendered = sorted[index];
-    const { body, screen, visualSize, hitSize } = rendered;
-    const button = bodyButtons.get(body.id);
-    if (!button) continue;
-    const inside =
-      screen.x > -hitSize &&
-      screen.x < viewport.width + hitSize &&
-      screen.y > -hitSize &&
-      screen.y < viewport.height + hitSize;
-    button.style.display = inside ? "grid" : "none";
-    if (!inside) continue;
-
-    button.style.setProperty("--body-x", `${screen.x}px`);
-    button.style.setProperty("--body-y", `${screen.y}px`);
-    button.style.setProperty("--hit-size", `${hitSize * 2}px`);
-    button.style.setProperty("--visual-size", `${visualSize}px`);
-
-    const forced = selectedId === body.id || hoveredId === body.id;
-    const zoomAllows = body.id !== "moon" || camera.zoom >= 0.78;
-    const width = Math.max(52, body.name.length * 7.4 + 24);
-    const box: DOMRectLike = {
-      left: screen.x - width * 0.5,
-      right: screen.x + width * 0.5,
-      top: screen.y - Math.max(visualSize, 18) * 0.5 - labelHeight - 8,
-      bottom: screen.y - Math.max(visualSize, 18) * 0.5 - 8,
-    };
-    const collides = occupied.some((other) => rectanglesOverlap(box, other));
-    if (forced || (zoomAllows && !collides)) {
-      visibleLabels.add(body.id);
-      occupied.push(box);
-    }
-  }
-
   for (let index = 0; index < renderedBodies.length; index += 1) {
-    const body = renderedBodies[index].body;
-    const button = bodyButtons.get(body.id);
-    if (button) button.dataset.labelVisible = visibleLabels.has(body.id) ? "true" : "false";
+    const rendered = renderedBodies[index];
+    positionTargetControl(
+      bodyButtons.get(rendered.body.id),
+      rendered.screen,
+      rendered.visualSize,
+      rendered.hitSize,
+      true,
+      viewport,
+    );
+  }
+  for (let index = 0; index < renderedMissions.length; index += 1) {
+    const rendered = renderedMissions[index];
+    positionTargetControl(
+      missionButtons.get(rendered.mission.id),
+      rendered.screen,
+      rendered.visualSize,
+      rendered.hitSize,
+      rendered.revealed,
+      viewport,
+    );
   }
 }
 
@@ -902,11 +1071,15 @@ function HelpPanel({ onClose }: { onClose: () => void }) {
         </button>
       </div>
       <dl className={styles.helpList}>
-        <div><dt>Pan</dt><dd>Drag · one finger · arrow keys</dd></div>
+        <div><dt>Pan</dt><dd>Drag empty space · arrow keys</dd></div>
+        <div><dt>Spin</dt><dd>Drag a world · flick to coast</dd></div>
         <div><dt>Zoom</dt><dd>Wheel · pinch · + / −</dd></div>
-        <div><dt>Inspect</dt><dd>Click, tap, or focus a world</dd></div>
+        <div><dt>Inspect</dt><dd>Click, tap, or focus a world or mission</dd></div>
         <div><dt>Return</dt><dd>Home key · recenter control</dd></div>
       </dl>
+      <p className={styles.mapDisclaimer}>
+        Mission positions are illustrative · Map not to scale
+      </p>
     </section>
   );
 }
@@ -914,44 +1087,57 @@ function HelpPanel({ onClose }: { onClose: () => void }) {
 export function SpaceExplorer() {
   const dials = useSpaceDials();
   const dialsRef = useRef(dials);
+  const bodyInteractionsRef = useRef<Map<BodyId, BodyInteractionState> | null>(null);
+  if (bodyInteractionsRef.current === null) {
+    bodyInteractionsRef.current = createBodyInteractionStates(dials.living.surfaceSpeed);
+  }
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const selectionCardRef = useRef<HTMLElement>(null);
   const bodyButtonsRef = useRef(new Map<BodyId, HTMLButtonElement>());
+  const missionButtonsRef = useRef(new Map<MissionId, HTMLButtonElement>());
   const cameraRef = useRef<CameraState>({ x: 0, y: 0, zoom: 0.5 });
   const viewportRef = useRef<ViewportState>({ width: 0, height: 0, dpr: 1 });
   const minZoomRef = useRef(0.1);
   const maxZoomRef = useRef(3.5);
   const renderedBodiesRef = useRef<RenderedBody[]>([]);
+  const renderedMissionsRef = useRef<RenderedMission[]>([]);
   const pointersRef = useRef(new Map<number, PointerInfo>());
   const dragOriginRef = useRef<Point | null>(null);
   const dragCameraRef = useRef<CameraState | null>(null);
   const pinchRef = useRef<PinchState | null>(null);
+  const spinDragRef = useRef<SpinDragState | null>(null);
+  const missionPressRef = useRef<MissionPressState | null>(null);
   const movedRef = useRef(false);
   const suppressClickRef = useRef(false);
   const cameraMovedRef = useRef(false);
   const requestDrawRef = useRef<() => void>(() => undefined);
-  const selectedIdRef = useRef<BodyId | null>(null);
-  const hoveredIdRef = useRef<BodyId | null>(null);
-  const [selectedId, setSelectedId] = useState<BodyId | null>(null);
-  const [hoveredId, setHoveredId] = useState<BodyId | null>(null);
+  const selectedTargetRef = useRef<MapSelection | null>(null);
+  const hoveredTargetRef = useRef<MapSelection | null>(null);
+  const eventSchedulerRef = useRef<EventSchedulerState | null>(null);
+  const reducedMotionRef = useRef(false);
+  const [selectedTarget, setSelectedTarget] = useState<MapSelection | null>(null);
+  const [hoveredTarget, setHoveredTarget] = useState<MapSelection | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
 
-  const selectedBody = useMemo(
-    () => (selectedId ? BODY_BY_ID.get(selectedId) ?? null : null),
-    [selectedId],
-  );
+  const selectedBody =
+    selectedTarget?.kind === "body"
+      ? BODY_BY_ID.get(selectedTarget.id) ?? null
+      : null;
+  const selectedMission: MissionDefinition | null =
+    selectedTarget?.kind === "mission"
+      ? MISSION_BY_ID.get(selectedTarget.id) ?? null
+      : null;
 
   useEffect(() => {
-    selectedIdRef.current = selectedId;
+    selectedTargetRef.current = selectedTarget;
     requestDrawRef.current();
-  }, [selectedId]);
+  }, [selectedTarget]);
 
   useEffect(() => {
-    hoveredIdRef.current = hoveredId;
+    hoveredTargetRef.current = hoveredTarget;
     requestDrawRef.current();
-  }, [hoveredId]);
+  }, [hoveredTarget]);
 
   useEffect(() => {
     dialsRef.current = dials;
@@ -961,6 +1147,38 @@ export function SpaceExplorer() {
   const markInteracted = useCallback(() => {
     setHasInteracted((current) => current || true);
   }, []);
+
+  const commitBodyActivation = useCallback((id: BodyId) => {
+    const interaction = bodyInteractionsRef.current?.get(id);
+    if (interaction && !reducedMotionRef.current) interaction.pulseElapsed = 0;
+    setSelectedTarget({ kind: "body", id });
+    setHelpOpen(false);
+    markInteracted();
+    requestDrawRef.current();
+  }, [markInteracted]);
+
+  const selectBody = useCallback((id: BodyId) => {
+    if (suppressClickRef.current) {
+      suppressClickRef.current = false;
+      return;
+    }
+    commitBodyActivation(id);
+  }, [commitBodyActivation]);
+
+  const commitMissionActivation = useCallback((id: MissionId) => {
+    setSelectedTarget({ kind: "mission", id });
+    setHelpOpen(false);
+    markInteracted();
+    requestDrawRef.current();
+  }, [markInteracted]);
+
+  const selectMission = useCallback((id: MissionId) => {
+    if (suppressClickRef.current) {
+      suppressClickRef.current = false;
+      return;
+    }
+    commitMissionActivation(id);
+  }, [commitMissionActivation]);
 
   const resetCamera = useCallback(() => {
     const viewport = viewportRef.current;
@@ -1008,12 +1226,15 @@ export function SpaceExplorer() {
     if (!root || !canvas) return;
     const context = canvas.getContext("2d", { alpha: false });
     if (!context) return;
+    const eventScheduler = eventSchedulerRef.current ?? createEventScheduler();
+    eventSchedulerRef.current = eventScheduler;
 
     let disposed = false;
     let frameId = 0;
     let queuedReducedFrame = false;
     let visible = document.visibilityState !== "hidden";
     let reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    reducedMotionRef.current = reducedMotion;
     let elapsedSeconds = 0;
     let previousTime = performance.now();
 
@@ -1022,15 +1243,22 @@ export function SpaceExplorer() {
       queuedReducedFrame = false;
       const viewport = viewportRef.current;
       const camera = cameraRef.current;
-      if (!reducedMotion) {
-        elapsedSeconds += Math.min(0.05, Math.max(0, (now - previousTime) / 1000));
-      }
+      const deltaSeconds = reducedMotion
+        ? 0
+        : Math.min(0.05, Math.max(0, (now - previousTime) / 1000));
+      elapsedSeconds += deltaSeconds;
       previousTime = now;
 
       context.setTransform(viewport.dpr, 0, 0, viewport.dpr, 0, 0);
       context.globalAlpha = 1;
       context.globalCompositeOperation = "source-over";
       const dials = dialsRef.current;
+      stepBodyInteractions(
+        bodyInteractionsRef.current!,
+        deltaSeconds,
+        reducedMotion,
+        dials,
+      );
       const yFactor = dials.scene.isometricY;
       const bodies = resolveBodies(dials);
       context.fillStyle = dials.scene.background;
@@ -1071,41 +1299,136 @@ export function SpaceExplorer() {
       renderedBodies.sort((a, b) => a.screen.y - b.screen.y);
       renderedBodiesRef.current = renderedBodies;
 
+      const missionFrame = {
+        camera,
+        viewport,
+        yFactor,
+        bodyPositions: positions,
+        elapsedSeconds,
+        reducedMotion,
+        dials,
+      };
+      const renderedMissions = getRenderedMissions(missionFrame);
+      const selected = selectedTargetRef.current;
+      const hovered = hoveredTargetRef.current;
+      if (selected?.kind === "mission") {
+        const selectedMission = renderedMissions.find(
+          (item) => item.mission.id === selected.id,
+        );
+        if (selectedMission) selectedMission.revealed = true;
+      }
+      renderedMissionsRef.current = renderedMissions;
+      const selectedBodyId = selected?.kind === "body" ? selected.id : null;
+      const hoveredBodyId = hovered?.kind === "body" ? hovered.id : null;
+
+      const livingFrame = {
+        camera,
+        viewport,
+        yFactor,
+        renderedBodies,
+        elapsedSeconds,
+        reducedMotion,
+        dials,
+      };
+      updateLivingEvents(eventScheduler, livingFrame);
+      drawMissionTrails(context, renderedMissions, missionFrame);
+      drawLivingEventBackLayers(
+        context,
+        eventScheduler.active,
+        renderedBodies,
+        elapsedSeconds,
+        dials,
+      );
+
       for (let index = 0; index < renderedBodies.length; index += 1) {
-        drawBodyGlow(context, renderedBodies[index], elapsedSeconds, reducedMotion, dials);
+        drawBodyGlow(
+          context,
+          renderedBodies[index],
+          elapsedSeconds,
+          reducedMotion,
+          selectedBodyId,
+          dials,
+        );
       }
 
       const sun = renderedBodies.find((item) => item.body.id === "sun");
       const sunScreen = sun?.screen ?? { x: viewport.width * 0.5, y: viewport.height * 0.5 };
-      if (sun) drawSolarMotes(context, sun, elapsedSeconds, reducedMotion, dials);
-      for (let index = 0; index < renderedBodies.length; index += 1) {
-        drawCelestialBody(context, renderedBodies[index], sunScreen);
+      if (sun) {
+        drawSolarMotes(
+          context,
+          sun,
+          elapsedSeconds,
+          reducedMotion,
+          selectedBodyId,
+          dials,
+        );
       }
-
-      positionBodyControls(
-        renderedBodies,
-        bodyButtonsRef.current,
-        selectedIdRef.current,
-        hoveredIdRef.current,
-        viewport,
-        camera,
-        Math.max(16, dials.labels.fontSize * 2.75),
-      );
-
-      const selectionCard = selectionCardRef.current;
-      if (selectionCard && selectedIdRef.current) {
-        const selected = renderedBodies.find((item) => item.body.id === selectedIdRef.current);
-        if (selected) {
-          const cardX = clamp(selected.screen.x, 178, Math.max(178, viewport.width - 178));
-          const cardY = clamp(
-            selected.screen.y - selected.visualSize * 0.55 - 20,
-            128,
-            Math.max(128, viewport.height - 98),
-          );
-          selectionCard.style.setProperty("--card-x", `${cardX}px`);
-          selectionCard.style.setProperty("--card-y", `${cardY}px`);
+      const sceneItems: SceneItem[] = [];
+      for (let index = 0; index < renderedBodies.length; index += 1) {
+        sceneItems.push({ kind: "body", rendered: renderedBodies[index] });
+      }
+      for (let index = 0; index < renderedMissions.length; index += 1) {
+        if (renderedMissions[index].revealed) {
+          sceneItems.push({ kind: "mission", rendered: renderedMissions[index] });
         }
       }
+      sceneItems.sort((a, b) => a.rendered.screen.y - b.rendered.screen.y);
+
+      for (let index = 0; index < sceneItems.length; index += 1) {
+        const item = sceneItems[index];
+        if (item.kind === "mission") {
+          drawMission(
+            context,
+            item.rendered,
+            sunScreen,
+            elapsedSeconds,
+            reducedMotion,
+            selectionMatches(selected, "mission", item.rendered.mission.id),
+            selectionMatches(hovered, "mission", item.rendered.mission.id),
+            dials,
+          );
+          continue;
+        }
+
+        const rendered = item.rendered;
+        const interaction = bodyInteractionsRef.current!.get(rendered.body.id)!;
+        const bodyPulseEnvelope = pulseEnvelope(
+          interaction,
+          reducedMotion,
+          dials.interaction.pulseDuration,
+        );
+        const bodyPulseScale = 1 + bodyPulseEnvelope * dials.interaction.pulseScale;
+        drawCelestialBody(
+          context,
+          rendered,
+          sunScreen,
+          interaction.rotationPhase,
+          bodyPulseScale,
+        );
+        drawLivingSurface(
+          context,
+          rendered,
+          sunScreen,
+          eventScheduler.active,
+          elapsedSeconds,
+          reducedMotion,
+          hoveredBodyId,
+          selectedBodyId,
+          interaction.rotationPhase,
+          bodyPulseScale,
+          bodyPulseEnvelope,
+          dials,
+        );
+      }
+      drawLivingEventFrontLayers(context, eventScheduler.active, livingFrame);
+
+      positionMapControls(
+        renderedBodies,
+        renderedMissions,
+        bodyButtonsRef.current,
+        missionButtonsRef.current,
+        viewport,
+      );
 
       if (!reducedMotion && visible) frameId = window.requestAnimationFrame(render);
     };
@@ -1157,6 +1480,7 @@ export function SpaceExplorer() {
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const onMotionChange = () => {
       reducedMotion = motionQuery.matches;
+      reducedMotionRef.current = reducedMotion;
       window.cancelAnimationFrame(frameId);
       previousTime = performance.now();
       if (visible) {
@@ -1200,8 +1524,12 @@ export function SpaceExplorer() {
     };
   }, [zoomAt]);
 
-  const updateHover = useCallback((id: BodyId | null) => {
-    setHoveredId((current) => (current === id ? current : id));
+  const updateBodyHover = useCallback((id: BodyId | null) => {
+    setHoveredTarget(id ? { kind: "body", id } : null);
+  }, []);
+
+  const updateMissionHover = useCallback((id: MissionId | null) => {
+    setHoveredTarget(id ? { kind: "mission", id } : null);
   }, []);
 
   const setBodyButtonRef = useCallback((id: BodyId, node: HTMLButtonElement | null) => {
@@ -1209,23 +1537,73 @@ export function SpaceExplorer() {
     else bodyButtonsRef.current.delete(id);
   }, []);
 
+  const setMissionButtonRef = useCallback((id: MissionId, node: HTMLButtonElement | null) => {
+    if (node) missionButtonsRef.current.set(id, node);
+    else missionButtonsRef.current.delete(id);
+  }, []);
+
   const handlePointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     if ((event.target as HTMLElement).closest(`.${styles.interfaceControl}`)) return;
     const root = event.currentTarget;
     const captureTarget = event.target as HTMLElement;
     captureTarget.setPointerCapture(event.pointerId);
-    root.dataset.dragging = "true";
     const local = getLocalPoint(event, root);
+    const bodyId = bodyIdFromTarget(event.target);
+    const missionId = missionIdFromTarget(event.target);
     pointersRef.current.set(event.pointerId, local);
     movedRef.current = false;
     suppressClickRef.current = false;
     markInteracted();
 
     if (pointersRef.current.size === 1) {
-      dragOriginRef.current = local;
-      dragCameraRef.current = { ...cameraRef.current };
+      if (bodyId) {
+        missionPressRef.current = null;
+        const interaction = bodyInteractionsRef.current?.get(bodyId);
+        if (interaction) {
+          interaction.dragging = true;
+          interaction.angularVelocity =
+            getBodyBaseSpin(bodyId) * dialsRef.current.living.surfaceSpeed;
+        }
+        spinDragRef.current = {
+          pointerId: event.pointerId,
+          bodyId,
+          origin: local,
+          lastPoint: local,
+          lastTime: event.timeStamp,
+        };
+        dragOriginRef.current = null;
+        dragCameraRef.current = null;
+        root.dataset.interaction = "spin";
+      } else if (missionId) {
+        spinDragRef.current = null;
+        missionPressRef.current = {
+          pointerId: event.pointerId,
+          missionId,
+        };
+        dragOriginRef.current = local;
+        dragCameraRef.current = { ...cameraRef.current };
+        root.dataset.interaction = "pan";
+      } else {
+        spinDragRef.current = null;
+        missionPressRef.current = null;
+        dragOriginRef.current = local;
+        dragCameraRef.current = { ...cameraRef.current };
+        root.dataset.interaction = "pan";
+      }
       pinchRef.current = null;
     } else {
+      const spinDrag = spinDragRef.current;
+      if (spinDrag) {
+        const interaction = bodyInteractionsRef.current?.get(spinDrag.bodyId);
+        if (interaction) {
+          interaction.dragging = false;
+          interaction.angularVelocity =
+            getBodyBaseSpin(spinDrag.bodyId) * dialsRef.current.living.surfaceSpeed;
+        }
+        spinDragRef.current = null;
+      }
+      missionPressRef.current = null;
+      root.dataset.interaction = "pan";
       const pair = getTwoPointers(pointersRef.current);
       if (pair) {
         const center = midpoint(pair[0], pair[1]);
@@ -1271,6 +1649,34 @@ export function SpaceExplorer() {
       return;
     }
 
+    const spinDrag = spinDragRef.current;
+    if (spinDrag?.pointerId === event.pointerId) {
+      const interaction = bodyInteractionsRef.current?.get(spinDrag.bodyId);
+      if (!interaction) return;
+      const rendered = renderedBodiesRef.current.find(
+        (item) => item.body.id === spinDrag.bodyId,
+      );
+      const diameter = Math.max(24, rendered?.visualSize ?? 24);
+      const deltaAngle =
+        (-(local.x - spinDrag.lastPoint.x) / diameter) *
+        Math.PI *
+        dialsRef.current.interaction.spinSensitivity;
+      const deltaTime = clamp((event.timeStamp - spinDrag.lastTime) / 1000, 1 / 240, 0.1);
+      const instantVelocity = deltaAngle / deltaTime;
+      const maxSpinSpeed = dialsRef.current.interaction.maxSpinSpeed;
+      interaction.rotationPhase = wrapAngle(interaction.rotationPhase + deltaAngle);
+      interaction.angularVelocity = clamp(
+        interaction.angularVelocity * 0.55 + instantVelocity * 0.45,
+        -maxSpinSpeed,
+        maxSpinSpeed,
+      );
+      spinDrag.lastPoint = local;
+      spinDrag.lastTime = event.timeStamp;
+      if (distance(spinDrag.origin, local) > 5) movedRef.current = true;
+      requestDrawRef.current();
+      return;
+    }
+
     const origin = dragOriginRef.current;
     const startCamera = dragCameraRef.current;
     if (!origin || !startCamera) return;
@@ -1292,32 +1698,78 @@ export function SpaceExplorer() {
   const handlePointerEnd = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     const wasSinglePointer = pointersRef.current.size === 1;
     const releasePoint = getLocalPoint(event, event.currentTarget);
-    if (wasSinglePointer && !movedRef.current) {
-      let closest: RenderedBody | null = null;
+    const spinDrag = spinDragRef.current;
+    const missionPress = missionPressRef.current;
+    const handledSpin = spinDrag?.pointerId === event.pointerId;
+    const handledMission = missionPress?.pointerId === event.pointerId;
+    if (handledMission && missionPress) {
+      if (!movedRef.current && event.type !== "pointercancel") {
+        commitMissionActivation(missionPress.missionId);
+        suppressClickRef.current = true;
+      }
+      missionPressRef.current = null;
+    } else if (handledSpin && spinDrag) {
+      const interaction = bodyInteractionsRef.current?.get(spinDrag.bodyId);
+      if (interaction) {
+        interaction.dragging = false;
+        if (event.type === "pointercancel" || reducedMotionRef.current) {
+          interaction.angularVelocity = reducedMotionRef.current
+            ? 0
+            : getBodyBaseSpin(spinDrag.bodyId) * dialsRef.current.living.surfaceSpeed;
+        } else if (event.timeStamp - spinDrag.lastTime > 90) {
+          interaction.angularVelocity =
+            getBodyBaseSpin(spinDrag.bodyId) * dialsRef.current.living.surfaceSpeed;
+        } else {
+          interaction.angularVelocity = clamp(
+            interaction.angularVelocity,
+            -dialsRef.current.interaction.maxSpinSpeed,
+            dialsRef.current.interaction.maxSpinSpeed,
+          );
+        }
+      }
+      if (!movedRef.current && event.type !== "pointercancel") {
+        commitBodyActivation(spinDrag.bodyId);
+        suppressClickRef.current = true;
+      }
+      spinDragRef.current = null;
+    } else if (wasSinglePointer && !movedRef.current) {
+      let closest: MapSelection | null = null;
       let closestDistance = Number.POSITIVE_INFINITY;
       const renderedBodies = renderedBodiesRef.current;
       for (let index = 0; index < renderedBodies.length; index += 1) {
         const candidate = renderedBodies[index];
         const candidateDistance = distance(releasePoint, candidate.screen);
         if (candidateDistance <= candidate.hitSize && candidateDistance < closestDistance) {
-          closest = candidate;
+          closest = { kind: "body", id: candidate.body.id };
+          closestDistance = candidateDistance;
+        }
+      }
+      const renderedMissions = renderedMissionsRef.current;
+      for (let index = 0; index < renderedMissions.length; index += 1) {
+        const candidate = renderedMissions[index];
+        if (!candidate.revealed) continue;
+        const candidateDistance = distance(releasePoint, candidate.screen);
+        if (candidateDistance <= candidate.hitSize && candidateDistance < closestDistance) {
+          closest = { kind: "mission", id: candidate.mission.id };
           closestDistance = candidateDistance;
         }
       }
       if (closest) {
-        setSelectedId(closest.body.id);
-        setHelpOpen(false);
-        markInteracted();
+        if (closest.kind === "body") commitBodyActivation(closest.id);
+        else commitMissionActivation(closest.id);
         suppressClickRef.current = true;
       }
     }
     pointersRef.current.delete(event.pointerId);
-    if (pointersRef.current.size === 0) event.currentTarget.dataset.dragging = "false";
+    if (pointersRef.current.size === 0) {
+      event.currentTarget.dataset.interaction = "idle";
+    }
     const captureTarget = event.target as HTMLElement;
     if (captureTarget.hasPointerCapture(event.pointerId)) {
       captureTarget.releasePointerCapture(event.pointerId);
     }
-    if (movedRef.current) suppressClickRef.current = true;
+    if (event.type === "pointercancel") suppressClickRef.current = false;
+    else if (movedRef.current) suppressClickRef.current = true;
     const remaining = getTwoPointers(pointersRef.current);
     if (remaining) {
       const center = midpoint(remaining[0], remaining[1]);
@@ -1330,21 +1782,26 @@ export function SpaceExplorer() {
       dragOriginRef.current = single ?? null;
       dragCameraRef.current = single ? { ...cameraRef.current } : null;
       pinchRef.current = null;
+      if (single) event.currentTarget.dataset.interaction = "pan";
     }
-  }, [markInteracted]);
-
-  const selectBody = useCallback((id: BodyId) => {
-    if (suppressClickRef.current) {
-      suppressClickRef.current = false;
-      return;
-    }
-    setSelectedId(id);
-    setHelpOpen(false);
-    markInteracted();
-  }, [markInteracted]);
+  }, [commitBodyActivation, commitMissionActivation]);
 
   const centerBodyForKeyboard = useCallback((id: BodyId) => {
     const rendered = renderedBodiesRef.current.find((item) => item.body.id === id);
+    if (!rendered) return;
+    cameraRef.current = {
+      ...cameraRef.current,
+      x: rendered.world.x,
+      y: rendered.world.y,
+    };
+    cameraMovedRef.current = true;
+    requestDrawRef.current();
+  }, []);
+
+  const centerMissionForKeyboard = useCallback((id: MissionId) => {
+    const rendered = renderedMissionsRef.current.find(
+      (item) => item.mission.id === id,
+    );
     if (!rendered) return;
     cameraRef.current = {
       ...cameraRef.current,
@@ -1392,7 +1849,7 @@ export function SpaceExplorer() {
         resetCamera();
         break;
       case "Escape":
-        setSelectedId(null);
+        setSelectedTarget(null);
         setHelpOpen(false);
         break;
       default:
@@ -1411,7 +1868,7 @@ export function SpaceExplorer() {
       return;
     }
     if ((event.target as HTMLElement).closest("button, article, section")) return;
-    setSelectedId(null);
+    setSelectedTarget(null);
   }, []);
 
   const chromeStyle = {
@@ -1420,21 +1877,12 @@ export function SpaceExplorer() {
     "--ui-ink": dials.ui.ink,
     "--ui-muted": dials.ui.muted,
     "--ui-line": hexToRgba(dials.ui.line, dials.ui.lineOpacity),
-    "--ui-panel": hexToRgba(dials.card.fill, dials.card.fillOpacity),
     "--nav-size": `${dials.navigator.buttonSize}px`,
     "--nav-bottom": `${dials.navigator.bottom}px`,
     "--nav-opacity": String(dials.navigator.opacity),
     "--nav-ink": dials.navigator.ink,
     "--nav-active-ink": dials.navigator.activeInk,
     "--nav-fill": hexToRgba(dials.navigator.fill, dials.navigator.fillOpacity),
-    "--label-size": `${dials.labels.fontSize}px`,
-    "--label-tracking": `${dials.labels.letterSpacing}em`,
-    "--label-offset": `${dials.labels.offset}px`,
-    "--label-fill": dials.labels.fill,
-    "--label-active-fill": dials.labels.activeFill,
-    "--card-width": `${dials.card.width}px`,
-    "--card-title-size": `${dials.card.titleSize}px`,
-    "--card-body-size": `${dials.card.bodySize}px`,
   } as CSSProperties;
 
   return (
@@ -1444,7 +1892,7 @@ export function SpaceExplorer() {
       ref={rootRef}
       className={styles.space}
       style={chromeStyle}
-      data-dragging="false"
+      data-interaction="idle"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerEnd}
@@ -1452,66 +1900,72 @@ export function SpaceExplorer() {
       onKeyDown={handleKeyDown}
       onClick={handleCanvasClick}
       tabIndex={-1}
-      aria-label="Interactive pixel-art map of the solar system"
+      aria-label="Interactive pixel-art map of the solar system and space missions"
     >
       <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
       <div className={styles.pixelWash} aria-hidden="true" />
 
-      <div className={styles.bodyLayer} aria-label="Celestial bodies">
+      <div className={styles.bodyLayer} aria-label="Celestial bodies and space missions">
         {CELESTIAL_BODIES.map((body) => (
           <button
             key={body.id}
             ref={(node) => setBodyButtonRef(body.id, node)}
+            data-body-id={body.id}
             type="button"
             className={styles.bodyTarget}
-            aria-label={`${body.name}. ${body.flavor}`}
-            aria-pressed={selectedId === body.id}
-            onPointerEnter={() => updateHover(body.id)}
-            onPointerLeave={() => updateHover(null)}
-            onFocus={() => {
-              updateHover(body.id);
-              setSelectedId(body.id);
-              centerBodyForKeyboard(body.id);
+            aria-label={`${body.name}. ${body.flavor} Click to inspect; drag horizontally to spin.`}
+            aria-pressed={selectionMatches(selectedTarget, "body", body.id)}
+            onPointerEnter={() => updateBodyHover(body.id)}
+            onPointerLeave={() => updateBodyHover(null)}
+            onFocus={(event) => {
+              updateBodyHover(body.id);
+              if (event.currentTarget.matches(":focus-visible")) {
+                setSelectedTarget({ kind: "body", id: body.id });
+                centerBodyForKeyboard(body.id);
+              }
             }}
-            onBlur={() => updateHover(null)}
+            onBlur={() => updateBodyHover(null)}
             onClick={(event) => {
               event.stopPropagation();
               selectBody(body.id);
             }}
           >
             <span className={styles.focusReticle} aria-hidden="true" />
-            <span className={styles.bodyLabel}>{body.name}</span>
+          </button>
+        ))}
+        {MISSION_DEFINITIONS.map((mission) => (
+          <button
+            key={mission.id}
+            ref={(node) => setMissionButtonRef(mission.id, node)}
+            data-mission-id={mission.id}
+            type="button"
+            className={`${styles.bodyTarget} ${styles.missionTarget}`}
+            aria-label={`${mission.name}, launched ${mission.launchYear}. ${mission.fact} Click to inspect.`}
+            aria-pressed={selectionMatches(selectedTarget, "mission", mission.id)}
+            onPointerEnter={() => updateMissionHover(mission.id)}
+            onPointerLeave={() => updateMissionHover(null)}
+            onFocus={(event) => {
+              updateMissionHover(mission.id);
+              if (event.currentTarget.matches(":focus-visible")) {
+                setSelectedTarget({ kind: "mission", id: mission.id });
+                centerMissionForKeyboard(mission.id);
+              }
+            }}
+            onBlur={() => updateMissionHover(null)}
+            onClick={(event) => {
+              event.stopPropagation();
+              selectMission(mission.id);
+            }}
+          >
+            <span className={styles.focusReticle} aria-hidden="true" />
           </button>
         ))}
       </div>
 
-      {selectedBody ? (
-        <article
-          ref={selectionCardRef}
-          className={`${styles.selectionCard} ${styles.interfaceControl}`}
-          aria-live="polite"
-          style={{ "--card-x": "50vw", "--card-y": "50vh" } as CSSProperties}
-        >
-          <span className={styles.cardIndex}>
-            OBJECT {String((BODY_INDEX.get(selectedBody.id) ?? 0) + 1).padStart(2, "0")}
-          </span>
-          <button
-            type="button"
-            className={styles.cardClose}
-            onClick={() => setSelectedId(null)}
-            aria-label={`Close ${selectedBody.name} details`}
-          >
-            ×
-          </button>
-          <h2>{selectedBody.name}</h2>
-          <p>{selectedBody.flavor}</p>
-        </article>
-      ) : null}
-
       {!hasInteracted ? (
         <div className={`${styles.gestureHint} ${styles.interfaceControl}`} role="status">
           <span className={styles.mouseGlyph} aria-hidden="true"><i /></span>
-          <span><strong>Drag</strong> to travel · <strong>Scroll</strong> to zoom</span>
+          <span><strong>Drag worlds</strong> to spin · <strong>drag space</strong> to travel</span>
         </div>
       ) : null}
 
@@ -1542,7 +1996,11 @@ export function SpaceExplorer() {
       {helpOpen ? <HelpPanel onClose={() => setHelpOpen(false)} /> : null}
 
       <div className={styles.srOnly} aria-live="polite">
-        {selectedBody ? `${selectedBody.name}. ${selectedBody.flavor}` : "No celestial body selected."}
+        {selectedMission
+          ? `${selectedMission.name}. ${selectedMission.fact} ${selectedMission.flavor}`
+          : selectedBody
+            ? `${selectedBody.name}. ${selectedBody.flavor}`
+            : "No celestial body or mission selected."}
       </div>
     </main>
     </>

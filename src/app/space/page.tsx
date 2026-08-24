@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     absolute: "Solar System Explorer",
   },
   description:
-    "A living, pixel-art map of the solar system, viewed from an isometric perspective.",
+    "A living, pixel-art map of the solar system and its most famous spacecraft, viewed from an isometric perspective.",
   robots: {
     index: false,
     follow: false,

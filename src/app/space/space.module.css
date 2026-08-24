@@ -17,8 +17,12 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.space[data-dragging="true"] {
+.space[data-interaction="pan"] {
   cursor: grabbing;
+}
+
+.space[data-interaction="spin"] {
+  cursor: ew-resize;
 }
 
 .canvas {
@@ -73,7 +77,27 @@
   color: inherit;
   transform: translate3d(var(--body-x), var(--body-y), 0) translate(-50%, -50%);
   pointer-events: auto;
+  cursor: grab;
+}
+
+.space[data-interaction="spin"] .bodyTarget {
+  cursor: grabbing;
+}
+
+.missionTarget,
+.space[data-interaction="spin"] .missionTarget {
   cursor: crosshair;
+}
+
+.missionTarget::before {
+  border-color: rgb(93 213 235 / 12%);
+}
+
+.missionTarget:hover::before,
+.missionTarget:focus-visible::before,
+.missionTarget[aria-pressed="true"]::before {
+  border-color: rgb(93 226 245 / 78%);
+  box-shadow: 0 0 16px rgb(73 211 239 / 32%);
 }
 
 .bodyTarget::before {
@@ -126,82 +150,6 @@
   height: calc(100% + 12px);
 }
 
-.bodyLabel {
-  position: absolute;
-  top: calc(50% - max(var(--visual-size), 18px) * 0.5 - var(--label-offset, 31px));
-  left: 50%;
-  display: block;
-  min-width: max-content;
-  padding: 5px 7px 4px;
-  border: 1px solid rgb(103 142 153 / 26%);
-  background: rgb(3 7 13 / 68%);
-  box-shadow: 0 3px 16px rgb(0 0 0 / 36%);
-  color: var(--label-fill, #b9c8ca);
-  font-size: var(--label-size, 8px);
-  font-weight: 720;
-  letter-spacing: var(--label-tracking, 0.11em);
-  line-height: 1;
-  text-transform: uppercase;
-  opacity: 0;
-  transform: translateX(-50%) translateY(2px);
-  transition: opacity 100ms steps(2, end), transform 100ms steps(2, end);
-  white-space: nowrap;
-}
-
-.bodyLabel::after {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  width: 1px;
-  height: 6px;
-  background: rgb(130 168 177 / 40%);
-  content: "";
-}
-
-.bodyTarget[data-label-visible="true"] .bodyLabel {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-.bodyTarget:hover .bodyLabel,
-.bodyTarget:focus-visible .bodyLabel,
-.bodyTarget[aria-pressed="true"] .bodyLabel {
-  border-color: rgb(133 190 200 / 48%);
-  background: rgb(4 11 18 / 90%);
-  color: var(--label-active-fill, #e2eff0);
-}
-
-.selectionCard {
-  --card-x: 50vw;
-  --card-y: 50vh;
-  position: absolute;
-  z-index: 8;
-  top: var(--card-y);
-  left: var(--card-x);
-  width: min(var(--card-width, 326px), calc(100vw - 36px));
-  padding: 18px 42px 18px 18px;
-  border: 1px solid rgb(123 166 176 / 32%);
-  background:
-    linear-gradient(135deg, rgb(18 34 43 / 58%) 0 1px, transparent 1px) 0 0 / 5px 5px,
-    rgb(3 9 15 / 91%);
-  box-shadow: 0 16px 56px rgb(0 0 0 / 45%), inset 0 0 0 1px rgb(255 255 255 / 2%);
-  transform: translate(-50%, -100%);
-  backdrop-filter: blur(12px);
-  cursor: default;
-  animation: card-in 170ms steps(5, end) both;
-}
-
-.selectionCard::after {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  width: 1px;
-  height: 18px;
-  background: linear-gradient(#72919a, transparent);
-  content: "";
-}
-
-.cardIndex,
 .panelKicker {
   display: block;
   margin-bottom: 7px;
@@ -211,24 +159,13 @@
   letter-spacing: 0.15em;
 }
 
-.selectionCard h2,
 .helpPanel h2 {
   margin: 0;
   color: #e9f3ef;
-  font-size: var(--card-title-size, 17px);
+  font-size: 17px;
   font-weight: 750;
   letter-spacing: -0.045em;
 }
-
-.selectionCard p {
-  margin: 9px 0 0;
-  color: #91a4a9;
-  font-family: var(--font-geist-sans), Arial, sans-serif;
-  font-size: var(--card-body-size, 13px);
-  line-height: 1.48;
-}
-
-.cardClose,
 .panelClose {
   position: absolute;
   top: 9px;
@@ -244,8 +181,6 @@
   font: 18px/1 var(--font-geist-mono), monospace;
 }
 
-.cardClose:hover,
-.cardClose:focus-visible,
 .panelClose:hover,
 .panelClose:focus-visible {
   border-color: var(--ui-line);
@@ -405,6 +340,15 @@
   color: #71858c;
 }
 
+.mapDisclaimer {
+  margin: 13px 0 0;
+  color: #567079;
+  font-size: 8px;
+  letter-spacing: 0.055em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
 .srOnly {
   position: absolute;
   width: 1px;
@@ -413,11 +357,6 @@
   clip: rect(0, 0, 0, 0);
   clip-path: inset(50%);
   white-space: nowrap;
-}
-
-@keyframes card-in {
-  from { opacity: 0; transform: translate(-50%, calc(-100% + 8px)); }
-  to { opacity: 1; transform: translate(-50%, -100%); }
 }
 
 @keyframes panel-in {
@@ -453,21 +392,6 @@
     max-width: calc(100vw - 28px);
   }
 
-  .selectionCard {
-    position: fixed;
-    top: auto;
-    right: 14px;
-    bottom: max(72px, calc(env(safe-area-inset-bottom) + 66px));
-    left: 14px;
-    width: auto;
-    transform: none;
-    animation-name: mobile-card-in;
-  }
-
-  .selectionCard::after {
-    display: none;
-  }
-
   .helpPanel {
     right: 14px;
     bottom: max(72px, calc(env(safe-area-inset-bottom) + 66px));
@@ -476,21 +400,10 @@
     transform: none;
   }
 
-  .bodyLabel {
-    padding: 4px 6px 3px;
-    font-size: 7px;
-  }
-}
-
-@keyframes mobile-card-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .bodyTarget::before,
-  .bodyLabel,
-  .selectionCard,
   .gestureHint,
   .helpPanel,
   .mouseGlyph i {
