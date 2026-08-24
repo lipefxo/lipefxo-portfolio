@@ -640,9 +640,9 @@ export function drawMission(
     drawGlow(
       context,
       rendered.screen,
-      size * 0.78,
+      size * (selected ? 0.78 : 0.9),
       "rgba(88, 218, 244, ALPHA)",
-      selected ? 0.28 : 0.16,
+      selected ? 0.28 : 0.23,
     );
   }
 

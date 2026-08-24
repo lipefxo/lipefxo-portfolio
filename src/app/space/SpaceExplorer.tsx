@@ -92,6 +92,9 @@ type MapSelection =
   | { kind: "body"; id: BodyId }
   | { kind: "mission"; id: MissionId };
 
+type HoverSource = "pointer" | "focus";
+type HoverTarget = MapSelection & { source: HoverSource };
+
 type SceneItem =
   | { kind: "body"; rendered: RenderedBody }
   | { kind: "mission"; rendered: RenderedMission };
@@ -111,6 +114,25 @@ type BodyInteractionState = {
   angularVelocity: number;
   dragging: boolean;
   pulseElapsed: number;
+};
+
+type OrbitHoverState = {
+  progress: number;
+  transitionFrom: number;
+  transitionTarget: 0 | 1;
+  transitionElapsed: number;
+  transitionDuration: number;
+  launchAngle: number;
+  convergenceElapsed: number;
+  source: HoverSource | null;
+  animated: boolean;
+};
+
+type OrbitDrawState = {
+  progress: number;
+  launchAngle: number;
+  showEnergy: boolean;
+  convergence: number;
 };
 
 type SpinDragState = {
@@ -311,6 +333,184 @@ function createBodyInteractionStates(surfaceSpeed: number) {
     });
   }
   return states;
+}
+
+function createOrbitHoverStates() {
+  const states = new Map<BodyId, OrbitHoverState>();
+  for (let index = 1; index < CELESTIAL_BODIES.length; index += 1) {
+    const body = CELESTIAL_BODIES[index];
+    states.set(body.id, {
+      progress: 0,
+      transitionFrom: 0,
+      transitionTarget: 0,
+      transitionElapsed: 0,
+      transitionDuration: 0,
+      launchAngle: body.phase,
+      convergenceElapsed: -1,
+      source: null,
+      animated: false,
+    });
+  }
+  return states;
+}
+
+function easeOutPower(progress: number, weight: number) {
+  return 1 - (1 - progress) ** Math.max(1, weight);
+}
+
+function beginOrbitTransition(
+  state: OrbitHoverState,
+  target: 0 | 1,
+  fullDuration: number,
+) {
+  const distanceToTarget = Math.abs(target - state.progress);
+  state.transitionFrom = state.progress;
+  state.transitionTarget = target;
+  state.transitionElapsed = 0;
+  state.transitionDuration =
+    distanceToTarget <= 0.001
+      ? 0
+      : Math.max(0.04, fullDuration * distanceToTarget);
+}
+
+function getBodyOrbitAngle(
+  body: CelestialBody,
+  positions: ReadonlyMap<BodyId, Point>,
+) {
+  const position = positions.get(body.id);
+  if (!position) return body.phase;
+  const parent = body.parentId ? positions.get(body.parentId) : undefined;
+  return Math.atan2(
+    position.y - (parent?.y ?? 0),
+    position.x - (parent?.x ?? 0),
+  );
+}
+
+function stepOrbitHoverStates(
+  states: Map<BodyId, OrbitHoverState>,
+  bodies: readonly CelestialBody[],
+  positions: ReadonlyMap<BodyId, Point>,
+  hovered: HoverTarget | null,
+  deltaSeconds: number,
+  reducedMotion: boolean,
+  dials: SpaceDials,
+) {
+  for (let index = 1; index < bodies.length; index += 1) {
+    const body = bodies[index];
+    const state = states.get(body.id);
+    if (!state) continue;
+    const active = hovered?.kind === "body" && hovered.id === body.id;
+    const source = active ? hovered.source : null;
+
+    if (reducedMotion) {
+      if (active && state.progress <= 0.001) {
+        state.launchAngle = getBodyOrbitAngle(body, positions);
+      }
+      state.progress = active ? 1 : 0;
+      state.transitionFrom = state.progress;
+      state.transitionTarget = active ? 1 : 0;
+      state.transitionElapsed = 0;
+      state.transitionDuration = 0;
+      state.convergenceElapsed = -1;
+      state.source = source;
+      state.animated = false;
+      continue;
+    }
+
+    if (source === "focus") {
+      if (state.progress <= 0.001) {
+        state.launchAngle = getBodyOrbitAngle(body, positions);
+      }
+      state.progress = 1;
+      state.transitionFrom = 1;
+      state.transitionTarget = 1;
+      state.transitionElapsed = 0;
+      state.transitionDuration = 0;
+      state.convergenceElapsed = -1;
+      state.source = source;
+      state.animated = false;
+      continue;
+    }
+
+    if (!active && state.source === "focus") {
+      state.progress = 0;
+      state.transitionFrom = 0;
+      state.transitionTarget = 0;
+      state.transitionElapsed = 0;
+      state.transitionDuration = 0;
+      state.convergenceElapsed = -1;
+      state.source = null;
+      state.animated = false;
+      continue;
+    }
+
+    if (active) {
+      if (state.transitionTarget !== 1) {
+        if (state.progress <= 0.001) {
+          state.launchAngle = getBodyOrbitAngle(body, positions);
+        }
+        beginOrbitTransition(
+          state,
+          1,
+          dials.orbits.hoverRevealDuration,
+        );
+        state.convergenceElapsed = -1;
+      }
+      state.source = "pointer";
+      state.animated = true;
+    } else if (state.transitionTarget !== 0) {
+      beginOrbitTransition(
+        state,
+        0,
+        dials.orbits.hoverRetractDuration,
+      );
+      state.convergenceElapsed = -1;
+      state.source = null;
+    }
+
+    if (state.progress !== state.transitionTarget) {
+      state.transitionElapsed += deltaSeconds;
+      const transitionProgress =
+        state.transitionDuration <= 0
+          ? 1
+          : clamp(
+              state.transitionElapsed / state.transitionDuration,
+              0,
+              1,
+            );
+      state.progress =
+        state.transitionFrom +
+        (state.transitionTarget - state.transitionFrom) *
+          easeOutPower(transitionProgress, dials.orbits.hoverEasingWeight);
+
+      if (transitionProgress >= 1) {
+        state.progress = state.transitionTarget;
+        if (state.transitionTarget === 1 && state.animated) {
+          state.convergenceElapsed = 0;
+        } else if (state.transitionTarget === 0) {
+          state.animated = false;
+        }
+      }
+    }
+
+    if (state.convergenceElapsed >= 0) {
+      state.convergenceElapsed += deltaSeconds;
+      if (state.convergenceElapsed >= dials.orbits.hoverMeetDuration) {
+        state.convergenceElapsed = -1;
+      }
+    }
+  }
+}
+
+function orbitConvergenceEnvelope(
+  state: OrbitHoverState,
+  duration: number,
+) {
+  if (state.convergenceElapsed < 0) return 0;
+  return Math.sin(
+    clamp(state.convergenceElapsed / Math.max(0.001, duration), 0, 1) *
+      Math.PI,
+  );
 }
 
 function stepBodyInteractions(
@@ -573,6 +773,53 @@ function drawInfiniteStarfield(
   context.restore();
 }
 
+function orbitPointToScreen(
+  radius: number,
+  angle: number,
+  parent: Point,
+  camera: CameraState,
+  viewport: ViewportState,
+  yFactor: number,
+) {
+  const local = orbitPosition(radius, angle);
+  return worldToScreen(
+    { x: local.x + parent.x, y: local.y + parent.y },
+    camera,
+    viewport,
+    yFactor,
+  );
+}
+
+function traceOrbitArc(
+  context: CanvasRenderingContext2D,
+  radius: number,
+  startAngle: number,
+  endAngle: number,
+  parent: Point,
+  camera: CameraState,
+  viewport: ViewportState,
+  yFactor: number,
+) {
+  const sweep = endAngle - startAngle;
+  const samples = Math.max(
+    2,
+    Math.ceil((Math.abs(sweep) / TAU) * ORBIT_SAMPLE_COUNT),
+  );
+  for (let index = 0; index <= samples; index += 1) {
+    const angle = startAngle + (index / samples) * sweep;
+    const point = orbitPointToScreen(
+      radius,
+      angle,
+      parent,
+      camera,
+      viewport,
+      yFactor,
+    );
+    if (index === 0) context.moveTo(point.x, point.y);
+    else context.lineTo(point.x, point.y);
+  }
+}
+
 function drawOrbit(
   context: CanvasRenderingContext2D,
   radius: number,
@@ -582,29 +829,199 @@ function drawOrbit(
   dials: SpaceDials,
   parent: Point = { x: 0, y: 0 },
   moonOrbit = false,
+  animation: OrbitDrawState | null = null,
 ) {
+  const progress = clamp(animation?.progress ?? 0, 0, 1);
+  const launchAngle = animation?.launchAngle ?? 0;
+  const frontSweep = Math.PI * progress;
   context.save();
-  context.beginPath();
-  for (let index = 0; index <= ORBIT_SAMPLE_COUNT; index += 1) {
-    const angle = (index / ORBIT_SAMPLE_COUNT) * TAU;
-    const local = orbitPosition(radius, angle);
-    const point = worldToScreen(
-      { x: local.x + parent.x, y: local.y + parent.y },
-      camera,
-      viewport,
-      yFactor,
-    );
-    if (index === 0) context.moveTo(point.x, point.y);
-    else context.lineTo(point.x, point.y);
+  context.lineCap = "round";
+
+  if (progress < 0.9995) {
+    context.beginPath();
+    if (progress <= 0.0005) {
+      traceOrbitArc(
+        context,
+        radius,
+        0,
+        TAU,
+        parent,
+        camera,
+        viewport,
+        yFactor,
+      );
+      context.closePath();
+    } else {
+      traceOrbitArc(
+        context,
+        radius,
+        launchAngle + frontSweep,
+        launchAngle + TAU - frontSweep,
+        parent,
+        camera,
+        viewport,
+        yFactor,
+      );
+    }
   }
-  context.closePath();
   context.setLineDash(moonOrbit ? [2, dials.orbits.moonDash] : [2, dials.orbits.dash]);
   context.lineDashOffset = moonOrbit ? 0 : 2;
   context.lineWidth = 1;
   context.strokeStyle = moonOrbit
     ? hexToRgba(dials.orbits.moonColor, dials.orbits.moonOpacity)
     : hexToRgba(dials.orbits.color, dials.orbits.opacity);
-  context.stroke();
+  if (progress < 0.9995) context.stroke();
+
+  if (progress > 0.0005) {
+    context.beginPath();
+    traceOrbitArc(
+      context,
+      radius,
+      launchAngle,
+      launchAngle + frontSweep,
+      parent,
+      camera,
+      viewport,
+      yFactor,
+    );
+    traceOrbitArc(
+      context,
+      radius,
+      launchAngle,
+      launchAngle - frontSweep,
+      parent,
+      camera,
+      viewport,
+      yFactor,
+    );
+    context.setLineDash([]);
+    context.lineWidth = dials.orbits.hoverHaloWidth;
+    context.strokeStyle = hexToRgba(
+      dials.orbits.hoverColor,
+      dials.orbits.hoverOpacity * 0.24,
+    );
+    context.shadowColor = hexToRgba(
+      dials.orbits.hoverColor,
+      dials.orbits.hoverOpacity * 0.72,
+    );
+    context.shadowBlur = dials.orbits.hoverGlow;
+    context.stroke();
+
+    context.shadowBlur = 0;
+    context.lineWidth = dials.orbits.hoverLineWidth;
+    context.strokeStyle = hexToRgba(
+      dials.orbits.hoverColor,
+      dials.orbits.hoverOpacity,
+    );
+    context.stroke();
+
+    if (animation?.showEnergy && progress < 0.9995) {
+      const frontAlpha = clamp(
+        dials.orbits.hoverOpacity * dials.orbits.hoverFrontIntensity,
+        0,
+        1,
+      );
+      const tailSweep = Math.min(
+        frontSweep,
+        TAU * dials.orbits.hoverFrontLength,
+      );
+      context.beginPath();
+      traceOrbitArc(
+        context,
+        radius,
+        launchAngle + frontSweep - tailSweep,
+        launchAngle + frontSweep,
+        parent,
+        camera,
+        viewport,
+        yFactor,
+      );
+      traceOrbitArc(
+        context,
+        radius,
+        launchAngle - frontSweep + tailSweep,
+        launchAngle - frontSweep,
+        parent,
+        camera,
+        viewport,
+        yFactor,
+      );
+      context.lineWidth = dials.orbits.hoverFrontWidth;
+      context.strokeStyle = hexToRgba(
+        dials.orbits.hoverColor,
+        frontAlpha * 0.62,
+      );
+      context.shadowColor = hexToRgba(
+        dials.orbits.hoverColor,
+        frontAlpha,
+      );
+      context.shadowBlur = dials.orbits.hoverGlow * 1.15;
+      context.stroke();
+
+      const frontAngles = [
+        launchAngle + frontSweep,
+        launchAngle - frontSweep,
+      ];
+      context.fillStyle = hexToRgba(
+        dials.orbits.hoverColor,
+        frontAlpha,
+      );
+      const frontSize = Math.max(
+        1,
+        Math.round(dials.orbits.hoverFrontWidth),
+      );
+      const frontOffset = Math.floor(frontSize * 0.5);
+      for (let index = 0; index < frontAngles.length; index += 1) {
+        const front = orbitPointToScreen(
+          radius,
+          frontAngles[index],
+          parent,
+          camera,
+          viewport,
+          yFactor,
+        );
+        context.fillRect(
+          Math.round(front.x) - frontOffset,
+          Math.round(front.y) - frontOffset,
+          frontSize,
+          frontSize,
+        );
+      }
+    }
+  }
+
+  if (animation && animation.convergence > 0) {
+    const meetingPoint = orbitPointToScreen(
+      radius,
+      launchAngle + Math.PI,
+      parent,
+      camera,
+      viewport,
+      yFactor,
+    );
+    const alpha = clamp(
+      animation.convergence *
+        dials.orbits.hoverOpacity *
+        dials.orbits.hoverMeetIntensity,
+      0,
+      1,
+    );
+    context.setLineDash([]);
+    context.globalCompositeOperation = "screen";
+    context.shadowColor = hexToRgba(dials.orbits.hoverColor, alpha);
+    context.shadowBlur = dials.orbits.hoverGlow * 1.35;
+    context.fillStyle = dials.orbits.hoverColor;
+    context.globalAlpha = alpha;
+    context.fillRect(
+      Math.round(meetingPoint.x) - 1,
+      Math.round(meetingPoint.y) - 1,
+      3,
+      3,
+    );
+    context.globalAlpha = alpha * 0.34;
+    context.fillRect(Math.round(meetingPoint.x) - 3, Math.round(meetingPoint.y), 7, 1);
+    context.fillRect(Math.round(meetingPoint.x), Math.round(meetingPoint.y) - 3, 1, 7);
+  }
   context.restore();
 }
 
@@ -886,6 +1303,7 @@ function drawBodyGlow(
   elapsedSeconds: number,
   reducedMotion: boolean,
   selectedId: BodyId | null,
+  hoveredId: BodyId | null,
   dials: SpaceDials,
 ) {
   const { body, screen, visualSize } = rendered;
@@ -893,7 +1311,11 @@ function drawBodyGlow(
   const baseIntensity = body.id === "sun" ? dials.glow.sun : body.id === "moon" ? dials.glow.moon : dials.glow.earth;
   const selectedMultiplier =
     selectedId === body.id ? 1 + (dials.living.selectedBoost - 1) * 0.55 : 1;
-  const intensity = baseIntensity * selectedMultiplier;
+  const hoverMultiplier =
+    body.id === "sun" && hoveredId === "sun"
+      ? 1 + (dials.living.hoverBoost - 1) * 1.45
+      : 1;
+  const intensity = baseIntensity * selectedMultiplier * hoverMultiplier;
   if (intensity <= 0) return;
   const pulse = reducedMotion ? 1 : 1 + Math.sin(elapsedSeconds * 1.65) * 0.055;
   const glowRadius =
@@ -1088,8 +1510,12 @@ export function SpaceExplorer() {
   const dials = useSpaceDials();
   const dialsRef = useRef(dials);
   const bodyInteractionsRef = useRef<Map<BodyId, BodyInteractionState> | null>(null);
+  const orbitHoverStatesRef = useRef<Map<BodyId, OrbitHoverState> | null>(null);
   if (bodyInteractionsRef.current === null) {
     bodyInteractionsRef.current = createBodyInteractionStates(dials.living.surfaceSpeed);
+  }
+  if (orbitHoverStatesRef.current === null) {
+    orbitHoverStatesRef.current = createOrbitHoverStates();
   }
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -1112,11 +1538,13 @@ export function SpaceExplorer() {
   const cameraMovedRef = useRef(false);
   const requestDrawRef = useRef<() => void>(() => undefined);
   const selectedTargetRef = useRef<MapSelection | null>(null);
-  const hoveredTargetRef = useRef<MapSelection | null>(null);
+  const pointerHoveredTargetRef = useRef<MapSelection | null>(null);
+  const focusedTargetRef = useRef<MapSelection | null>(null);
+  const preferredHoverSourceRef = useRef<HoverSource>("pointer");
+  const hoveredTargetRef = useRef<HoverTarget | null>(null);
   const eventSchedulerRef = useRef<EventSchedulerState | null>(null);
   const reducedMotionRef = useRef(false);
   const [selectedTarget, setSelectedTarget] = useState<MapSelection | null>(null);
-  const [hoveredTarget, setHoveredTarget] = useState<MapSelection | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
 
@@ -1133,11 +1561,6 @@ export function SpaceExplorer() {
     selectedTargetRef.current = selectedTarget;
     requestDrawRef.current();
   }, [selectedTarget]);
-
-  useEffect(() => {
-    hoveredTargetRef.current = hoveredTarget;
-    requestDrawRef.current();
-  }, [hoveredTarget]);
 
   useEffect(() => {
     dialsRef.current = dials;
@@ -1261,19 +1684,65 @@ export function SpaceExplorer() {
       );
       const yFactor = dials.scene.isometricY;
       const bodies = resolveBodies(dials);
+      const selected = selectedTargetRef.current;
+      const hovered = hoveredTargetRef.current;
+      const selectedBodyId = selected?.kind === "body" ? selected.id : null;
+      const hoveredBodyId = hovered?.kind === "body" ? hovered.id : null;
       context.fillStyle = dials.scene.background;
       context.fillRect(0, 0, viewport.width, viewport.height);
 
       drawInfiniteStarfield(context, camera, viewport, elapsedSeconds, reducedMotion, yFactor, dials);
 
       const positions = getBodyWorldPositions(bodies, elapsedSeconds, reducedMotion);
+      const orbitHoverStates = orbitHoverStatesRef.current!;
+      stepOrbitHoverStates(
+        orbitHoverStates,
+        bodies,
+        positions,
+        hovered,
+        deltaSeconds,
+        reducedMotion,
+        dials,
+      );
       for (let index = 1; index < bodies.length; index += 1) {
         const body = bodies[index];
+        const orbitHoverState = orbitHoverStates.get(body.id)!;
+        const orbitAnimation: OrbitDrawState = {
+          progress: orbitHoverState.progress,
+          launchAngle: orbitHoverState.launchAngle,
+          showEnergy: orbitHoverState.animated && !reducedMotion,
+          convergence: reducedMotion
+            ? 0
+            : orbitConvergenceEnvelope(
+                orbitHoverState,
+                dials.orbits.hoverMeetDuration,
+              ),
+        };
         if (body.parentId) {
           const parent = positions.get(body.parentId) ?? { x: 0, y: 0 };
-          drawOrbit(context, body.orbitRadius, camera, viewport, yFactor, dials, parent, true);
+          drawOrbit(
+            context,
+            body.orbitRadius,
+            camera,
+            viewport,
+            yFactor,
+            dials,
+            parent,
+            true,
+            orbitAnimation,
+          );
         } else {
-          drawOrbit(context, body.orbitRadius, camera, viewport, yFactor, dials);
+          drawOrbit(
+            context,
+            body.orbitRadius,
+            camera,
+            viewport,
+            yFactor,
+            dials,
+            { x: 0, y: 0 },
+            false,
+            orbitAnimation,
+          );
         }
       }
       drawAsteroidBelt(context, camera, viewport, elapsedSeconds, reducedMotion, yFactor, dials);
@@ -1309,8 +1778,6 @@ export function SpaceExplorer() {
         dials,
       };
       const renderedMissions = getRenderedMissions(missionFrame);
-      const selected = selectedTargetRef.current;
-      const hovered = hoveredTargetRef.current;
       if (selected?.kind === "mission") {
         const selectedMission = renderedMissions.find(
           (item) => item.mission.id === selected.id,
@@ -1318,8 +1785,6 @@ export function SpaceExplorer() {
         if (selectedMission) selectedMission.revealed = true;
       }
       renderedMissionsRef.current = renderedMissions;
-      const selectedBodyId = selected?.kind === "body" ? selected.id : null;
-      const hoveredBodyId = hovered?.kind === "body" ? hovered.id : null;
 
       const livingFrame = {
         camera,
@@ -1347,6 +1812,7 @@ export function SpaceExplorer() {
           elapsedSeconds,
           reducedMotion,
           selectedBodyId,
+          hoveredBodyId,
           dials,
         );
       }
@@ -1524,13 +1990,53 @@ export function SpaceExplorer() {
     };
   }, [zoomAt]);
 
-  const updateBodyHover = useCallback((id: BodyId | null) => {
-    setHoveredTarget(id ? { kind: "body", id } : null);
+  const syncHoveredTarget = useCallback(() => {
+    const pointerTarget = pointerHoveredTargetRef.current;
+    const focusTarget = focusedTargetRef.current;
+    const preferredSource = preferredHoverSourceRef.current;
+    const preferredTarget =
+      preferredSource === "pointer" ? pointerTarget : focusTarget;
+    const fallbackTarget =
+      preferredSource === "pointer" ? focusTarget : pointerTarget;
+    const fallbackSource: HoverSource =
+      preferredSource === "pointer" ? "focus" : "pointer";
+    hoveredTargetRef.current = preferredTarget
+      ? { ...preferredTarget, source: preferredSource }
+      : fallbackTarget
+        ? { ...fallbackTarget, source: fallbackSource }
+        : null;
+    requestDrawRef.current();
   }, []);
 
-  const updateMissionHover = useCallback((id: MissionId | null) => {
-    setHoveredTarget(id ? { kind: "mission", id } : null);
-  }, []);
+  const updateBodyHover = useCallback((
+    id: BodyId | null,
+    source: HoverSource,
+  ) => {
+    const target = id ? { kind: "body" as const, id } : null;
+    if (source === "pointer") pointerHoveredTargetRef.current = target;
+    else focusedTargetRef.current = target;
+    if (target) preferredHoverSourceRef.current = source;
+    else if (preferredHoverSourceRef.current === source) {
+      preferredHoverSourceRef.current =
+        source === "pointer" ? "focus" : "pointer";
+    }
+    syncHoveredTarget();
+  }, [syncHoveredTarget]);
+
+  const updateMissionHover = useCallback((
+    id: MissionId | null,
+    source: HoverSource,
+  ) => {
+    const target = id ? { kind: "mission" as const, id } : null;
+    if (source === "pointer") pointerHoveredTargetRef.current = target;
+    else focusedTargetRef.current = target;
+    if (target) preferredHoverSourceRef.current = source;
+    else if (preferredHoverSourceRef.current === source) {
+      preferredHoverSourceRef.current =
+        source === "pointer" ? "focus" : "pointer";
+    }
+    syncHoveredTarget();
+  }, [syncHoveredTarget]);
 
   const setBodyButtonRef = useCallback((id: BodyId, node: HTMLButtonElement | null) => {
     if (node) bodyButtonsRef.current.set(id, node);
@@ -1915,16 +2421,24 @@ export function SpaceExplorer() {
             className={styles.bodyTarget}
             aria-label={`${body.name}. ${body.flavor} Click to inspect; drag horizontally to spin.`}
             aria-pressed={selectionMatches(selectedTarget, "body", body.id)}
-            onPointerEnter={() => updateBodyHover(body.id)}
-            onPointerLeave={() => updateBodyHover(null)}
+            onPointerEnter={(event) => {
+              if (event.pointerType !== "touch") {
+                updateBodyHover(body.id, "pointer");
+              }
+            }}
+            onPointerLeave={(event) => {
+              if (event.pointerType !== "touch") {
+                updateBodyHover(null, "pointer");
+              }
+            }}
             onFocus={(event) => {
-              updateBodyHover(body.id);
               if (event.currentTarget.matches(":focus-visible")) {
+                updateBodyHover(body.id, "focus");
                 setSelectedTarget({ kind: "body", id: body.id });
                 centerBodyForKeyboard(body.id);
               }
             }}
-            onBlur={() => updateBodyHover(null)}
+            onBlur={() => updateBodyHover(null, "focus")}
             onClick={(event) => {
               event.stopPropagation();
               selectBody(body.id);
@@ -1942,16 +2456,24 @@ export function SpaceExplorer() {
             className={`${styles.bodyTarget} ${styles.missionTarget}`}
             aria-label={`${mission.name}, launched ${mission.launchYear}. ${mission.fact} Click to inspect.`}
             aria-pressed={selectionMatches(selectedTarget, "mission", mission.id)}
-            onPointerEnter={() => updateMissionHover(mission.id)}
-            onPointerLeave={() => updateMissionHover(null)}
+            onPointerEnter={(event) => {
+              if (event.pointerType !== "touch") {
+                updateMissionHover(mission.id, "pointer");
+              }
+            }}
+            onPointerLeave={(event) => {
+              if (event.pointerType !== "touch") {
+                updateMissionHover(null, "pointer");
+              }
+            }}
             onFocus={(event) => {
-              updateMissionHover(mission.id);
               if (event.currentTarget.matches(":focus-visible")) {
+                updateMissionHover(mission.id, "focus");
                 setSelectedTarget({ kind: "mission", id: mission.id });
                 centerMissionForKeyboard(mission.id);
               }
             }}
-            onBlur={() => updateMissionHover(null)}
+            onBlur={() => updateMissionHover(null, "focus")}
             onClick={(event) => {
               event.stopPropagation();
               selectMission(mission.id);
