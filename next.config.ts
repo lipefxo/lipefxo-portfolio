@@ -56,6 +56,7 @@ const immutableImageSources = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  transpilePackages: ["dialkit"],
   images: {
     qualities: [75, 80],
   },
