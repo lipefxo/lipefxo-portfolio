@@ -64,6 +64,352 @@
   pointer-events: auto;
 }
 
+.spaceIntro {
+  position: absolute;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  overflow: hidden;
+  place-items: center;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 47%, rgb(29 81 95 / 20%), transparent 24%),
+    linear-gradient(180deg, #061018 0%, #02050b 54%, #010207 100%);
+  color: #d9eeeb;
+  cursor: default;
+}
+
+.spaceIntro::before,
+.spaceIntro::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+}
+
+.spaceIntro::before {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 31px, rgb(122 209 221 / 5%) 31px 32px),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgb(122 209 221 / 4%) 31px 32px);
+  mask-image: radial-gradient(ellipse 72% 54% at 50% 48%, black, transparent 74%);
+  opacity: 0;
+  animation: intro-grid-in 760ms steps(8, end) 140ms both;
+}
+
+.spaceIntro::after {
+  inset: -20% 0 auto;
+  height: 28%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(138 232 236 / 0%) 42%,
+    rgb(161 245 238 / 19%) 49%,
+    rgb(138 232 236 / 0%) 57%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: translateY(0);
+  animation: intro-scan 1.15s cubic-bezier(0.22, 1, 0.36, 1) 360ms both;
+}
+
+.spaceIntro[data-state="exit"] {
+  pointer-events: none;
+  animation: intro-fade-out 640ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+.introMap {
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  width: min(76vw, 720px);
+  aspect-ratio: 1.72;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.88);
+  animation: intro-map-in 900ms steps(10, end) 100ms both;
+}
+
+.introOrbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid rgb(154 226 228 / 20%);
+  border-radius: 50%;
+  box-shadow: 0 0 18px rgb(55 173 192 / 5%);
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  animation-name: intro-orbit-in, intro-orbit-breathe;
+  animation-duration: 480ms, 2.2s;
+  animation-timing-function: steps(6, end), ease-in-out;
+  animation-fill-mode: both, both;
+  animation-iteration-count: 1, infinite;
+  animation-direction: normal, alternate;
+}
+
+.introOrbitOne {
+  width: 22%;
+  height: 42%;
+  animation-delay: 270ms, 1.15s;
+}
+
+.introOrbitTwo {
+  width: 42%;
+  height: 64%;
+  animation-delay: 360ms, 1.24s;
+}
+
+.introOrbitThree {
+  width: 66%;
+  height: 86%;
+  animation-delay: 450ms, 1.33s;
+}
+
+.introOrbitFour {
+  width: 94%;
+  height: 112%;
+  animation-delay: 540ms, 1.42s;
+}
+
+.introSun,
+.introPlanet {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  opacity: 0;
+  animation: intro-point-in 260ms steps(4, end) both;
+}
+
+.introSun {
+  top: calc(50% - 6px);
+  left: calc(50% - 6px);
+  width: 12px;
+  height: 12px;
+  background: #f3bd58;
+  box-shadow: 0 0 0 5px rgb(242 175 71 / 9%), 0 0 24px rgb(241 157 44 / 46%);
+  animation-delay: 220ms;
+}
+
+.introPlanet {
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+  box-shadow: 0 0 12px currentcolor;
+}
+
+.introPlanetOne {
+  top: 35%;
+  left: 59%;
+  color: #efb36b;
+  animation-delay: 620ms;
+}
+
+.introPlanetTwo {
+  top: 64%;
+  left: 30%;
+  width: 7px;
+  height: 7px;
+  color: #78cfe0;
+  animation-delay: 720ms;
+}
+
+.introPlanetThree {
+  top: 24%;
+  left: 19%;
+  width: 5px;
+  height: 5px;
+  color: #c4d6d4;
+  animation-delay: 820ms;
+}
+
+.introContent {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.introKicker,
+.introDescription,
+.introStatus,
+.introSkip {
+  opacity: 0;
+  animation: intro-copy-in 440ms steps(6, end) both;
+}
+
+.introKicker {
+  margin: 0 0 16px;
+  color: #79afb9;
+  font-size: 9px;
+  font-weight: 760;
+  letter-spacing: 0.24em;
+  animation-delay: 450ms;
+}
+
+.introTitle {
+  display: grid;
+  margin: 0;
+  color: #e7f4f1;
+  font-size: clamp(44px, 8.5vw, 104px);
+  font-weight: 760;
+  letter-spacing: -0.125em;
+  line-height: 0.78;
+  text-shadow: 0 0 28px rgb(120 221 220 / 13%);
+}
+
+.introTitlePrimary,
+.introTitleSecondary {
+  display: block;
+  opacity: 0;
+  transform: translateY(16px);
+  animation: intro-title-in 560ms steps(7, end) both;
+}
+
+.introTitleSecondary {
+  margin-left: 0.56em;
+  color: #9bd8d7;
+  animation-delay: 210ms;
+}
+
+.introDescription {
+  max-width: 252px;
+  margin: 24px 0 0;
+  color: #7c9fa4;
+  font-size: 9px;
+  font-weight: 630;
+  letter-spacing: 0.1em;
+  line-height: 1.65;
+  animation-delay: 710ms;
+}
+
+.introStatus {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 19px;
+  color: #b2c9c8;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  animation-delay: 850ms;
+}
+
+.introStatusMark {
+  width: 6px;
+  height: 6px;
+  background: #a9e2d7;
+  box-shadow: 0 0 12px rgb(107 235 206 / 80%);
+  animation: intro-status-pulse 1.25s steps(2, end) 1.15s infinite;
+}
+
+.introSkip {
+  position: absolute;
+  z-index: 2;
+  right: max(22px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid rgb(130 190 196 / 32%);
+  background: transparent;
+  color: #9ab5b8;
+  font: 700 9px/1 var(--font-geist-mono), "SFMono-Regular", Consolas, monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  animation-delay: 1.08s;
+}
+
+.introSkip span {
+  display: inline-block;
+  margin-left: 6px;
+  color: #c4e4df;
+  transition: transform 120ms steps(2, end);
+}
+
+.introSkip:hover,
+.introSkip:focus-visible {
+  outline: none;
+  border-bottom-color: #b2e3df;
+  color: #d1e7e3;
+}
+
+.introSkip:hover span,
+.introSkip:focus-visible span {
+  transform: translate(2px, -2px);
+}
+
+.spaceIntro[data-state="exit"] .introMap {
+  animation: intro-map-out 420ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+.spaceIntro[data-state="exit"] .introContent,
+.spaceIntro[data-state="exit"] .introSkip {
+  animation: intro-content-out 420ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+@keyframes intro-grid-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes intro-scan {
+  0% { opacity: 0; transform: translateY(0); }
+  14% { opacity: 1; }
+  72% { opacity: 0.82; }
+  100% { opacity: 0; transform: translateY(460%); }
+}
+
+@keyframes intro-map-in {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(0.88); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes intro-orbit-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes intro-orbit-breathe {
+  from { border-color: rgb(154 226 228 / 14%); box-shadow: 0 0 12px rgb(55 173 192 / 3%); }
+  to { border-color: rgb(176 236 235 / 27%); box-shadow: 0 0 22px rgb(55 173 192 / 9%); }
+}
+
+@keyframes intro-point-in {
+  from { opacity: 0; transform: scale(0); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes intro-copy-in {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes intro-title-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes intro-status-pulse {
+  0%, 100% { opacity: 0.38; transform: scale(0.75); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes intro-content-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+@keyframes intro-map-out {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  to { opacity: 0; transform: translate(-50%, -51.5%) scale(1.04); }
+}
+
+@keyframes intro-fade-out {
+  0% { opacity: 1; }
+  48% { opacity: 0.92; }
+  100% { opacity: 0; }
+}
+
 
 .bodyLayer {
   position: absolute;
@@ -435,6 +781,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .spaceIntro {
+    display: none;
+  }
+
   .bodyTarget::before,
   .gestureHint,
   .helpPanel,

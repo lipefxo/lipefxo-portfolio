@@ -1,7 +1,5 @@
 "use client";
 
-import "dialkit/styles.css";
-import dynamic from "next/dynamic";
 import {
   useCallback,
   useEffect,
@@ -12,7 +10,8 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import styles from "./space.module.css";
-import { hexToRgba, useSpaceDials, type SpaceDials } from "./useSpaceDials";
+import { SpaceIntro } from "./SpaceIntro";
+import { hexToRgba, SPACE_DIALS, type SpaceDials } from "./useSpaceDials";
 import {
   createEventScheduler,
   drawLivingEventBackLayers,
@@ -61,11 +60,6 @@ import type {
   BlackHoleLensRenderer,
   PointerWarpFrame,
 } from "./blackHoleLens";
-
-const SpaceDialRoot = dynamic(
-  () => import("dialkit").then((module) => module.DialRoot),
-  { ssr: false },
-);
 
 type BodyKind = "star" | "planet" | "moon";
 type SpriteRecipe =
@@ -1635,7 +1629,7 @@ function HelpPanel({ onClose }: { onClose: () => void }) {
 }
 
 export function SpaceExplorer() {
-  const dials = useSpaceDials();
+  const dials = SPACE_DIALS;
   const dialsRef = useRef(dials);
   const bodyInteractionsRef = useRef<Map<BodyId, BodyInteractionState> | null>(null);
   const orbitHoverStatesRef = useRef<Map<BodyId, OrbitHoverState> | null>(null);
@@ -1704,11 +1698,6 @@ export function SpaceExplorer() {
     selectedTargetRef.current = selectedTarget;
     requestDrawRef.current();
   }, [selectedTarget]);
-
-  useEffect(() => {
-    dialsRef.current = dials;
-    requestDrawRef.current();
-  }, [dials]);
 
   const markInteracted = useCallback(() => {
     setHasInteracted((current) => current || true);
@@ -2892,8 +2881,6 @@ export function SpaceExplorer() {
   } as CSSProperties;
 
   return (
-    <>
-    <SpaceDialRoot theme="dark" position="top-right" defaultOpen />
     <main
       ref={rootRef}
       className={styles.space}
@@ -2918,6 +2905,7 @@ export function SpaceExplorer() {
         aria-hidden="true"
       />
       <div className={styles.pixelWash} aria-hidden="true" />
+      <SpaceIntro />
 
       <div className={styles.bodyLayer} aria-label="Celestial bodies and space missions">
         {CELESTIAL_BODIES.map((body) => (
@@ -3057,6 +3045,5 @@ export function SpaceExplorer() {
               : "No celestial body or mission selected."}
       </div>
     </main>
-    </>
   );
 }
