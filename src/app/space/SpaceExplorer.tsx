@@ -33,6 +33,31 @@ import {
   type MissionId,
   type RenderedMission,
 } from "./missionDiorama";
+import {
+  activateSun,
+  applyCatastrophePose,
+  catastropheOrbitFactor,
+  createStellarEvolutionState,
+  drawBlackHoleBackLayer,
+  drawBlackHoleCoreLayer,
+  drawBlackHoleFrontMatterLayer,
+  drawRebirthBurst,
+  drawSceneAtmosphere,
+  getBlackHoleVisualFrame,
+  getCatastropheFrame,
+  getStellarAppearance,
+  getStellarCamera,
+  getStellarUiSnapshot,
+  lensStarPoint,
+  skipStellarSequence,
+  stellarNeedsAnimation,
+  stepStellarEvolution,
+  type BlackHoleVisualFrame,
+  type CatastrophePose,
+  type StellarAppearance,
+  type StellarUiSnapshot,
+} from "./stellarEvolution";
+import type { BlackHoleLensRenderer } from "./blackHoleLens";
 
 const SpaceDialRoot = dynamic(
   () => import("dialkit").then((module) => module.DialRoot),
@@ -153,6 +178,7 @@ type SpriteBuffer = {
   context: CanvasRenderingContext2D | null;
   lightStep: number;
   rotationStep: number;
+  evolutionStep: number;
 };
 
 const TAU = Math.PI * 2;
@@ -718,6 +744,7 @@ function drawInfiniteStarfield(
   reducedMotion: boolean,
   yFactor: number,
   dials: SpaceDials,
+  blackHole: { center: Point; frame: BlackHoleVisualFrame } | null = null,
 ) {
   const projectedCamera = isometricProject(camera, yFactor);
   const layers = [
@@ -753,18 +780,56 @@ function drawInfiniteStarfield(
           const twinkle = reducedMotion
             ? 0.84
             : 0.72 + Math.sin(elapsedSeconds * (0.55 + bright) * dials.starfield.twinkle + seed) * 0.22;
-          const alpha = clamp(layer.alpha * twinkle * dials.starfield.opacity, 0.04, 1);
-          const size = bright > 0.92 ? 2 : 1;
+          const baseAlpha = clamp(
+            layer.alpha * twinkle * dials.starfield.opacity,
+            0.04,
+            1,
+          );
+          const lensed = blackHole
+            ? lensStarPoint({ x, y }, blackHole.center, blackHole.frame)
+            : { point: { x, y }, alpha: 1, brightness: 1, echo: null };
+          if (lensed.alpha <= 0.01) continue;
+          const alpha = clamp(
+            baseAlpha * lensed.alpha * lensed.brightness,
+            0,
+            1,
+          );
+          const size = bright > 0.92 || lensed.brightness > 1.75 ? 2 : 1;
           const colorRoll = hashNumber(seed + 88);
           context.globalAlpha = alpha;
           context.fillStyle =
             colorRoll > 0.94 ? dials.starfield.warm : colorRoll < 0.08 ? dials.starfield.cool : dials.starfield.white;
-          context.fillRect(Math.round(x), Math.round(y), size, size);
+          context.fillRect(
+            Math.round(lensed.point.x),
+            Math.round(lensed.point.y),
+            size,
+            size,
+          );
+
+          if (lensed.echo) {
+            context.globalAlpha = alpha * 0.34;
+            context.fillRect(
+              Math.round(lensed.echo.x),
+              Math.round(lensed.echo.y),
+              1,
+              1,
+            );
+          }
 
           if (bright > 0.975 && layerIndex === 2) {
             context.globalAlpha = alpha * 0.45;
-            context.fillRect(Math.round(x) - 2, Math.round(y), 5, 1);
-            context.fillRect(Math.round(x), Math.round(y) - 2, 1, 5);
+            context.fillRect(
+              Math.round(lensed.point.x) - 2,
+              Math.round(lensed.point.y),
+              5,
+              1,
+            );
+            context.fillRect(
+              Math.round(lensed.point.x),
+              Math.round(lensed.point.y) - 2,
+              1,
+              5,
+            );
           }
         }
       }
@@ -822,7 +887,7 @@ function traceOrbitArc(
 
 function drawOrbit(
   context: CanvasRenderingContext2D,
-  radius: number,
+  sourceRadius: number,
   camera: CameraState,
   viewport: ViewportState,
   yFactor: number,
@@ -830,11 +895,17 @@ function drawOrbit(
   parent: Point = { x: 0, y: 0 },
   moonOrbit = false,
   animation: OrbitDrawState | null = null,
+  catastrophe: { scale: number; alpha: number } | null = null,
 ) {
+  const radiusScale = catastrophe?.scale ?? 1;
+  const fade = catastrophe?.alpha ?? 1;
+  const radius = sourceRadius * radiusScale;
+  if (radius < 2 || fade <= 0.01) return;
   const progress = clamp(animation?.progress ?? 0, 0, 1);
   const launchAngle = animation?.launchAngle ?? 0;
   const frontSweep = Math.PI * progress;
   context.save();
+  context.globalAlpha = fade;
   context.lineCap = "round";
 
   if (progress < 0.9995) {
@@ -1033,6 +1104,7 @@ function drawAsteroidBelt(
   reducedMotion: boolean,
   yFactor: number,
   dials: SpaceDials,
+  catastrophe: ReturnType<typeof getCatastropheFrame> | null = null,
 ) {
   const motion = reducedMotion ? 0 : (elapsedSeconds / 260) * dials.asteroids.speed;
   const count = Math.round(dials.asteroids.count);
@@ -1042,7 +1114,12 @@ function drawAsteroidBelt(
     const radius = dials.asteroids.radius + (hashNumber(index * 83 + 19) - 0.5) * dials.asteroids.spread;
     const drift = motion * (0.72 + hashNumber(index + 91) * 0.45);
     const position = orbitPosition(radius, seededAngle + drift);
-    const screen = worldToScreen(position, camera, viewport, yFactor);
+    const pose = catastrophe
+      ? applyCatastrophePose(position, catastrophe, index + 200, reducedMotion)
+      : null;
+    if (pose?.swallowed) continue;
+    const world = pose?.world ?? position;
+    const screen = worldToScreen(world, camera, viewport, yFactor);
     if (
       screen.x < -4 ||
       screen.x > viewport.width + 4 ||
@@ -1052,7 +1129,8 @@ function drawAsteroidBelt(
       continue;
     }
     const size = hashNumber(index * 17) > 0.9 ? 2 : 1;
-    context.globalAlpha = (0.32 + hashNumber(index * 57) * 0.38) * dials.asteroids.opacity;
+    const fade = pose?.alpha ?? 1;
+    context.globalAlpha = (0.32 + hashNumber(index * 57) * 0.38) * dials.asteroids.opacity * fade;
     context.fillStyle = hashNumber(index * 13) > 0.72 ? dials.asteroids.warm : dials.asteroids.cool;
     context.fillRect(Math.round(screen.x), Math.round(screen.y), size, size);
   }
@@ -1215,7 +1293,7 @@ function getBodySpriteBuffer(body: CelestialBody) {
   canvas.height = height;
   const context = canvas.getContext("2d");
   if (context) context.imageSmoothingEnabled = false;
-  const buffer = { canvas, context, lightStep: -1, rotationStep: -1 };
+  const buffer = { canvas, context, lightStep: -1, rotationStep: -1, evolutionStep: -1 };
   spriteBuffers.set(body.id, buffer);
   return buffer;
 }
@@ -1224,12 +1302,17 @@ function renderBodySprite(
   body: CelestialBody,
   lightStep: number,
   rotationPhase: number,
+  evolutionStep = 0,
 ) {
   const buffer = getBodySpriteBuffer(body);
   const rotationColumns = Math.max(8, body.spritePixels * 2);
   const rotationStep = Math.round((wrapAngle(rotationPhase) / TAU) * rotationColumns) %
     rotationColumns;
-  if (buffer.lightStep === lightStep && buffer.rotationStep === rotationStep) {
+  if (
+    buffer.lightStep === lightStep &&
+    buffer.rotationStep === rotationStep &&
+    buffer.evolutionStep === evolutionStep
+  ) {
     return buffer.canvas;
   }
 
@@ -1294,6 +1377,7 @@ function renderBodySprite(
 
   buffer.lightStep = lightStep;
   buffer.rotationStep = rotationStep;
+  buffer.evolutionStep = evolutionStep;
   return canvas;
 }
 
@@ -1305,6 +1389,7 @@ function drawBodyGlow(
   selectedId: BodyId | null,
   hoveredId: BodyId | null,
   dials: SpaceDials,
+  stellar: StellarAppearance | null,
 ) {
   const { body, screen, visualSize } = rendered;
   if (body.id !== "sun" && body.id !== "moon" && body.id !== "earth") return;
@@ -1315,11 +1400,16 @@ function drawBodyGlow(
     body.id === "sun" && hoveredId === "sun"
       ? 1 + (dials.living.hoverBoost - 1) * 1.45
       : 1;
-  const intensity = baseIntensity * selectedMultiplier * hoverMultiplier;
+  const stellarGlow =
+    body.id === "sun" && stellar
+      ? stellar.glowIntensity * (1 - stellar.blackHoleIntensity)
+      : 1;
+  const intensity = baseIntensity * selectedMultiplier * hoverMultiplier * stellarGlow;
   if (intensity <= 0) return;
   const pulse = reducedMotion ? 1 : 1 + Math.sin(elapsedSeconds * 1.65) * 0.055;
   const glowRadius =
-    (body.id === "sun" ? visualSize * 1.3 * pulse : body.id === "moon" ? visualSize * 0.72 : visualSize * 0.58) * intensity;
+    (body.id === "sun" ? visualSize * 1.3 * pulse : body.id === "moon" ? visualSize * 0.72 : visualSize * 0.58) *
+    Math.min(intensity, 1.85);
   if (!Number.isFinite(visualSize) || !Number.isFinite(glowRadius) || glowRadius <= 0) return;
   const gradient = context.createRadialGradient(
     screen.x,
@@ -1330,18 +1420,24 @@ function drawBodyGlow(
     glowRadius,
   );
   if (body.id === "sun") {
-    gradient.addColorStop(0, hexToRgba(dials.glow.sunCore, 0.38 * intensity));
-    gradient.addColorStop(0.32, hexToRgba(dials.glow.sunMid, 0.2 * intensity));
-    gradient.addColorStop(1, hexToRgba(dials.glow.sunEdge, 0));
+    const core = stellar?.glowCore ?? dials.glow.sunCore;
+    const mid = stellar?.glowMid ?? dials.glow.sunMid;
+    const edge = stellar?.glowEdge ?? dials.glow.sunEdge;
+    gradient.addColorStop(0, hexToRgba(core, clamp(0.38 * intensity, 0, 1)));
+    gradient.addColorStop(0.32, hexToRgba(mid, clamp(0.2 * intensity, 0, 1)));
+    gradient.addColorStop(1, hexToRgba(edge, 0));
   } else if (body.id === "moon") {
-    gradient.addColorStop(0, hexToRgba("#c2dcf4", 0.16 * intensity));
+    gradient.addColorStop(0, hexToRgba("#c2dcf4", clamp(0.16 * intensity, 0, 1)));
     gradient.addColorStop(1, hexToRgba("#7baedb", 0));
   } else {
-    gradient.addColorStop(0, hexToRgba("#3d99d3", 0.1 * intensity));
+    gradient.addColorStop(0, hexToRgba("#3d99d3", clamp(0.1 * intensity, 0, 1)));
     gradient.addColorStop(1, hexToRgba("#3d99d3", 0));
   }
   context.save();
   context.globalCompositeOperation = "screen";
+  context.beginPath();
+  context.arc(screen.x, screen.y, glowRadius, 0, TAU);
+  context.clip();
   context.fillStyle = gradient;
   context.fillRect(
     screen.x - glowRadius,
@@ -1359,12 +1455,16 @@ function drawSolarMotes(
   reducedMotion: boolean,
   selectedId: BodyId | null,
   dials: SpaceDials,
+  stellar: StellarAppearance | null,
 ) {
-  const count = Math.round(dials.glow.motes);
+  const count = Math.round(dials.glow.motes * (stellar?.moteCountScale ?? 1));
   if (count <= 0) return;
   const motion = reducedMotion ? 0 : elapsedSeconds * 0.18 * dials.living.surfaceSpeed;
   const selectedMultiplier =
     selectedId === "sun" ? 1 + (dials.living.selectedBoost - 1) * 0.45 : 1;
+  const hot = stellar?.moteHot ?? dials.glow.moteHot;
+  const ember = stellar?.moteEmber ?? dials.glow.moteEmber;
+  const glowScale = stellar?.glowIntensity ?? 1;
   context.save();
   for (let index = 0; index < count; index += 1) {
     const seed = hashNumber(index * 43 + 17);
@@ -1373,8 +1473,8 @@ function drawSolarMotes(
     const x = sun.screen.x + Math.cos(angle) * radius;
     const y = sun.screen.y + Math.sin(angle) * radius * 0.52;
     const alpha = 0.18 + hashNumber(index * 67) * 0.42;
-    context.globalAlpha = alpha * dials.glow.sun * selectedMultiplier;
-    context.fillStyle = index % 3 === 0 ? dials.glow.moteHot : dials.glow.moteEmber;
+    context.globalAlpha = alpha * dials.glow.sun * selectedMultiplier * glowScale;
+    context.fillStyle = index % 3 === 0 ? hot : ember;
     context.fillRect(Math.round(x), Math.round(y), index % 7 === 0 ? 2 : 1, 1);
   }
   context.restore();
@@ -1386,16 +1486,32 @@ function drawCelestialBody(
   sunScreen: Point,
   rotationPhase: number,
   pulseScale: number,
+  stellar: StellarAppearance | null = null,
 ) {
   const { body, screen, visualSize } = rendered;
+  if (body.id === "sun" && stellar?.isBlackHole && stellar.blackHoleIntensity >= 0.86) {
+    return;
+  }
+  const spriteBody =
+    body.id === "sun" && stellar
+      ? { ...body, palette: stellar.palette }
+      : body;
   const lightAngle = Math.atan2(sunScreen.y - screen.y, sunScreen.x - screen.x);
   const lightStep = body.id === "sun" ? 0 : Math.round(((lightAngle + TAU) % TAU) / TAU * 16) % 16;
-  const sprite = renderBodySprite(body, lightStep, rotationPhase);
+  const sprite = renderBodySprite(
+    spriteBody,
+    lightStep,
+    rotationPhase,
+    body.id === "sun" ? (stellar?.spriteKey ?? 0) : 0,
+  );
   const aspect = sprite.width / sprite.height;
   const targetWidth = Math.max(1, Math.round(visualSize * pulseScale));
   const targetHeight = Math.max(1, Math.round((visualSize * pulseScale) / aspect));
   context.save();
   context.imageSmoothingEnabled = false;
+  if (body.id === "sun" && stellar?.blackHoleIntensity) {
+    context.globalAlpha = 1 - stellar.blackHoleIntensity;
+  }
   context.drawImage(
     sprite,
     Math.round(screen.x - targetWidth * 0.5),
@@ -1437,8 +1553,10 @@ function positionMapControls(
   missionButtons: Map<MissionId, HTMLButtonElement>,
   viewport: ViewportState,
 ) {
+  const visibleBodies = new Set<BodyId>();
   for (let index = 0; index < renderedBodies.length; index += 1) {
     const rendered = renderedBodies[index];
+    visibleBodies.add(rendered.body.id);
     positionTargetControl(
       bodyButtons.get(rendered.body.id),
       rendered.screen,
@@ -1448,8 +1566,13 @@ function positionMapControls(
       viewport,
     );
   }
+  for (const [id, button] of bodyButtons) {
+    if (!visibleBodies.has(id)) button.style.display = "none";
+  }
+  const visibleMissions = new Set<MissionId>();
   for (let index = 0; index < renderedMissions.length; index += 1) {
     const rendered = renderedMissions[index];
+    visibleMissions.add(rendered.mission.id);
     positionTargetControl(
       missionButtons.get(rendered.mission.id),
       rendered.screen,
@@ -1458,6 +1581,9 @@ function positionMapControls(
       rendered.revealed,
       viewport,
     );
+  }
+  for (const [id, button] of missionButtons) {
+    if (!visibleMissions.has(id)) button.style.display = "none";
   }
 }
 
@@ -1519,6 +1645,7 @@ export function SpaceExplorer() {
   }
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const lensCanvasRef = useRef<HTMLCanvasElement>(null);
   const bodyButtonsRef = useRef(new Map<BodyId, HTMLButtonElement>());
   const missionButtonsRef = useRef(new Map<MissionId, HTMLButtonElement>());
   const cameraRef = useRef<CameraState>({ x: 0, y: 0, zoom: 0.5 });
@@ -1544,9 +1671,16 @@ export function SpaceExplorer() {
   const hoveredTargetRef = useRef<HoverTarget | null>(null);
   const eventSchedulerRef = useRef<EventSchedulerState | null>(null);
   const reducedMotionRef = useRef(false);
+  const stellarRef = useRef(createStellarEvolutionState());
+  const stellarUiRef = useRef<StellarUiSnapshot>(
+    getStellarUiSnapshot(createStellarEvolutionState()),
+  );
   const [selectedTarget, setSelectedTarget] = useState<MapSelection | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [stellarUi, setStellarUi] = useState<StellarUiSnapshot>(
+    () => getStellarUiSnapshot(createStellarEvolutionState()),
+  );
 
   const selectedBody =
     selectedTarget?.kind === "body"
@@ -1571,14 +1705,55 @@ export function SpaceExplorer() {
     setHasInteracted((current) => current || true);
   }, []);
 
+  const publishStellarUi = useCallback((snapshot: StellarUiSnapshot) => {
+    const previous = stellarUiRef.current;
+    if (
+      previous.clicks === snapshot.clicks &&
+      previous.phase === snapshot.phase &&
+      previous.locked === snapshot.locked &&
+      previous.sunLabel === snapshot.sunLabel &&
+      previous.announcement === snapshot.announcement
+    ) {
+      return;
+    }
+    stellarUiRef.current = snapshot;
+    setStellarUi(snapshot);
+  }, []);
+
+  const restoreStellarCamera = useCallback((saved: CameraState | null) => {
+    if (!saved) return;
+    cameraRef.current = saved;
+    requestDrawRef.current();
+  }, []);
+
+  const interruptStellarSequence = useCallback(() => {
+    const stellar = stellarRef.current;
+    const saved = stellar.savedCamera;
+    const snapshot = skipStellarSequence(stellar);
+    if (!snapshot) return false;
+    restoreStellarCamera(saved);
+    publishStellarUi(snapshot);
+    requestDrawRef.current();
+    return true;
+  }, [publishStellarUi, restoreStellarCamera]);
+
   const commitBodyActivation = useCallback((id: BodyId) => {
+    if (stellarRef.current.navigationLocked) return;
     const interaction = bodyInteractionsRef.current?.get(id);
     if (interaction && !reducedMotionRef.current) interaction.pulseElapsed = 0;
+    if (id === "sun") {
+      const snapshot = activateSun(
+        stellarRef.current,
+        cameraRef.current,
+        reducedMotionRef.current,
+      );
+      if (snapshot) publishStellarUi(snapshot);
+    }
     setSelectedTarget({ kind: "body", id });
     setHelpOpen(false);
     markInteracted();
     requestDrawRef.current();
-  }, [markInteracted]);
+  }, [markInteracted, publishStellarUi]);
 
   const selectBody = useCallback((id: BodyId) => {
     if (suppressClickRef.current) {
@@ -1589,6 +1764,7 @@ export function SpaceExplorer() {
   }, [commitBodyActivation]);
 
   const commitMissionActivation = useCallback((id: MissionId) => {
+    if (stellarRef.current.navigationLocked) return;
     setSelectedTarget({ kind: "mission", id });
     setHelpOpen(false);
     markInteracted();
@@ -1604,6 +1780,7 @@ export function SpaceExplorer() {
   }, [commitMissionActivation]);
 
   const resetCamera = useCallback(() => {
+    if (stellarRef.current.navigationLocked) return;
     const viewport = viewportRef.current;
     const current = dialsRef.current;
     const fitZoom = computeFitZoom(
@@ -1623,6 +1800,7 @@ export function SpaceExplorer() {
   }, [markInteracted]);
 
   const zoomAt = useCallback((nextZoom: number, anchor?: Point) => {
+    if (stellarRef.current.navigationLocked) return;
     const camera = cameraRef.current;
     const viewport = viewportRef.current;
     const target = anchor ?? { x: viewport.width * 0.5, y: viewport.height * 0.5 };
@@ -1646,7 +1824,8 @@ export function SpaceExplorer() {
   useEffect(() => {
     const root = rootRef.current;
     const canvas = canvasRef.current;
-    if (!root || !canvas) return;
+    const lensCanvas = lensCanvasRef.current;
+    if (!root || !canvas || !lensCanvas) return;
     const context = canvas.getContext("2d", { alpha: false });
     if (!context) return;
     const eventScheduler = eventSchedulerRef.current ?? createEventScheduler();
@@ -1660,22 +1839,94 @@ export function SpaceExplorer() {
     reducedMotionRef.current = reducedMotion;
     let elapsedSeconds = 0;
     let previousTime = performance.now();
+    let lensRenderer: BlackHoleLensRenderer | null = null;
+    let lensInitializing = false;
+    let lensFailed = false;
+    let lensInitToken = 0;
+    lensCanvas.style.display = "none";
+
+    const ensureLensRenderer = () => {
+      if (lensRenderer || lensInitializing || lensFailed || disposed) return;
+      lensInitializing = true;
+      const token = ++lensInitToken;
+      void import("./blackHoleLens")
+        .then(({ createBlackHoleLensRenderer }) => {
+          if (disposed || token !== lensInitToken) return;
+          lensRenderer = createBlackHoleLensRenderer(lensCanvas);
+        })
+        .catch(() => {
+          if (token === lensInitToken) lensFailed = true;
+        })
+        .finally(() => {
+          if (token === lensInitToken) lensInitializing = false;
+        });
+    };
 
     const render = (now: number) => {
       if (disposed) return;
       queuedReducedFrame = false;
       const viewport = viewportRef.current;
-      const camera = cameraRef.current;
-      const deltaSeconds = reducedMotion
-        ? 0
-        : Math.min(0.05, Math.max(0, (now - previousTime) / 1000));
+      const frameDelta = Math.min(0.05, Math.max(0, (now - previousTime) / 1000));
+      const deltaSeconds = reducedMotion ? 0 : frameDelta;
       elapsedSeconds += deltaSeconds;
       previousTime = now;
+
+      const stellar = stellarRef.current;
+      const savedCamera = stellar.savedCamera;
+      const wasLocked = stellar.navigationLocked;
+      const previousPhase = stellar.phase;
+      stepStellarEvolution(stellar, frameDelta, reducedMotion);
+      if (wasLocked && !stellar.navigationLocked) {
+        if (savedCamera) cameraRef.current = savedCamera;
+        publishStellarUi({
+          ...getStellarUiSnapshot(stellar),
+          announcement: "The solar system is restored.",
+        });
+      } else if (stellar.phase !== previousPhase || stellar.clicks !== stellarUiRef.current.clicks) {
+        publishStellarUi(getStellarUiSnapshot(stellar));
+      }
+
+      const dials = dialsRef.current;
+      const systemView = {
+        x: 0,
+        y: 0,
+        zoom: computeFitZoom(
+          viewport.width,
+          viewport.height,
+          systemRadiusForDials(dials),
+          dials.camera.fitPaddingX,
+          dials.camera.fitPaddingY,
+          dials.camera.fitScale,
+        ),
+      };
+      if (stellar.navigationLocked) {
+        cameraRef.current = getStellarCamera(
+          stellar,
+          cameraRef.current,
+          systemView,
+          reducedMotion,
+        );
+      }
+      const camera = cameraRef.current;
+      const appearance = getStellarAppearance(stellar, dials);
+      const catastrophe = getCatastropheFrame(stellar);
+      const blackHole = getBlackHoleVisualFrame(
+        stellar,
+        viewport,
+        reducedMotion,
+        elapsedSeconds,
+      );
+      if (stellar.clicks >= 9) ensureLensRenderer();
+      const gpuLensActive = Boolean(
+        lensRenderer &&
+        blackHole.visible &&
+        blackHole.opacity > 0.02 &&
+        blackHole.lensStrength > 0.02,
+      );
 
       context.setTransform(viewport.dpr, 0, 0, viewport.dpr, 0, 0);
       context.globalAlpha = 1;
       context.globalCompositeOperation = "source-over";
-      const dials = dialsRef.current;
       stepBodyInteractions(
         bodyInteractionsRef.current!,
         deltaSeconds,
@@ -1683,6 +1934,12 @@ export function SpaceExplorer() {
         dials,
       );
       const yFactor = dials.scene.isometricY;
+      const blackHoleCenter = worldToScreen(
+        { x: 0, y: 0 },
+        camera,
+        viewport,
+        yFactor,
+      );
       const bodies = resolveBodies(dials);
       const selected = selectedTargetRef.current;
       const hovered = hoveredTargetRef.current;
@@ -1691,14 +1948,44 @@ export function SpaceExplorer() {
       context.fillStyle = dials.scene.background;
       context.fillRect(0, 0, viewport.width, viewport.height);
 
-      drawInfiniteStarfield(context, camera, viewport, elapsedSeconds, reducedMotion, yFactor, dials);
+      drawInfiniteStarfield(
+        context,
+        camera,
+        viewport,
+        elapsedSeconds,
+        reducedMotion,
+        yFactor,
+        dials,
+        blackHole.visible && !gpuLensActive
+          ? { center: blackHoleCenter, frame: blackHole }
+          : null,
+      );
+      drawBlackHoleBackLayer(context, blackHoleCenter, blackHole);
 
-      const positions = getBodyWorldPositions(bodies, elapsedSeconds, reducedMotion);
+      const homePositions = getBodyWorldPositions(bodies, elapsedSeconds, reducedMotion);
+      const positions = new Map<BodyId, Point>();
+      const catastrophePoses = new Map<BodyId, CatastrophePose>();
+      for (let index = 0; index < bodies.length; index += 1) {
+        const body = bodies[index];
+        const home = homePositions.get(body.id) ?? { x: 0, y: 0 };
+        if (body.id === "sun") {
+          positions.set(body.id, home);
+          continue;
+        }
+        const pose = applyCatastrophePose(
+          home,
+          catastrophe,
+          (BODY_INDEX.get(body.id) ?? index) + 11,
+          reducedMotion,
+        );
+        catastrophePoses.set(body.id, pose);
+        positions.set(body.id, pose.world);
+      }
       const orbitHoverStates = orbitHoverStatesRef.current!;
       stepOrbitHoverStates(
         orbitHoverStates,
         bodies,
-        positions,
+        homePositions,
         hovered,
         deltaSeconds,
         reducedMotion,
@@ -1710,52 +1997,63 @@ export function SpaceExplorer() {
         const orbitAnimation: OrbitDrawState = {
           progress: orbitHoverState.progress,
           launchAngle: orbitHoverState.launchAngle,
-          showEnergy: orbitHoverState.animated && !reducedMotion,
-          convergence: reducedMotion
+          showEnergy: orbitHoverState.animated && !reducedMotion && !catastrophe.active,
+          convergence: reducedMotion || catastrophe.active
             ? 0
             : orbitConvergenceEnvelope(
                 orbitHoverState,
                 dials.orbits.hoverMeetDuration,
               ),
         };
-        if (body.parentId) {
-          const parent = positions.get(body.parentId) ?? { x: 0, y: 0 };
-          drawOrbit(
-            context,
-            body.orbitRadius,
-            camera,
-            viewport,
-            yFactor,
-            dials,
-            parent,
-            true,
-            orbitAnimation,
-          );
-        } else {
-          drawOrbit(
-            context,
-            body.orbitRadius,
-            camera,
-            viewport,
-            yFactor,
-            dials,
-            { x: 0, y: 0 },
-            false,
-            orbitAnimation,
-          );
-        }
+        const parentHome = body.parentId
+          ? homePositions.get(body.parentId) ?? { x: 0, y: 0 }
+          : { x: 0, y: 0 };
+        const parent = body.parentId
+          ? positions.get(body.parentId) ?? { x: 0, y: 0 }
+          : { x: 0, y: 0 };
+        const orbitVisual = catastropheOrbitFactor(
+          body.orbitRadius + Math.hypot(parentHome.x, parentHome.y),
+          Math.hypot(parentHome.x, parentHome.y),
+          catastrophe,
+          reducedMotion,
+        );
+        drawOrbit(
+          context,
+          body.orbitRadius,
+          camera,
+          viewport,
+          yFactor,
+          dials,
+          parent,
+          Boolean(body.parentId),
+          orbitAnimation,
+          orbitVisual,
+        );
       }
-      drawAsteroidBelt(context, camera, viewport, elapsedSeconds, reducedMotion, yFactor, dials);
+      drawAsteroidBelt(
+        context,
+        camera,
+        viewport,
+        elapsedSeconds,
+        reducedMotion,
+        yFactor,
+        dials,
+        catastrophe,
+      );
 
       const renderedBodies: RenderedBody[] = [];
       for (let index = 0; index < bodies.length; index += 1) {
         const body = bodies[index];
+        const pose = catastrophePoses.get(body.id);
+        if (pose?.swallowed) continue;
         const world = positions.get(body.id) ?? { x: 0, y: 0 };
         const screen = worldToScreen(world, camera, viewport, yFactor);
         const compactScale = clamp(viewport.width / 700, 0.54, 1);
+        const sizeScale =
+          (body.id === "sun" ? appearance.sizeScale : 1) * (pose?.scale ?? 1);
         const visualSize = Math.max(
-          body.minDisplaySize * compactScale,
-          body.displaySize * camera.zoom,
+          body.minDisplaySize * compactScale * Math.min(1, sizeScale),
+          body.displaySize * camera.zoom * sizeScale,
         );
         renderedBodies.push({
           body,
@@ -1772,17 +2070,35 @@ export function SpaceExplorer() {
         camera,
         viewport,
         yFactor,
-        bodyPositions: positions,
+        bodyPositions: homePositions,
         elapsedSeconds,
         reducedMotion,
         dials,
       };
       const renderedMissions = getRenderedMissions(missionFrame);
+      for (let index = 0; index < renderedMissions.length; index += 1) {
+        const mission = renderedMissions[index];
+        const pose = applyCatastrophePose(
+          mission.world,
+          catastrophe,
+          80 + index,
+          reducedMotion,
+        );
+        if (pose.swallowed) {
+          mission.revealed = false;
+          mission.visualSize = 0;
+          continue;
+        }
+        mission.world = pose.world;
+        mission.screen = worldToScreen(pose.world, camera, viewport, yFactor);
+        mission.visualSize *= pose.scale;
+        if (catastrophe.active) mission.revealed = pose.alpha > 0.08;
+      }
       if (selected?.kind === "mission") {
         const selectedMission = renderedMissions.find(
           (item) => item.mission.id === selected.id,
         );
-        if (selectedMission) selectedMission.revealed = true;
+        if (selectedMission && selectedMission.visualSize > 0) selectedMission.revealed = true;
       }
       renderedMissionsRef.current = renderedMissions;
 
@@ -1795,15 +2111,19 @@ export function SpaceExplorer() {
         reducedMotion,
         dials,
       };
-      updateLivingEvents(eventScheduler, livingFrame);
-      drawMissionTrails(context, renderedMissions, missionFrame);
-      drawLivingEventBackLayers(
-        context,
-        eventScheduler.active,
-        renderedBodies,
-        elapsedSeconds,
-        dials,
-      );
+      updateLivingEvents(eventScheduler, livingFrame, catastrophe.eventsSuspended);
+      if (!catastrophe.trailsSuspended) {
+        drawMissionTrails(context, renderedMissions, missionFrame);
+      }
+      if (!catastrophe.eventsSuspended) {
+        drawLivingEventBackLayers(
+          context,
+          eventScheduler.active,
+          renderedBodies,
+          elapsedSeconds,
+          dials,
+        );
+      }
 
       for (let index = 0; index < renderedBodies.length; index += 1) {
         drawBodyGlow(
@@ -1814,12 +2134,13 @@ export function SpaceExplorer() {
           selectedBodyId,
           hoveredBodyId,
           dials,
+          appearance,
         );
       }
 
       const sun = renderedBodies.find((item) => item.body.id === "sun");
       const sunScreen = sun?.screen ?? { x: viewport.width * 0.5, y: viewport.height * 0.5 };
-      if (sun) {
+      if (sun && !appearance.isBlackHole && appearance.moteCountScale > 0.04) {
         drawSolarMotes(
           context,
           sun,
@@ -1827,6 +2148,7 @@ export function SpaceExplorer() {
           reducedMotion,
           selectedBodyId,
           dials,
+          appearance,
         );
       }
       const sceneItems: SceneItem[] = [];
@@ -1858,35 +2180,93 @@ export function SpaceExplorer() {
 
         const rendered = item.rendered;
         const interaction = bodyInteractionsRef.current!.get(rendered.body.id)!;
+        const pose = catastrophePoses.get(rendered.body.id);
         const bodyPulseEnvelope = pulseEnvelope(
           interaction,
           reducedMotion,
           dials.interaction.pulseDuration,
         );
         const bodyPulseScale = 1 + bodyPulseEnvelope * dials.interaction.pulseScale;
+        context.save();
+        if (pose) context.globalAlpha = pose.alpha;
         drawCelestialBody(
           context,
           rendered,
           sunScreen,
           interaction.rotationPhase,
           bodyPulseScale,
+          rendered.body.id === "sun" ? appearance : null,
         );
-        drawLivingSurface(
-          context,
-          rendered,
-          sunScreen,
-          eventScheduler.active,
-          elapsedSeconds,
-          reducedMotion,
-          hoveredBodyId,
-          selectedBodyId,
-          interaction.rotationPhase,
-          bodyPulseScale,
-          bodyPulseEnvelope,
-          dials,
-        );
+        if (!(rendered.body.id === "sun" && appearance.isBlackHole)) {
+          drawLivingSurface(
+            context,
+            rendered,
+            sunScreen,
+            eventScheduler.active,
+            elapsedSeconds,
+            reducedMotion,
+            hoveredBodyId,
+            selectedBodyId,
+            interaction.rotationPhase,
+            bodyPulseScale,
+            bodyPulseEnvelope,
+            dials,
+            rendered.body.id === "sun" ? appearance : null,
+          );
+        }
+        context.restore();
       }
-      drawLivingEventFrontLayers(context, eventScheduler.active, livingFrame);
+      if (!catastrophe.eventsSuspended) {
+        drawLivingEventFrontLayers(context, eventScheduler.active, livingFrame);
+      }
+      drawSceneAtmosphere(
+        context,
+        viewport.width,
+        viewport.height,
+        blackHoleCenter,
+        appearance,
+        blackHole,
+      );
+      drawBlackHoleFrontMatterLayer(context, blackHoleCenter, blackHole);
+      let coreDrawn = false;
+      if (!gpuLensActive) {
+        drawBlackHoleCoreLayer(context, blackHoleCenter, blackHole);
+        coreDrawn = true;
+      }
+      drawRebirthBurst(
+        context,
+        blackHoleCenter,
+        catastrophe,
+        blackHole,
+        reducedMotion,
+      );
+
+      let lensRendered = false;
+      if (gpuLensActive && lensRenderer) {
+        try {
+          lensRenderer.render({
+            source: canvas,
+            viewport,
+            center: blackHoleCenter,
+            frame: blackHole,
+            elapsedSeconds,
+            reducedMotion,
+          });
+          lensRendered = true;
+        } catch {
+          lensRenderer.destroy();
+          lensRenderer = null;
+          lensFailed = true;
+        }
+      }
+      if (lensRendered) {
+        lensCanvas.style.display = "block";
+      } else {
+        lensCanvas.style.display = "none";
+        if (!coreDrawn) {
+          drawBlackHoleCoreLayer(context, blackHoleCenter, blackHole);
+        }
+      }
 
       positionMapControls(
         renderedBodies,
@@ -1896,7 +2276,9 @@ export function SpaceExplorer() {
         viewport,
       );
 
-      if (!reducedMotion && visible) frameId = window.requestAnimationFrame(render);
+      const keepRunning =
+        visible && (!reducedMotion || stellarNeedsAnimation(stellarRef.current));
+      if (keepRunning) frameId = window.requestAnimationFrame(render);
     };
 
     const requestDraw = () => {
@@ -1927,14 +2309,16 @@ export function SpaceExplorer() {
       );
       minZoomRef.current = fitZoom * 0.72;
       maxZoomRef.current = Math.max(3.4, fitZoom * 6);
-      if (!cameraMovedRef.current) {
-        cameraRef.current = { x: 0, y: 0, zoom: fitZoom };
-      } else {
-        cameraRef.current.zoom = clamp(
-          cameraRef.current.zoom,
-          minZoomRef.current,
-          maxZoomRef.current,
-        );
+      if (!stellarRef.current.navigationLocked) {
+        if (!cameraMovedRef.current) {
+          cameraRef.current = { x: 0, y: 0, zoom: fitZoom };
+        } else {
+          cameraRef.current.zoom = clamp(
+            cameraRef.current.zoom,
+            minZoomRef.current,
+            maxZoomRef.current,
+          );
+        }
       }
       requestDraw();
     };
@@ -1981,14 +2365,18 @@ export function SpaceExplorer() {
 
     return () => {
       disposed = true;
+      lensInitToken += 1;
       window.cancelAnimationFrame(frameId);
       resizeObserver.disconnect();
       motionQuery.removeEventListener("change", onMotionChange);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       root.removeEventListener("wheel", onWheel);
+      lensRenderer?.destroy();
+      lensRenderer = null;
+      lensCanvas.style.display = "none";
       requestDrawRef.current = () => undefined;
     };
-  }, [zoomAt]);
+  }, [publishStellarUi, zoomAt]);
 
   const syncHoveredTarget = useCallback(() => {
     const pointerTarget = pointerHoveredTargetRef.current;
@@ -2050,6 +2438,7 @@ export function SpaceExplorer() {
 
   const handlePointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     if ((event.target as HTMLElement).closest(`.${styles.interfaceControl}`)) return;
+    if (stellarRef.current.navigationLocked) return;
     const root = event.currentTarget;
     const captureTarget = event.target as HTMLElement;
     captureTarget.setPointerCapture(event.pointerId);
@@ -2122,6 +2511,7 @@ export function SpaceExplorer() {
   }, [markInteracted]);
 
   const handlePointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    if (stellarRef.current.navigationLocked) return;
     if (!pointersRef.current.has(event.pointerId)) return;
     const root = event.currentTarget;
     const local = getLocalPoint(event, root);
@@ -2293,6 +2683,7 @@ export function SpaceExplorer() {
   }, [commitBodyActivation, commitMissionActivation]);
 
   const centerBodyForKeyboard = useCallback((id: BodyId) => {
+    if (stellarRef.current.navigationLocked) return;
     const rendered = renderedBodiesRef.current.find((item) => item.body.id === id);
     if (!rendered) return;
     cameraRef.current = {
@@ -2305,6 +2696,7 @@ export function SpaceExplorer() {
   }, []);
 
   const centerMissionForKeyboard = useCallback((id: MissionId) => {
+    if (stellarRef.current.navigationLocked) return;
     const rendered = renderedMissionsRef.current.find(
       (item) => item.mission.id === id,
     );
@@ -2319,6 +2711,15 @@ export function SpaceExplorer() {
   }, []);
 
   const handleKeyDown = useCallback((event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape") {
+      if (interruptStellarSequence()) {
+        event.preventDefault();
+        setSelectedTarget(null);
+        setHelpOpen(false);
+        return;
+      }
+    }
+    if (stellarRef.current.navigationLocked) return;
     const camera = cameraRef.current;
     const panPixels = event.shiftKey ? 96 : 48;
     let handled = true;
@@ -2366,7 +2767,20 @@ export function SpaceExplorer() {
     cameraMovedRef.current = event.key !== "Home";
     markInteracted();
     requestDrawRef.current();
-  }, [markInteracted, resetCamera, zoomAt]);
+  }, [interruptStellarSequence, markInteracted, resetCamera, zoomAt]);
+
+  useEffect(() => {
+    const onWindowKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (!stellarRef.current.navigationLocked) return;
+      event.preventDefault();
+      interruptStellarSequence();
+      setSelectedTarget(null);
+      setHelpOpen(false);
+    };
+    window.addEventListener("keydown", onWindowKeyDown);
+    return () => window.removeEventListener("keydown", onWindowKeyDown);
+  }, [interruptStellarSequence]);
 
   const handleCanvasClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     if (suppressClickRef.current) {
@@ -2399,6 +2813,7 @@ export function SpaceExplorer() {
       className={styles.space}
       style={chromeStyle}
       data-interaction="idle"
+      data-cinematic={stellarUi.locked ? "true" : "false"}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerEnd}
@@ -2409,6 +2824,11 @@ export function SpaceExplorer() {
       aria-label="Interactive pixel-art map of the solar system and space missions"
     >
       <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
+      <canvas
+        ref={lensCanvasRef}
+        className={`${styles.canvas} ${styles.lensCanvas}`}
+        aria-hidden="true"
+      />
       <div className={styles.pixelWash} aria-hidden="true" />
 
       <div className={styles.bodyLayer} aria-label="Celestial bodies and space missions">
@@ -2419,7 +2839,11 @@ export function SpaceExplorer() {
             data-body-id={body.id}
             type="button"
             className={styles.bodyTarget}
-            aria-label={`${body.name}. ${body.flavor} Click to inspect; drag horizontally to spin.`}
+            aria-label={
+              body.id === "sun"
+                ? stellarUi.sunLabel
+                : `${body.name}. ${body.flavor} Click to inspect; drag horizontally to spin.`
+            }
             aria-pressed={selectionMatches(selectedTarget, "body", body.id)}
             onPointerEnter={(event) => {
               if (event.pointerType !== "touch") {
@@ -2492,13 +2916,31 @@ export function SpaceExplorer() {
       ) : null}
 
       <nav className={`${styles.navigator} ${styles.interfaceControl}`} aria-label="Map controls">
-        <button type="button" onClick={() => zoomAt(cameraRef.current.zoom / 1.28)} aria-label="Zoom out" title="Zoom out">
+        <button
+          type="button"
+          onClick={() => zoomAt(cameraRef.current.zoom / 1.28)}
+          aria-label="Zoom out"
+          title="Zoom out"
+          disabled={stellarUi.locked}
+        >
           −
         </button>
-        <button type="button" onClick={() => zoomAt(cameraRef.current.zoom * 1.28)} aria-label="Zoom in" title="Zoom in">
+        <button
+          type="button"
+          onClick={() => zoomAt(cameraRef.current.zoom * 1.28)}
+          aria-label="Zoom in"
+          title="Zoom in"
+          disabled={stellarUi.locked}
+        >
           +
         </button>
-        <button type="button" onClick={resetCamera} aria-label="Recenter the solar system" title="Recenter">
+        <button
+          type="button"
+          onClick={resetCamera}
+          aria-label="Recenter the solar system"
+          title="Recenter"
+          disabled={stellarUi.locked}
+        >
           ◎
         </button>
         <button
@@ -2518,11 +2960,13 @@ export function SpaceExplorer() {
       {helpOpen ? <HelpPanel onClose={() => setHelpOpen(false)} /> : null}
 
       <div className={styles.srOnly} aria-live="polite">
-        {selectedMission
-          ? `${selectedMission.name}. ${selectedMission.fact} ${selectedMission.flavor}`
-          : selectedBody
-            ? `${selectedBody.name}. ${selectedBody.flavor}`
-            : "No celestial body or mission selected."}
+        {stellarUi.announcement
+          ? stellarUi.announcement
+          : selectedMission
+            ? `${selectedMission.name}. ${selectedMission.fact} ${selectedMission.flavor}`
+            : selectedBody
+              ? `${selectedBody.name}. ${selectedBody.flavor}`
+              : "No celestial body or mission selected."}
       </div>
     </main>
     </>

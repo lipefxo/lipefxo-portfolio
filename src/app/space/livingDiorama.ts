@@ -1,4 +1,5 @@
 import type { SpaceDials } from "./useSpaceDials";
+import type { StellarAppearance } from "./stellarEvolution";
 
 export type LivingBodyId =
   | "sun"
@@ -352,12 +353,16 @@ function hasLightingEvent(events: readonly ActiveEvent[]) {
   return false;
 }
 
-export function updateLivingEvents(state: EventSchedulerState, frame: EventFrame) {
+export function updateLivingEvents(
+  state: EventSchedulerState,
+  frame: EventFrame,
+  suspended = false,
+) {
   const { elapsedSeconds, reducedMotion, dials, renderedBodies, viewport } = frame;
   const interval = Math.max(8, dials.events.eventInterval);
   removeExpiredEvents(state, elapsedSeconds);
 
-  if (reducedMotion) {
+  if (reducedMotion || suspended) {
     state.active.length = 0;
     state.nextEventAt = elapsedSeconds + interval;
     return;
@@ -602,8 +607,11 @@ export function drawLivingSurface(
   pulseScale: number,
   pulseEnvelope: number,
   dials: SpaceDials,
+  stellar: StellarAppearance | null = null,
 ) {
   const profile = BODY_MOTION_PROFILES[body.body.id];
+  const stellarActivity =
+    body.body.id === "sun" && stellar ? stellar.surfaceActivity : 1;
   const interactionBoost =
     body.body.id === selectedId
       ? dials.living.selectedBoost
@@ -611,9 +619,9 @@ export function drawLivingSurface(
         ? dials.living.hoverBoost
         : 1;
   const intensity = clamp(
-    dials.living.surfaceMotion * profile.intensity * interactionBoost,
+    dials.living.surfaceMotion * profile.intensity * interactionBoost * stellarActivity,
     0,
-    5,
+    8,
   );
   if (intensity <= 0) return;
   const time = reducedMotion
@@ -639,7 +647,11 @@ export function drawLivingSurface(
 
   switch (body.body.id) {
     case "sun": {
-      for (let index = 0; index < 15; index += 1) {
+      if (stellar?.isBlackHole) break;
+      const count = Math.round(15 * (stellar?.surfaceActivity ?? 1));
+      const hot = stellar?.moteHot ?? "#fff1a2";
+      const ember = stellar?.moteEmber ?? "#ffb13f";
+      for (let index = 0; index < count; index += 1) {
         const angle =
           hashNumber(index * 29 + 7) * TAU +
           rotationPhase +
@@ -651,7 +663,7 @@ export function drawLivingSurface(
           center.x + Math.cos(angle) * distance,
           center.y + Math.sin(angle) * distance,
           unit,
-          index % 4 === 0 ? "#fff1a2" : "#ffb13f",
+          index % 4 === 0 ? hot : ember,
           flicker * intensity,
         );
       }
@@ -850,10 +862,32 @@ export function drawLivingSurface(
   }
   context.restore();
 
-  if (body.body.id === "sun") {
+  if (body.body.id === "sun" && !stellar?.isBlackHole) {
     const prominenceAlpha = 0.22 * intensity;
-    drawPixelArc(context, center, radius * 1.12, radius * 0.78, -0.3 + time * 0.03, 0.48 + time * 0.03, 9, "#ff7a27", prominenceAlpha, unit);
-    drawPixelArc(context, center, radius * 1.08, radius * 0.72, 2.6 - time * 0.02, 3.28 - time * 0.02, 8, "#ffc34e", prominenceAlpha * 0.74, unit);
+    drawPixelArc(
+      context,
+      center,
+      radius * 1.12,
+      radius * 0.78,
+      -0.3 + time * 0.03,
+      0.48 + time * 0.03,
+      9,
+      stellar?.prominenceA ?? "#ff7a27",
+      prominenceAlpha,
+      unit,
+    );
+    drawPixelArc(
+      context,
+      center,
+      radius * 1.08,
+      radius * 0.72,
+      2.6 - time * 0.02,
+      3.28 - time * 0.02,
+      8,
+      stellar?.prominenceB ?? "#ffc34e",
+      prominenceAlpha * 0.74,
+      unit,
+    );
   } else if (body.body.id === "mercury") {
     const lightAngle = Math.atan2(sunScreen.y - center.y, sunScreen.x - center.x);
     for (let index = 1; index <= 3; index += 1) {
