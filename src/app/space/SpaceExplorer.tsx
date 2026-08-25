@@ -10,7 +10,6 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import styles from "./space.module.css";
-import { SpaceIntro } from "./SpaceIntro";
 import { hexToRgba, SPACE_DIALS, type SpaceDials } from "./useSpaceDials";
 import {
   createEventScheduler,
@@ -2905,7 +2904,6 @@ export function SpaceExplorer() {
         aria-hidden="true"
       />
       <div className={styles.pixelWash} aria-hidden="true" />
-      <SpaceIntro />
 
       <div className={styles.bodyLayer} aria-label="Celestial bodies and space missions">
         {CELESTIAL_BODIES.map((body) => (
