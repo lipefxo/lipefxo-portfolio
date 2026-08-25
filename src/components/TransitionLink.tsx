@@ -7,6 +7,10 @@ import type { ComponentProps, MouseEvent } from "react";
 /** sessionStorage key read by IntroReveal to skip its replayed intro. */
 export const SKIP_INTRO_KEY = "skip-intro";
 
+function usesIntroReveal(pathname: string) {
+  return pathname === "/" || pathname.startsWith("/work/");
+}
+
 /**
  * Drop-in replacement for <Link> for in-app navigation. Next's
  * `experimental.viewTransition` already wraps the route change in a view
@@ -37,6 +41,10 @@ export function TransitionLink({
     // Same-route clicks don't remount the page, so don't strand the flag.
     const dest = new URL(href, window.location.href);
     if (dest.pathname === pathname) return;
+
+    // IntroReveal is the only thing that normally clears `route-fade-out`.
+    // Destinations without it (prototypes, playgrounds) would stay invisible.
+    if (!usesIntroReveal(dest.pathname)) return;
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce || !("startViewTransition" in document)) return;

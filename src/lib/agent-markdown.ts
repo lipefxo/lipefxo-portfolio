@@ -1,4 +1,4 @@
-import { site, type CaseImage, type CaseStudy, type WorkProject } from "@/config/site";
+import { site, type CaseImage, type CaseStudy, type SideProject, type WorkProject } from "@/config/site";
 
 function imageMarkdown(image: CaseImage) {
   if (!image.src) return `Image: ${image.alt ?? image.label}`;
@@ -90,6 +90,18 @@ function projectMarkdown(project: WorkProject) {
   ].join("\n");
 }
 
+function sideProjectMarkdown(project: SideProject) {
+  return [
+    `### ${project.name}`,
+    "",
+    project.kind,
+    "",
+    project.blurb,
+    "",
+    `Open: ${project.href}`,
+  ].join("\n");
+}
+
 /**
  * A complete, static Markdown representation of the portfolio. It only reads
  * the same hand-authored configuration that powers the visible portfolio.
@@ -172,6 +184,14 @@ export function getAgentMarkdown() {
   }
 
   lines.push("## Selected work", "", ...publicWork.flatMap((project) => [projectMarkdown(project), ""]));
+
+  if (site.sideProjects.length > 0) {
+    lines.push(
+      "## Side projects",
+      "",
+      ...site.sideProjects.flatMap((project) => [sideProjectMarkdown(project), ""]),
+    );
+  }
 
   return lines.join("\n").trimEnd() + "\n";
 }
