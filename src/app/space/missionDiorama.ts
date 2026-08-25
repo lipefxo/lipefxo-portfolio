@@ -636,15 +636,6 @@ export function drawMission(
 
   context.save();
   context.globalCompositeOperation = "screen";
-  if (selected || hovered) {
-    drawGlow(
-      context,
-      rendered.screen,
-      size * (selected ? 0.78 : 0.9),
-      "rgba(88, 218, 244, ALPHA)",
-      selected ? 0.28 : 0.23,
-    );
-  }
 
   if (!reducedMotion) {
     const time = elapsedSeconds * dials.missions.motionSpeed;

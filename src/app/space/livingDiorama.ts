@@ -426,9 +426,7 @@ export function updateLivingEvents(
 }
 
 function bodyDiscRadius(body: LivingRenderedBody) {
-  if (body.body.id === "sun") return body.visualSize * 0.34;
-  if (body.body.id === "saturn") return body.visualSize * 0.2;
-  return body.visualSize * 0.35;
+  return body.visualSize * 0.5;
 }
 
 function pixel(
@@ -612,11 +610,15 @@ export function drawLivingSurface(
   const profile = BODY_MOTION_PROFILES[body.body.id];
   const stellarActivity =
     body.body.id === "sun" && stellar ? stellar.surfaceActivity : 1;
+  const hoverBoost =
+    body.body.id === "sun"
+      ? 1 + (dials.living.hoverBoost - 1) * 0.35
+      : dials.living.hoverBoost;
   const interactionBoost =
     body.body.id === selectedId
       ? dials.living.selectedBoost
       : body.body.id === hoveredId
-        ? dials.living.hoverBoost
+        ? hoverBoost
         : 1;
   const intensity = clamp(
     dials.living.surfaceMotion * profile.intensity * interactionBoost * stellarActivity,
@@ -906,14 +908,21 @@ export function drawLivingSurface(
   } else if (body.body.id === "saturn") {
     for (let index = 0; index < 8; index += 1) {
       const angle = index * (TAU / 8) + time * 0.09 + rotationPhase;
-      pixel(context, center.x + Math.cos(angle) * displaySize * 0.44, center.y + Math.sin(angle) * displaySize * 0.12, unit, "#fff0bd", 0.28 * intensity);
+      pixel(
+        context,
+        center.x + Math.cos(angle) * radius * 1.9,
+        center.y + Math.sin(angle) * radius * 0.56,
+        unit,
+        "#fff0bd",
+        0.28 * intensity,
+      );
     }
   } else if (body.body.id === "uranus") {
     drawPixelArc(
       context,
       center,
-      displaySize * 0.48,
-      displaySize * 0.11,
+      radius * 1.2,
+      radius * 0.32,
       time * 0.06 + rotationPhase,
       TAU + time * 0.06 + rotationPhase,
       24,

@@ -57,7 +57,10 @@ import {
   type StellarAppearance,
   type StellarUiSnapshot,
 } from "./stellarEvolution";
-import type { BlackHoleLensRenderer } from "./blackHoleLens";
+import type {
+  BlackHoleLensRenderer,
+  PointerWarpFrame,
+} from "./blackHoleLens";
 
 const SpaceDialRoot = dynamic(
   () => import("dialkit").then((module) => module.DialRoot),
@@ -129,6 +132,14 @@ type PointerInfo = {
   y: number;
 };
 
+type PointerWarpState = {
+  current: Point;
+  target: Point;
+  inside: boolean;
+  initialized: boolean;
+  opacity: number;
+};
+
 type PinchState = {
   distance: number;
   worldAnchor: Point;
@@ -186,6 +197,8 @@ const SYSTEM_RADIUS = 820;
 const ORBIT_SAMPLE_COUNT = 144;
 const MAX_DPR = 2;
 
+// Disc sizes are a square-root of real equatorial diameters, anchored on Earth.
+// That keeps Mercury readable and Jupiter giant without a true-scale collapse.
 const CELESTIAL_BODIES: readonly CelestialBody[] = [
   {
     id: "sun",
@@ -194,8 +207,8 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     orbitRadius: 0,
     orbitPeriod: 1,
     phase: 0,
-    displaySize: 116,
-    minDisplaySize: 44,
+    displaySize: 158,
+    minDisplaySize: 46,
     spritePixels: 35,
     palette: ["#b92f16", "#e95d1d", "#ff9728", "#ffd45a", "#fff2a1"],
     recipe: "sun",
@@ -208,8 +221,8 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     orbitRadius: 112,
     orbitPeriod: 68,
     phase: 0.58,
-    displaySize: 25,
-    minDisplaySize: 10,
+    displaySize: 20,
+    minDisplaySize: 9,
     spritePixels: 11,
     palette: ["#302d31", "#625d61", "#8e8581", "#b9aaa1", "#ded0bd"],
     recipe: "rock",
@@ -222,7 +235,7 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     orbitRadius: 174,
     orbitPeriod: 94,
     phase: 2.14,
-    displaySize: 36,
+    displaySize: 31,
     minDisplaySize: 12,
     spritePixels: 17,
     palette: ["#5d2c2b", "#9c5837", "#d28a48", "#f2bd69", "#ffe1a0"],
@@ -236,9 +249,9 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     orbitRadius: 244,
     orbitPeriod: 126,
     phase: 4.72,
-    displaySize: 40,
-    minDisplaySize: 14,
-    spritePixels: 19,
+    displaySize: 32,
+    minDisplaySize: 13,
+    spritePixels: 17,
     palette: ["#0b2454", "#16538d", "#238bc1", "#65cce3", "#d9f4e8"],
     recipe: "earth",
     flavor: "An improbable blue ember carrying oceans through the dark.",
@@ -251,7 +264,7 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     orbitRadius: 39,
     orbitPeriod: 24,
     phase: 0.72,
-    displaySize: 16,
+    displaySize: 17,
     minDisplaySize: 7,
     spritePixels: 9,
     palette: ["#292f3c", "#5b6472", "#9299a3", "#c8cbd0", "#f3f0e8"],
@@ -265,9 +278,9 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     orbitRadius: 326,
     orbitPeriod: 158,
     phase: 3.34,
-    displaySize: 31,
-    minDisplaySize: 11,
-    spritePixels: 15,
+    displaySize: 23,
+    minDisplaySize: 10,
+    spritePixels: 13,
     palette: ["#421d20", "#773025", "#aa4930", "#d16b42", "#ef9b68"],
     recipe: "mars",
     flavor: "A rust-red memory of rivers, turning beneath a thin sky.",
@@ -279,9 +292,9 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     orbitRadius: 452,
     orbitPeriod: 220,
     phase: 5.42,
-    displaySize: 68,
-    minDisplaySize: 22,
-    spritePixels: 29,
+    displaySize: 107,
+    minDisplaySize: 24,
+    spritePixels: 33,
     palette: ["#4d3030", "#8f5d50", "#c68a68", "#edbd88", "#f8dfb4"],
     recipe: "jupiter",
     flavor: "A striped giant whose storms have outlived empires.",
@@ -293,9 +306,9 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     orbitRadius: 570,
     orbitPeriod: 274,
     phase: 1.12,
-    displaySize: 92,
-    minDisplaySize: 29,
-    spritePixels: 25,
+    displaySize: 98,
+    minDisplaySize: 22,
+    spritePixels: 31,
     palette: ["#4a3d32", "#827057", "#bda275", "#e1ca92", "#f6e7ba"],
     recipe: "saturn",
     flavor: "A quiet colossus wearing ice and dust like a crown.",
@@ -307,7 +320,7 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     orbitRadius: 680,
     orbitPeriod: 326,
     phase: 2.78,
-    displaySize: 48,
+    displaySize: 64,
     minDisplaySize: 16,
     spritePixels: 21,
     palette: ["#183c48", "#286878", "#4b9aa5", "#83c8c9", "#c3ece5"],
@@ -321,8 +334,8 @@ const CELESTIAL_BODIES: readonly CelestialBody[] = [
     orbitRadius: 790,
     orbitPeriod: 380,
     phase: 4.04,
-    displaySize: 47,
-    minDisplaySize: 16,
+    displaySize: 63,
+    minDisplaySize: 15,
     spritePixels: 21,
     palette: ["#111c51", "#193b8a", "#275fc2", "#4b91e2", "#a4c9f2"],
     recipe: "ice",
@@ -677,7 +690,7 @@ function resolveBody(body: CelestialBody, dials: SpaceDials): CelestialBody {
   const motionSpeed = Math.max(0.001, dials.scene.motionSpeed);
   return {
     ...body,
-    displaySize: tune.size * dials.bodies.sizeScale,
+    displaySize: body.displaySize * tune.scale * dials.bodies.sizeScale,
     minDisplaySize: tune.minSize * dials.bodies.minSizeScale,
     orbitRadius: "orbit" in tune ? tune.orbit * orbitScale : 0,
     orbitPeriod: "period" in tune ? Math.max(1, tune.period / motionSpeed) : body.orbitPeriod,
@@ -971,14 +984,8 @@ function drawOrbit(
       dials.orbits.hoverColor,
       dials.orbits.hoverOpacity * 0.24,
     );
-    context.shadowColor = hexToRgba(
-      dials.orbits.hoverColor,
-      dials.orbits.hoverOpacity * 0.72,
-    );
-    context.shadowBlur = dials.orbits.hoverGlow;
     context.stroke();
 
-    context.shadowBlur = 0;
     context.lineWidth = dials.orbits.hoverLineWidth;
     context.strokeStyle = hexToRgba(
       dials.orbits.hoverColor,
@@ -1022,11 +1029,6 @@ function drawOrbit(
         dials.orbits.hoverColor,
         frontAlpha * 0.62,
       );
-      context.shadowColor = hexToRgba(
-        dials.orbits.hoverColor,
-        frontAlpha,
-      );
-      context.shadowBlur = dials.orbits.hoverGlow * 1.15;
       context.stroke();
 
       const frontAngles = [
@@ -1079,8 +1081,6 @@ function drawOrbit(
     );
     context.setLineDash([]);
     context.globalCompositeOperation = "screen";
-    context.shadowColor = hexToRgba(dials.orbits.hoverColor, alpha);
-    context.shadowBlur = dials.orbits.hoverGlow * 1.35;
     context.fillStyle = dials.orbits.hoverColor;
     context.globalAlpha = alpha;
     context.fillRect(
@@ -1283,11 +1283,13 @@ function drawPixelSun(
 
 function getBodySpriteBuffer(body: CelestialBody) {
   const cached = spriteBuffers.get(body.id);
-  if (cached) return cached;
   const ringed = body.recipe === "saturn";
   const padding = body.recipe === "sun" ? 8 : 4;
   const width = ringed ? body.spritePixels * 2 + 12 : body.spritePixels + padding * 2;
   const height = ringed ? body.spritePixels + 12 : body.spritePixels + padding * 2;
+  if (cached && cached.canvas.width === width && cached.canvas.height === height) {
+    return cached;
+  }
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
@@ -1398,7 +1400,7 @@ function drawBodyGlow(
     selectedId === body.id ? 1 + (dials.living.selectedBoost - 1) * 0.55 : 1;
   const hoverMultiplier =
     body.id === "sun" && hoveredId === "sun"
-      ? 1 + (dials.living.hoverBoost - 1) * 1.45
+      ? 1 + (dials.living.hoverBoost - 1) * 0.35
       : 1;
   const stellarGlow =
     body.id === "sun" && stellar
@@ -1504,9 +1506,9 @@ function drawCelestialBody(
     rotationPhase,
     body.id === "sun" ? (stellar?.spriteKey ?? 0) : 0,
   );
-  const aspect = sprite.width / sprite.height;
-  const targetWidth = Math.max(1, Math.round(visualSize * pulseScale));
-  const targetHeight = Math.max(1, Math.round((visualSize * pulseScale) / aspect));
+  const bodyScale = (visualSize * pulseScale) / Math.max(1, body.spritePixels);
+  const targetWidth = Math.max(1, Math.round(sprite.width * bodyScale));
+  const targetHeight = Math.max(1, Math.round(sprite.height * bodyScale));
   context.save();
   context.imageSmoothingEnabled = false;
   if (body.id === "sun" && stellar?.blackHoleIntensity) {
@@ -1655,6 +1657,13 @@ export function SpaceExplorer() {
   const renderedBodiesRef = useRef<RenderedBody[]>([]);
   const renderedMissionsRef = useRef<RenderedMission[]>([]);
   const pointersRef = useRef(new Map<number, PointerInfo>());
+  const pointerWarpRef = useRef<PointerWarpState>({
+    current: { x: 0, y: 0 },
+    target: { x: 0, y: 0 },
+    inside: false,
+    initialized: false,
+    opacity: 0,
+  });
   const dragOriginRef = useRef<Point | null>(null);
   const dragCameraRef = useRef<CameraState | null>(null);
   const pinchRef = useRef<PinchState | null>(null);
@@ -1916,12 +1925,58 @@ export function SpaceExplorer() {
         reducedMotion,
         elapsedSeconds,
       );
-      if (stellar.clicks >= 9) ensureLensRenderer();
+      const pointerWarp = pointerWarpRef.current;
+      const pointerWarpWanted = Boolean(
+        pointerWarp.initialized &&
+        pointerWarp.inside &&
+        !reducedMotion &&
+        !stellar.navigationLocked,
+      );
+      if (
+        stellar.clicks >= 9 ||
+        pointerWarpWanted ||
+        pointerWarp.opacity > 0.002
+      ) {
+        ensureLensRenderer();
+      }
+      if (pointerWarp.initialized) {
+        const followFactor =
+          dials.cursorLens.followLag <= 0
+            ? 1
+            : 1 - Math.exp(
+                (-3 * frameDelta) / dials.cursorLens.followLag,
+              );
+        pointerWarp.current.x +=
+          (pointerWarp.target.x - pointerWarp.current.x) * followFactor;
+        pointerWarp.current.y +=
+          (pointerWarp.target.y - pointerWarp.current.y) * followFactor;
+      }
+      const opacityTarget = pointerWarpWanted && lensRenderer ? 1 : 0;
+      const opacityFactor =
+        dials.cursorLens.fadeDuration <= 0
+          ? 1
+          : 1 - Math.exp(
+              (-3 * frameDelta) / dials.cursorLens.fadeDuration,
+            );
+      pointerWarp.opacity +=
+        (opacityTarget - pointerWarp.opacity) * opacityFactor;
+      if (Math.abs(opacityTarget - pointerWarp.opacity) < 0.001) {
+        pointerWarp.opacity = opacityTarget;
+      }
+      const pointerWarpFrame: PointerWarpFrame = {
+        center: pointerWarp.current,
+        radius: dials.cursorLens.radius,
+        strength: dials.cursorLens.strength,
+        opacity: reducedMotion ? 0 : pointerWarp.opacity,
+      };
       const gpuLensActive = Boolean(
         lensRenderer &&
         blackHole.visible &&
         blackHole.opacity > 0.02 &&
         blackHole.lensStrength > 0.02,
+      );
+      const cursorLensActive = Boolean(
+        lensRenderer && pointerWarpFrame.opacity > 0.002,
       );
 
       context.setTransform(viewport.dpr, 0, 0, viewport.dpr, 0, 0);
@@ -2060,7 +2115,10 @@ export function SpaceExplorer() {
           world,
           screen,
           visualSize,
-          hitSize: Math.max(22, visualSize * 0.58 * dials.bodies.hitScale),
+          hitSize: Math.max(
+            22,
+            visualSize * (body.id === "saturn" ? 1.05 : 0.58) * dials.bodies.hitScale,
+          ),
         });
       }
       renderedBodies.sort((a, b) => a.screen.y - b.screen.y);
@@ -2242,13 +2300,14 @@ export function SpaceExplorer() {
       );
 
       let lensRendered = false;
-      if (gpuLensActive && lensRenderer) {
+      if ((gpuLensActive || cursorLensActive) && lensRenderer) {
         try {
           lensRenderer.render({
             source: canvas,
             viewport,
             center: blackHoleCenter,
             frame: blackHole,
+            pointerWarp: pointerWarpFrame,
             elapsedSeconds,
             reducedMotion,
           });
@@ -2436,6 +2495,32 @@ export function SpaceExplorer() {
     else missionButtonsRef.current.delete(id);
   }, []);
 
+  const updatePointerWarp = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "mouse") return;
+    const point = getLocalPoint(event, event.currentTarget);
+    const viewport = viewportRef.current;
+    const pointerWarp = pointerWarpRef.current;
+    const inside =
+      point.x >= 0 &&
+      point.y >= 0 &&
+      point.x <= viewport.width &&
+      point.y <= viewport.height;
+
+    if (!pointerWarp.initialized || (!pointerWarp.inside && pointerWarp.opacity < 0.002)) {
+      pointerWarp.current = point;
+    }
+    pointerWarp.target = point;
+    pointerWarp.inside = inside;
+    pointerWarp.initialized = true;
+    requestDrawRef.current();
+  }, []);
+
+  const hidePointerWarp = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "mouse") return;
+    pointerWarpRef.current.inside = false;
+    requestDrawRef.current();
+  }, []);
+
   const handlePointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     if ((event.target as HTMLElement).closest(`.${styles.interfaceControl}`)) return;
     if (stellarRef.current.navigationLocked) return;
@@ -2511,6 +2596,7 @@ export function SpaceExplorer() {
   }, [markInteracted]);
 
   const handlePointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    updatePointerWarp(event);
     if (stellarRef.current.navigationLocked) return;
     if (!pointersRef.current.has(event.pointerId)) return;
     const root = event.currentTarget;
@@ -2589,7 +2675,7 @@ export function SpaceExplorer() {
     };
     cameraMovedRef.current = true;
     requestDrawRef.current();
-  }, []);
+  }, [updatePointerWarp]);
 
   const handlePointerEnd = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     const wasSinglePointer = pointersRef.current.size === 1;
@@ -2814,6 +2900,8 @@ export function SpaceExplorer() {
       style={chromeStyle}
       data-interaction="idle"
       data-cinematic={stellarUi.locked ? "true" : "false"}
+      onPointerEnter={updatePointerWarp}
+      onPointerLeave={hidePointerWarp}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerEnd}

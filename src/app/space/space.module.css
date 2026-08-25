@@ -98,9 +98,12 @@
 }
 
 .bodyTarget:hover,
-.bodyTarget:focus {
+.bodyTarget:focus,
+.bodyTarget:focus-visible {
+  outline: none;
   background: transparent;
   box-shadow: none;
+  filter: none;
 }
 
 .space[data-interaction="spin"] .bodyTarget {
@@ -118,7 +121,6 @@
 
 .missionTarget:focus-visible::before {
   border-color: rgb(93 226 245 / 78%);
-  box-shadow: 0 0 16px rgb(73 211 239 / 32%);
 }
 
 .bodyTarget::before {
@@ -133,7 +135,6 @@
 
 .bodyTarget:focus-visible::before {
   border-color: rgb(156 219 225 / 62%);
-  box-shadow: 0 0 12px rgb(97 194 214 / 20%);
   transform: rotate(45deg) scale(1.12);
 }
 

@@ -26,6 +26,10 @@ uniform float uOpacity;
 uniform float uPhotonIntensity;
 uniform float uTime;
 uniform float uReducedMotion;
+uniform vec2 uPointerCenter;
+uniform float uPointerRadius;
+uniform float uPointerStrength;
+uniform float uPointerOpacity;
 
 varying vec2 vUv;
 
@@ -59,6 +63,23 @@ void main() {
   vec2 warpedDelta =
     rotate2d(swirl) * direction * (radius + deflection);
   vec2 sampleUv = clamp(uCenter + warpedDelta / aspect, vec2(0.001), vec2(0.999));
+
+  vec2 pointerDelta = (vUv - uPointerCenter) * aspect;
+  float pointerDistance = length(pointerDelta);
+  float pointerT = clamp(
+    pointerDistance / max(uPointerRadius, 0.00001),
+    0.0,
+    1.0
+  );
+  float pointerEnvelope = sin(3.14159265 * pointerT);
+  pointerEnvelope *= pointerEnvelope;
+  vec2 pointerDirection = pointerDelta / max(pointerDistance, 0.00001);
+  vec2 pointerOffset =
+    pointerDirection / aspect *
+    uPointerStrength *
+    pointerEnvelope *
+    uPointerOpacity;
+  sampleUv = clamp(sampleUv + pointerOffset, vec2(0.001), vec2(0.999));
 
   float photonRadius = uHorizonRadius * 1.16;
   float photonBand =
@@ -117,11 +138,19 @@ void main() {
 }
 `;
 
+export type PointerWarpFrame = {
+  center: StellarPoint;
+  radius: number;
+  strength: number;
+  opacity: number;
+};
+
 export type BlackHoleLensRenderInput = {
   source: HTMLCanvasElement;
   viewport: { width: number; height: number };
   center: StellarPoint;
   frame: BlackHoleVisualFrame;
+  pointerWarp: PointerWarpFrame;
   elapsedSeconds: number;
   reducedMotion: boolean;
 };
@@ -173,6 +202,10 @@ export function createBlackHoleLensRenderer(
       uPhotonIntensity: { value: 0 },
       uTime: { value: 0 },
       uReducedMotion: { value: 0 },
+      uPointerCenter: { value: new Vec2(0.5, 0.5) },
+      uPointerRadius: { value: 0 },
+      uPointerStrength: { value: 0 },
+      uPointerOpacity: { value: 0 },
     },
   });
   const mesh = new Mesh(gl, { geometry, program });
@@ -186,6 +219,7 @@ export function createBlackHoleLensRenderer(
     viewport,
     center,
     frame,
+    pointerWarp,
     elapsedSeconds,
     reducedMotion,
   }: BlackHoleLensRenderInput) => {
@@ -223,6 +257,15 @@ export function createBlackHoleLensRenderer(
     program.uniforms.uLensStrength.value = frame.lensStrength;
     program.uniforms.uOpacity.value = frame.opacity;
     program.uniforms.uPhotonIntensity.value = frame.photonIntensity;
+    program.uniforms.uPointerCenter.value.set(
+      pointerWarp.center.x / Math.max(1, viewport.width),
+      1 - pointerWarp.center.y / Math.max(1, viewport.height),
+    );
+    program.uniforms.uPointerRadius.value =
+      pointerWarp.radius / Math.max(1, viewport.height);
+    program.uniforms.uPointerStrength.value =
+      pointerWarp.strength / Math.max(1, viewport.height);
+    program.uniforms.uPointerOpacity.value = pointerWarp.opacity;
     program.uniforms.uTime.value = reducedMotion ? 0 : elapsedSeconds;
     program.uniforms.uReducedMotion.value = reducedMotion ? 1 : 0;
     renderer.render({ scene: mesh });
