@@ -9,11 +9,14 @@ import { DarkVeil } from "@/components/DarkVeil";
 import { IntroReveal } from "@/components/IntroReveal";
 import { SocialIconLinks } from "@/components/SocialIconLinks";
 import { AgentModeShell } from "@/components/AgentModeShell";
+import { LatestCommit } from "@/components/LatestCommit";
 import { getAgentMarkdown } from "@/lib/agent-markdown";
+import { getLatestCommit } from "@/lib/latest-commit";
 
 export default async function Home() {
   const workDetails = site.work.map(workToDetail);
   const agentMarkdown = getAgentMarkdown();
+  const latestCommit = await getLatestCommit();
 
   return (
     <AgentModeShell markdown={agentMarkdown}>
@@ -55,12 +58,15 @@ export default async function Home() {
         </div>
 
         <div className="mt-16 space-y-16">
-          <Projects work={workDetails} />
+          <Projects work={workDetails} sideProjects={site.sideProjects} />
           <footer
             className="t-intro-item pt-8 text-xs text-zinc-400 dark:text-zinc-600"
             style={{ "--intro-index": 8 } as CSSProperties}
           >
-            © {site.name}
+            <LatestCommit
+              initial={latestCommit}
+              fallback={`© ${site.name}`}
+            />
           </footer>
         </div>
       </IntroReveal>

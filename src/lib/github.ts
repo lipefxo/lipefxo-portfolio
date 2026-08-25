@@ -19,6 +19,17 @@ export interface GitHubCommit {
   date: string;
 }
 
+/** Latest public commit, including diff stats for the homepage footer. */
+export interface LatestCommit {
+  repo: string;
+  message: string;
+  url: string;
+  sha: string;
+  date: string;
+  additions: number;
+  deletions: number;
+}
+
 export interface GitHubActivityDay {
   date: string;
   count: number;
@@ -44,6 +55,7 @@ interface GitHubRepoResponse {
   html_url: string;
   homepage: string | null;
   pushed_at: string;
+  default_branch: string;
   fork: boolean;
   archived: boolean;
 }
@@ -55,6 +67,7 @@ interface GitHubEventResponse {
     name: string;
   };
   payload?: {
+    head?: string;
     commits?: {
       sha: string;
       message: string;
@@ -71,6 +84,13 @@ interface GitHubCommitResponse {
     author: {
       date: string;
     } | null;
+    committer: {
+      date: string;
+    } | null;
+  };
+  stats?: {
+    additions: number;
+    deletions: number;
   };
 }
 
@@ -78,6 +98,16 @@ const emptyActivity: GitHubActivity = {
   days: [],
   commits: [],
 };
+
+function githubHeaders(): HeadersInit {
+  const headers: HeadersInit = {
+    Accept: "application/vnd.github+json",
+  };
+  if (process.env.GITHUB_TOKEN) {
+    headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  }
+  return headers;
+}
 
 /**
  * Fetches the user's PUBLIC repos from GitHub, filters out forks/archived,
@@ -88,12 +118,7 @@ const emptyActivity: GitHubActivity = {
  * Never touches private/work repos — those live in `site.work`.
  */
 export async function getRepos(): Promise<RepoData> {
-  const headers: HeadersInit = {
-    Accept: "application/vnd.github+json",
-  };
-  if (process.env.GITHUB_TOKEN) {
-    headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
-  }
+  const headers = githubHeaders();
 
   try {
     const [reposRes, eventsRes] = await Promise.all([
@@ -146,6 +171,46 @@ export async function getRepos(): Promise<RepoData> {
   } catch {
     return { featured: [], feed: [], activity: emptyActivity };
   }
+}
+
+/** Fetch a specific commit from a public GitHub repo, including diff stats. */
+export async function fetchRepoCommit(
+  fullName: string,
+  ref: string,
+): Promise<LatestCommit | null> {
+  try {
+    return await fetchCommit(fullName, ref, githubHeaders());
+  } catch {
+    return null;
+  }
+}
+
+async function fetchCommit(
+  fullName: string,
+  ref: string,
+  headers: HeadersInit,
+): Promise<LatestCommit | null> {
+  const res = await fetch(
+    `https://api.github.com/repos/${fullName}/commits/${ref}`,
+    { headers, cache: "no-store" },
+  );
+  if (!res.ok) return null;
+
+  const commit: GitHubCommitResponse = await res.json();
+  const repo = fullName.split("/").at(-1) ?? fullName;
+
+  return {
+    repo,
+    message: commit.commit.message.split("\n")[0],
+    url: commit.html_url,
+    sha: commit.sha.slice(0, 7),
+    date:
+      commit.commit.author?.date ??
+      commit.commit.committer?.date ??
+      new Date().toISOString(),
+    additions: commit.stats?.additions ?? 0,
+    deletions: commit.stats?.deletions ?? 0,
+  };
 }
 
 async function getLatestCommits(

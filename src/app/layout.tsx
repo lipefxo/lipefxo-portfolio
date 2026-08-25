@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Caveat, Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { site } from "@/config/site";
+import { RouteFadeCleanup } from "@/components/RouteFadeCleanup";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -54,6 +55,7 @@ export default function RootLayout({
         <Script id="theme-init" strategy="beforeInteractive">
           {themeScript}
         </Script>
+        <RouteFadeCleanup />
         {children}
       </body>
     </html>

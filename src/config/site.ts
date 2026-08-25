@@ -113,6 +113,19 @@ export interface CaseStudy {
   outcome?: { heading?: string; body: string[] };
 }
 
+/** A smaller, link-out playground shown as a circular logo under the case studies. */
+export interface SideProject {
+  name: string;
+  /** Quiet label used in agent mode and the logo tooltip, e.g. "Prototype". */
+  kind: string;
+  /** Short one-liner for agent mode. */
+  blurb: string;
+  /** In-app route to open, e.g. "/higlobe-prototype". */
+  href: string;
+  /** Circular mark shown on the homepage. */
+  logo: string;
+}
+
 export interface WorkProject {
   name: string;
   /** URL slug for the case-study page, e.g. "bags" -> /work/bags. */
@@ -200,6 +213,8 @@ export interface SiteConfig {
   featured: Record<string, FeaturedConfig>;
   /** Hand-authored private/work projects (no source links). */
   work: WorkProject[];
+  /** Compact link-out cards for interactive prototypes and playgrounds. */
+  sideProjects: SideProject[];
 }
 
 export const site: SiteConfig = {
@@ -978,6 +993,27 @@ export const site: SiteConfig = {
           "Seventeen merged PRs and around 9.6k net lines, solo, live at panorama.cash.",
         ],
       },
+    },
+  ],
+
+  // Interactive prototypes and playgrounds — compact cards that link out
+  // to in-app experiences instead of a case-study page.
+  sideProjects: [
+    {
+      name: "Higlobe",
+      kind: "Prototype",
+      blurb:
+        "A clickable prototype of a cross-border payments dashboard — send, receive, a card, and the little details that make a money product feel real.",
+      href: "/higlobe-prototype",
+      logo: "/higlobe-prototype/higlobecircle.svg",
+    },
+    {
+      name: "Solar System",
+      kind: "Playground",
+      blurb:
+        "A living pixel-art map of the solar system you can wander — planets, famous spacecraft, and a sun that can go a little too far.",
+      href: "/space",
+      logo: "/space/mark.svg",
     },
   ],
 };
