@@ -433,3 +433,64 @@ Motion was reviewed through focused browser frames:
 3. The production build was recaptured and retested. All four widths now report zero reveal duration and no transform, blur, or digit animation; the combined Paper/implementation comparison and focused motion frames show no remaining P0/P1/P2 issue.
 
 final result: passed
+
+---
+
+# Nxt Level Brand Showcase Refinement Design QA
+
+- Source visual truth: `.context/nxt-level-audit/13-desktop-full-accepted.png`, `.context/nxt-level-audit/14-mobile-full-accepted.png`, the approved Nxt Level brand-showcase refinement plan, and its Mobbin benchmark direction
+- Implementation route: `/nxt-level-prototype`
+- Target state: settled default landing page with calculator defaults, unsubmitted contact form, and the coin docked in normal motion
+- Comparison viewport: 1512 × 982 CSS px at device scale factor 1
+- Source dimensions: 1512 × 4750 px at 1× density
+- Implementation screenshot: `.context/nxt-level-refinement-qa/final-full-1512.png`
+- Implementation dimensions: 1512 × 4787 px at 1× density
+- Responsive evidence: `.context/nxt-level-refinement-qa/final-full-320.png`, `final-full-390.png`, `final-full-768.png`, `final-full-1024.png`, and `final-full-1512.png`
+
+## Full-view and focused comparison evidence
+
+The accepted pre-refinement desktop capture and final browser render were placed together in `.context/nxt-level-refinement-qa/comparison-full-desktop.png`. The implementation preserves the original section order, chess imagery, copy, calculator behavior, placement content, and contact flow while making the approved hierarchy, rhythm, surface, and affordance changes. The page remains within 37 px of the source desktop height while the mobile composition is 322 px shorter through tighter cadence and more compact process cards.
+
+Focused combined comparisons were opened and inspected for:
+
+- Hero scale, decorative service descriptors, client-logo treatment, and CTA hierarchy: `.context/nxt-level-refinement-qa/comparison-hero.png`
+- Calculator typography, controls, slider target area, result contrast, and unchanged values: `.context/nxt-level-refinement-qa/comparison-calculator.png`
+- Contact hierarchy, visible labels, fields, and footer balance: `.context/nxt-level-refinement-qa/comparison-contact.png`
+- Full 390 px responsive flow: `.context/nxt-level-refinement-qa/comparison-mobile.png`
+- Final docked states: `.context/nxt-level-refinement-qa/final-docked-1512.png` and `final-docked-390.png`
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain after the three visual passes.
+- The new desktop display scale is intentionally larger than the baseline and follows the approved brand-showcase direction; mobile headline sizing remains in the original 28–32 px range.
+- The monochrome client-logo cloud intentionally preserves differences in each supplied raster mark's gray value rather than forcing dark filters that expose embedded white backgrounds.
+- No P3 follow-up is required for the selected polish scope.
+
+## Required fidelity surfaces
+
+- Fonts and typography: Plus Jakarta Sans, weights, letter spacing, and copy are unchanged. The hero now reaches 48 px and section titles reach 32 px on wide desktop, with balanced wrapping and 26 px section titles on mobile.
+- Spacing and layout rhythm: desktop, tablet, and mobile section cadence is tighter without changing content order. The 640–900 px practice layout resolves to two columns with the third card spanning the row, and all five tested widths remain free of horizontal overflow.
+- Colors and tokens: the white, charcoal, burgundy, and copper palette remains intact. Borders and separators are clearer, shadows quieter, result artwork more visible, and the floating navigation uses an opaque blurred surface without background ghosting.
+- Image quality and assets: all original chess, placement, process, calculator, and client-logo assets remain in use with unchanged crops. Logo reveal motion is isolated on wrappers so the monochrome image treatment and transparency both remain stable.
+- Copy and content: no application copy, section order, calculator input, calculation, field, validation message, or success message changed.
+- Icons and affordances: arrows remain on real CTAs and were removed from noninteractive practice cards. Existing Hugeicons remain aligned and no replacement or generated assets were introduced.
+
+## Interaction and accessibility checks
+
+- [x] 320, 390, 768, 1024, and 1512 px screenshots report no overflow, clipping, console error, or uncaught page error.
+- [x] Hero CTAs remain 44 px high; the docked CTA is 44 px on desktop and mobile; sliders expose a 28 px interaction box.
+- [x] The first keyboard target remains `See the Numbers` with a visible 3 px outline.
+- [x] The custom role select works by keyboard and selects `Product Lead` through Arrow and Enter input.
+- [x] Calculator defaults remain `$330k`, `$190k`, and `$140k`; the adjusted test remains `$565k`, `$265k`, and `$300k`.
+- [x] Empty contact submission exposes five invalid fields and focuses `contact-name`; invalid email focuses `contact-email`; a valid submission keeps the approved success message.
+- [x] Both hero anchors retain `#offer-calculator` and `#contact` behavior.
+- [x] The coin docks successfully in normal motion, service descriptors are hidden in the mobile dock, and reduced-motion captures settle without reveal animation.
+- [x] Full ESLint, TypeScript, production build, and `git diff --check` pass.
+
+## Comparison history
+
+1. Pass 1 found two P2 polish issues: reveal blur overrode the intended logo filter, and the enlarged practice heading wrapped on wide desktop while page content remained faintly visible through the docked navigation.
+2. Reveal ownership moved to logo wrappers, heading widths expanded, and the navigation surface gained a stronger white backdrop and blur. Pass 2 confirmed the heading and dock fixes but exposed gray blocks around raster logos because brightness filtering darkened embedded white pixels.
+3. The brightness transform was removed in favor of grayscale plus light contrast. Pass 3 shows clean transparent logo presentation, and the final combined desktop, focused, mobile, and docked comparisons show no remaining P0/P1/P2 issue.
+
+final result: passed

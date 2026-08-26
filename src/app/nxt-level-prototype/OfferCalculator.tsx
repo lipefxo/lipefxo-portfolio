@@ -263,7 +263,6 @@ export function OfferCalculator() {
           />
         </div>
         <div className={styles.resultsIntro}>
-          <span className={styles.resultsEyebrow}>Illustrative demo</span>
           <h3>Your offer, annualized</h3>
           <p>
             {inputs.role} · {inputs.companyStage} · {inputs.location}

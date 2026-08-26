@@ -9,6 +9,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { ContactForm } from "./ContactForm";
 import { HeroCoin } from "./HeroCoin";
+import { NxtLevelBackground } from "./NxtLevelBackground";
 import { NxtLevelRevealController } from "./NxtLevelRevealController";
 import { OfferCalculator } from "./OfferCalculator";
 import styles from "./nxt-level-prototype.module.css";
@@ -124,6 +125,7 @@ export function NxtLevelLanding() {
   return (
     <main id="nxt-level-page" className={styles.page}>
       <NxtLevelRevealController rootId="nxt-level-page" />
+      <NxtLevelBackground />
       <div className={styles.lightSection}>
         <div className={styles.heroGroup}>
           <header
@@ -188,16 +190,20 @@ export function NxtLevelLanding() {
             </h2>
             <div className={styles.logoCloud}>
               {clientLogos.map((logo, index) => (
-                <Image
+                <div
                   key={logo.name}
-                  className={styles.clientLogo}
-                  src={logo.src}
-                  width={logo.width}
-                  height={logo.height}
-                  alt={logo.name}
+                  className={styles.clientLogoFrame}
                   data-nxt-reveal
                   style={revealDelay(index * 35)}
-                />
+                >
+                  <Image
+                    className={styles.clientLogo}
+                    src={logo.src}
+                    width={logo.width}
+                    height={logo.height}
+                    alt={logo.name}
+                  />
+                </div>
               ))}
             </div>
           </section>
@@ -236,13 +242,12 @@ export function NxtLevelLanding() {
                       src={practice.artwork}
                       alt=""
                       fill
-                      sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 900px) 100vw, 420px"
+                      sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 900px) 50vw, 420px"
                       style={{ objectPosition: practice.artworkPosition }}
                     />
                   </div>
                   <div className={styles.cardHeader}>
                     <h3>{practice.title}</h3>
-                    <ArrowIcon />
                   </div>
                   <div className={styles.tagList}>
                     {practice.tags.map((tag) => (

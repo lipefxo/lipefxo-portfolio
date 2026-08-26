@@ -100,7 +100,7 @@ export function ContactForm() {
     >
       <div className={styles.contactFieldPair}>
         <div className={styles.contactField}>
-          <label className={styles.visuallyHidden} htmlFor="contact-name">
+          <label className={styles.contactFieldLabel} htmlFor="contact-name">
             Your name
           </label>
           <TextInput
@@ -119,7 +119,7 @@ export function ContactForm() {
           ) : null}
         </div>
         <div className={styles.contactField}>
-          <label className={styles.visuallyHidden} htmlFor="contact-email">
+          <label className={styles.contactFieldLabel} htmlFor="contact-email">
             Work email
           </label>
           <TextInput
@@ -141,7 +141,7 @@ export function ContactForm() {
       </div>
       <div className={styles.contactFieldPair}>
         <div className={styles.contactField}>
-          <label className={styles.visuallyHidden} htmlFor="contact-company">
+          <label className={styles.contactFieldLabel} htmlFor="contact-company">
             Company
           </label>
           <TextInput
@@ -160,7 +160,7 @@ export function ContactForm() {
           ) : null}
         </div>
         <div className={styles.contactField}>
-          <label className={styles.visuallyHidden} htmlFor="contact-companyStage">
+          <label className={styles.contactFieldLabel} htmlFor="contact-companyStage">
             Company stage
           </label>
           <Select
@@ -180,7 +180,7 @@ export function ContactForm() {
         </div>
       </div>
       <div className={styles.contactField}>
-        <label className={styles.visuallyHidden} htmlFor="contact-hiringNeeds">
+        <label className={styles.contactFieldLabel} htmlFor="contact-hiringNeeds">
           What roles are you hiring for?
         </label>
         <TextArea
