@@ -250,3 +250,247 @@ Both source screenshots were opened at original resolution. They establish the s
 No visual iteration could be recorded because an implementation screenshot was unavailable.
 
 final result: blocked
+
+---
+
+# Nxt Level Responsive Landing Page Design QA
+
+- Source visual truth: `.context/nxt-level-qa/paper-source-1512x4926.png`
+- Implementation route: `/nxt-level-prototype`
+- Target state: default landing page with calculator defaults and unsubmitted contact form
+- Source dimensions: 1512 × 4926 px at the Paper export's 1× density
+- Comparison viewport: 1512 × 982 CSS px at device scale factor 1
+- Implementation screenshot: `.context/nxt-level-qa/implementation-desktop-1512.png`
+- Implementation dimensions: 1512 × 4990 px at 1× density
+- Responsive evidence:
+  - `.context/nxt-level-qa/implementation-desktop-1024.png` — 1024 × 4923 px
+  - `.context/nxt-level-qa/implementation-tablet-768.png` — 768 × 6581 px
+  - `.context/nxt-level-qa/implementation-mobile-390.png` — 390 × 7772 px
+
+## Full-view and focused comparison evidence
+
+The Paper source and the final 1512 px browser capture were opened together in the same comparison input at matched 1× density. The implementation preserves the source's centered hero, seven-logo proof cluster, expertise statement, three practice cards, five-stage search process, split calculator, three placement cards, four metrics, and split dark contact footer. The full-page height differs by 64 px (about 1.3%) because the functional calculator result adds explanatory labels and the local-only form adds a no-data notice; these are approved product-behavior additions and do not change the section order or proportions materially.
+
+Focused browser captures were also opened at original resolution:
+
+- `.context/nxt-level-qa/implementation-focus-hero.png` confirms the orb overlap, headline wrapping, audience line, and two CTAs.
+- `.context/nxt-level-qa/implementation-focus-calculator.png` confirms field density, split-panel balance, burgundy estimate hierarchy, and the exact `$330k` / `$190k` / `$140k` defaults.
+- `.context/nxt-level-qa/implementation-focus-contact.png` confirms footer contrast, two-column pitch/form layout, readable controls, and aligned bottom metadata.
+- The logo cluster was inspected in the full desktop capture because it is rendered large enough there to judge sharpness and spacing; all seven marks are direct Paper exports.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain after the second visual pass.
+- The implementation intentionally provides more detail inside the calculator result than the structural Paper frame. This is consistent with the approved functional scope and remains visually subordinate to the annual total.
+- No P3 follow-up is required for the structure-first milestone; deeper brand and art-direction refinements remain deliberately deferred rather than treated as fidelity defects.
+
+## Required fidelity surfaces
+
+- Fonts and typography: Plus Jakarta Sans renders with the intended weights, compact letter spacing, balanced hero wrapping, and readable small UI labels across all four widths.
+- Spacing and layout rhythm: the 1256 px desktop content width, generous section cadence, desktop card tracks, tablet wrapping, and mobile stacking visually match the Paper structure without clipped content or horizontal overflow.
+- Colors and tokens: white and neutral surfaces, charcoal footer, and muted burgundy accents render consistently; contrast and focus treatment remain clear in the inspected states.
+- Image quality and assets: all seven client logos plus the hero and avatar orbs are local Paper exports. The final capture shows sharp scaling, correct transparency, and no placeholder or code-drawn substitute assets.
+- Copy and content: all approved sections, claims, metrics, labels, and grammar corrections are present. Functional calculator and form guidance is concise and does not displace source content.
+
+## Implementation checks
+
+- [x] New route is isolated from the portfolio homepage and Higlobe prototype.
+- [x] Static content remains server-rendered; only the calculator and contact form are client components.
+- [x] Top Hire, Find, and Contact pills are non-interactive text.
+- [x] Hero actions target the calculator and contact sections.
+- [x] Calculator defaults server-render as `$330k` total, `$190k` cash, and `$140k` annualized equity.
+- [x] Calculator guards empty, negative, and invalid numeric values.
+- [x] Contact form includes required-field and email validation, local success messaging, focus movement to the first invalid field, and no network submission.
+- [x] Responsive CSS covers desktop, tablet, and mobile section layouts with a two-column mobile metrics grid.
+- [x] Focus-visible and reduced-motion styles are present.
+- [x] Exact Paper client logos and reference orb assets are stored locally; Hugeicons supplies interface icons.
+- [x] Playwright captured the live production route at 1512 px, 1024 px, 768 px, and 390 px; all widths report no horizontal overflow.
+- [x] Default calculator values, live recalculation to `$355k`, and invalid numeric handling pass.
+- [x] Empty contact submission exposes five errors and focuses the name field; invalid email focuses the email field; a valid local submission shows confirmation; editing clears the success state.
+- [x] The first keyboard Tab target is `See the Numbers` with a visible 3 px outline; static header pills remain outside the tab order.
+- [x] Both hero anchor CTAs reach their intended sections, and reduced-motion emulation resolves root scroll behavior to `auto`.
+- [x] Browser console errors and uncaught page errors are both zero in the final production capture run.
+- [x] The Paper source and final desktop screenshot were reviewed together, with focused hero, calculator, and contact evidence plus separate responsive review.
+- [x] ESLint, TypeScript through the production build, route HTTP response, and `git diff --check` pass.
+
+## Comparison history
+
+1. First combined comparison at 1512 px found a P2 dark strip in the reserved scrollbar gutter. The route's white page was inheriting the portfolio root's dark HTML color scheme and body background outside the main content box.
+2. The route stylesheet now scopes a white HTML/body background and light color scheme through `:has(.page)`, preserving all other routes. The unsupported `quality={100}` logo override was also removed to eliminate Next Image runtime warnings.
+3. The page was rebuilt, recaptured at all four widths, and the revised 1512 px screenshot was compared with the Paper source in one input. The dark gutter is gone, the source structure remains intact, responsive screenshots remain overflow-free, and no P0/P1/P2 difference remains.
+
+final result: passed
+
+---
+
+# Nxt Level Sculptural Bronze Hero Coin Design QA
+
+- Art-direction truth: `/Users/lipe/.codex/generated_images/01a03b5e-a163-71e1-9879-cebedbf4cccd/exec-f4eb6a91-ff12-46dc-9b32-8e5e4053fe6b.png`
+- Layout and typography truth: `.context/nxt-level-qa/paper-source-1512x4926.png`
+- Implementation route: `/nxt-level-prototype`
+- Target state: selected Option 3 coin retained through entrance, ambient float, pointer tilt, reduced motion, and WebGL-disabled fallback
+- Matched coin comparison: `.context/nxt-level-qa/option-3-implementation-comparison.png`
+- Focused implementation: `.context/nxt-level-qa/implementation-focus-hero.png`
+- Interaction evidence:
+  - `.context/nxt-level-qa/implementation-coin-neutral.png`
+  - `.context/nxt-level-qa/implementation-coin-tilt-left.png`
+  - `.context/nxt-level-qa/implementation-coin-tilt-right.png`
+  - `.context/nxt-level-qa/implementation-coin-settled.png`
+  - `.context/nxt-level-qa/implementation-coin-fallback.png`
+
+## Full-view and focused comparison evidence
+
+The selected Option 3 target and the rendered neutral coin were normalized to matched 280 × 280 px crops and opened together in one comparison input. The implementation retains the target's dark oxblood-bronze body, copper-worn horse relief, left-edge depth, rounded perimeter grooves, and compact floating shadow. The production hero capture confirms that the surrounding headline, audience line, CTAs, overlap, and 280 px desktop footprint remain unchanged.
+
+The raster coin is now the persistent visual instead of a temporary loading layer. This removes the visible asset swap identified during review while preserving the chosen coin's exact texture and sculptural detail throughout the component's motion. The normal-motion captures show restrained left and right pointer response plus a smooth neutral return without a full spin or drag gesture.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain after removing the alternate rendered face.
+- The implementation coin is slightly cleaner and darker than the broad Option 3 composition crop, but this is the exact first-render asset explicitly selected during live review and is therefore the approved visual truth for the shipped component.
+- No P3 follow-up is required for the approved motion direction.
+
+## Motion, fallback, and responsive checks
+
+- [x] The correct dark bronze coin is visible from first paint and remains visible after client readiness; no replacement artwork or flash occurs.
+- [x] The stage retains a 280 × 280 px desktop footprint and a 216 × 216 px mobile footprint.
+- [x] The 850 ms entrance preserves the existing hero reveal sequence; ambient motion uses a 6.8 s float with approximately ±6 px travel and ±1.5° roll.
+- [x] Fine-pointer input produces restrained 10°/14° tilt, slight translation, a moving highlight, and a damped return after pointer exit.
+- [x] Coarse-pointer behavior remains scroll-safe through `touch-action: pan-y`; no dragging, full spin, or scroll choreography was added.
+- [x] Intersection and visibility observers pause animation offscreen or in hidden tabs, and all observers, listeners, and animation frames are released on unmount.
+- [x] Reduced-motion output is static, removes the entrance animation and highlight, and reports no frame difference after 450 ms.
+- [x] A WebGL-disabled browser run resolves to the fallback state with the approved coin image fully visible.
+- [x] Responsive production captures at 1512, 1024, 768, and 390 px show no horizontal overflow or hero layout regression.
+- [x] Neutral, left-tilt, right-tilt, and settled screenshots differ as expected; the approved relief, worn highlights, depth, and shadow remain readable in each state.
+- [x] CTA anchors, calculator and form behavior, keyboard order, focus treatment, and static navigation pills remain unchanged.
+- [x] Browser console errors and uncaught page errors are zero across the production QA run.
+- [x] Targeted ESLint, TypeScript, production build, and `git diff --check` pass.
+
+## Comparison history
+
+1. The first interactive pass replaced the correct loading artwork with a procedurally shaded coin whose horse relief and copper tone did not match Option 3. This was a P1 art-direction mismatch.
+2. The selected first-render coin was promoted to the persistent visual, and the entrance, ambient float, pointer tilt, moving highlight, visibility pausing, reduced-motion treatment, and fallback state were applied directly to it.
+3. The production build was recaptured across all four target widths. The matched Option 3/implementation comparison and focused motion states show no remaining P0/P1/P2 difference, and the full interaction suite passes without console or page errors.
+
+final result: passed
+
+---
+
+# Nxt Level Reveal Motion Design QA
+
+- Source visual truth: `.context/nxt-level-qa/paper-source-1512x4926.png`
+- Implementation route: `/nxt-level-prototype`
+- Target state: settled default landing page plus normal-motion hero entry, calculator re-entry, calculator value update, and reduced-motion states
+- Source dimensions: 1512 × 4926 px at 1× density
+- Settled implementation screenshot: `.context/nxt-level-qa/implementation-desktop-1512.png`
+- Settled implementation dimensions: 1512 × 4990 px at 1× density
+- Comparison viewport: 1512 × 982 CSS px at device scale factor 1
+- Responsive settled evidence:
+  - `.context/nxt-level-qa/implementation-desktop-1024.png` — 1024 × 4923 px
+  - `.context/nxt-level-qa/implementation-tablet-768.png` — 768 × 6581 px
+  - `.context/nxt-level-qa/implementation-mobile-390.png` — 390 × 7772 px
+
+## Full-view and focused comparison evidence
+
+The original Paper export and the final settled 1512 px implementation capture were opened together in the same comparison input at matched 1× density. The animation hooks do not change the page's geometry, section order, typography, card dimensions, logo treatment, calculator layout, metrics, or footer. The settled capture remains visually equivalent to the previously passed structure-first implementation.
+
+Motion was reviewed through focused browser frames:
+
+- `.context/nxt-level-qa/motion-hero-start.png`, `.context/nxt-level-qa/motion-hero-mid.png`, and `.context/nxt-level-qa/motion-hero-settled.png` are 1512 × 982 px captures showing the load sequence from hidden state through staggered hero content to the fully resolved logo cluster.
+- `.context/nxt-level-qa/motion-calculator-reentry-mid.png` and `.context/nxt-level-qa/motion-calculator-reentry-settled.png` are matched 1245 × 743 px element captures. The mid-state shows the intended soft lift/deblur at 33% opacity; the settled state returns to sharp 1.0 opacity without moving the calculator's layout position.
+- The final responsive captures were inspected separately at 1024 px, 768 px, and 390 px. Every layout remains settled, complete, and free of horizontal overflow under reduced-motion emulation.
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain after the reduced-motion specificity fix.
+- The brief blur visible during the calculator's mid-reveal is intentional, resolves within the 640 ms entrance, and does not affect the settled text or interaction state.
+- No P3 polish issue remains for the approved restrained motion direction.
+
+## Required fidelity surfaces
+
+- Fonts and typography: reveal transforms do not change line breaks, weights, antialiasing, or hierarchy; all text returns to the same settled rendering as the passing static comparison.
+- Spacing and layout rhythm: reveal motion uses compositor-only opacity, transform, and filter changes. The calculator output keeps the same `offsetTop` of 2956 before, during, and after replay, confirming no layout shift.
+- Colors and tokens: the route retains its white, neutral, charcoal, and burgundy palette. Motion only changes temporary opacity and blur, with no new color or surface drift.
+- Image quality and assets: direct Paper logo and orb exports remain unchanged. Logo staging resolves to the same sharp scale and transparency as the source-aligned settled view.
+- Copy and content: no copy changed. Calculator digit spans preserve `$355k` visually while the parent exposes `Estimated annual total: $355,000` to assistive technology.
+
+## Motion and interaction checks
+
+- [x] One route-scoped observer controls all reveal elements without converting the server-rendered landing content into a client component.
+- [x] Hero delays resolve to 0, 70, 130, 190, and 250 ms; practice cards resolve to 0, 70, and 140 ms.
+- [x] The calculator output enters at full opacity, resets to `data-nxt-visible="false"` after leaving the viewport, and replays when it re-enters.
+- [x] Calculator re-entry was sampled at 0.333 opacity mid-transition and 1.0 opacity after settling, with a stable layout position.
+- [x] Recalculating the offer to `$355k` starts five character animations and retains the exact accessible full-currency label.
+- [x] Reduced-motion emulation at 1512 px, 1024 px, 768 px, and 390 px produces opacity 1, transform `none`, filter `none`, transition duration `0s`, zero digit animations, and non-animated anchor scrolling.
+- [x] Both anchor CTAs, calculator validation, contact validation and success, keyboard order, and the 3 px focus outline remain unchanged.
+- [x] Browser console errors and uncaught page errors are zero across all final runs.
+- [x] ESLint, the production build, and `git diff --check` pass.
+
+## Comparison history
+
+1. The first motion browser pass found a P2 accessibility mismatch: the higher-specificity visible reveal state overrode the reduced-motion declaration, leaving a 640 ms desktop transition, 560 ms mobile transition, and a settled transform matrix active.
+2. The reduced-motion rule was strengthened at the route boundary so opacity, transform, filter, and transition always settle immediately. Digit animation was already disabled by the shared transition guard.
+3. The production build was recaptured and retested. All four widths now report zero reveal duration and no transform, blur, or digit animation; the combined Paper/implementation comparison and focused motion frames show no remaining P0/P1/P2 issue.
+
+final result: passed
+
+---
+
+# Nxt Level Brand Showcase Refinement Design QA
+
+- Source visual truth: `.context/nxt-level-audit/13-desktop-full-accepted.png`, `.context/nxt-level-audit/14-mobile-full-accepted.png`, the approved Nxt Level brand-showcase refinement plan, and its Mobbin benchmark direction
+- Implementation route: `/nxt-level-prototype`
+- Target state: settled default landing page with calculator defaults, unsubmitted contact form, and the coin docked in normal motion
+- Comparison viewport: 1512 × 982 CSS px at device scale factor 1
+- Source dimensions: 1512 × 4750 px at 1× density
+- Implementation screenshot: `.context/nxt-level-refinement-qa/final-full-1512.png`
+- Implementation dimensions: 1512 × 4787 px at 1× density
+- Responsive evidence: `.context/nxt-level-refinement-qa/final-full-320.png`, `final-full-390.png`, `final-full-768.png`, `final-full-1024.png`, and `final-full-1512.png`
+
+## Full-view and focused comparison evidence
+
+The accepted pre-refinement desktop capture and final browser render were placed together in `.context/nxt-level-refinement-qa/comparison-full-desktop.png`. The implementation preserves the original section order, chess imagery, copy, calculator behavior, placement content, and contact flow while making the approved hierarchy, rhythm, surface, and affordance changes. The page remains within 37 px of the source desktop height while the mobile composition is 322 px shorter through tighter cadence and more compact process cards.
+
+Focused combined comparisons were opened and inspected for:
+
+- Hero scale, decorative service descriptors, client-logo treatment, and CTA hierarchy: `.context/nxt-level-refinement-qa/comparison-hero.png`
+- Calculator typography, controls, slider target area, result contrast, and unchanged values: `.context/nxt-level-refinement-qa/comparison-calculator.png`
+- Contact hierarchy, visible labels, fields, and footer balance: `.context/nxt-level-refinement-qa/comparison-contact.png`
+- Full 390 px responsive flow: `.context/nxt-level-refinement-qa/comparison-mobile.png`
+- Final docked states: `.context/nxt-level-refinement-qa/final-docked-1512.png` and `final-docked-390.png`
+
+## Findings
+
+- No actionable P0, P1, or P2 findings remain after the three visual passes.
+- The new desktop display scale is intentionally larger than the baseline and follows the approved brand-showcase direction; mobile headline sizing remains in the original 28–32 px range.
+- The monochrome client-logo cloud intentionally preserves differences in each supplied raster mark's gray value rather than forcing dark filters that expose embedded white backgrounds.
+- No P3 follow-up is required for the selected polish scope.
+
+## Required fidelity surfaces
+
+- Fonts and typography: Plus Jakarta Sans, weights, letter spacing, and copy are unchanged. The hero now reaches 48 px and section titles reach 32 px on wide desktop, with balanced wrapping and 26 px section titles on mobile.
+- Spacing and layout rhythm: desktop, tablet, and mobile section cadence is tighter without changing content order. The 640–900 px practice layout resolves to two columns with the third card spanning the row, and all five tested widths remain free of horizontal overflow.
+- Colors and tokens: the white, charcoal, burgundy, and copper palette remains intact. Borders and separators are clearer, shadows quieter, result artwork more visible, and the floating navigation uses an opaque blurred surface without background ghosting.
+- Image quality and assets: all original chess, placement, process, calculator, and client-logo assets remain in use with unchanged crops. Logo reveal motion is isolated on wrappers so the monochrome image treatment and transparency both remain stable.
+- Copy and content: no application copy, section order, calculator input, calculation, field, validation message, or success message changed.
+- Icons and affordances: arrows remain on real CTAs and were removed from noninteractive practice cards. Existing Hugeicons remain aligned and no replacement or generated assets were introduced.
+
+## Interaction and accessibility checks
+
+- [x] 320, 390, 768, 1024, and 1512 px screenshots report no overflow, clipping, console error, or uncaught page error.
+- [x] Hero CTAs remain 44 px high; the docked CTA is 44 px on desktop and mobile; sliders expose a 28 px interaction box.
+- [x] The first keyboard target remains `See the Numbers` with a visible 3 px outline.
+- [x] The custom role select works by keyboard and selects `Product Lead` through Arrow and Enter input.
+- [x] Calculator defaults remain `$330k`, `$190k`, and `$140k`; the adjusted test remains `$565k`, `$265k`, and `$300k`.
+- [x] Empty contact submission exposes five invalid fields and focuses `contact-name`; invalid email focuses `contact-email`; a valid submission keeps the approved success message.
+- [x] Both hero anchors retain `#offer-calculator` and `#contact` behavior.
+- [x] The coin docks successfully in normal motion, service descriptors are hidden in the mobile dock, and reduced-motion captures settle without reveal animation.
+- [x] Full ESLint, TypeScript, production build, and `git diff --check` pass.
+
+## Comparison history
+
+1. Pass 1 found two P2 polish issues: reveal blur overrode the intended logo filter, and the enlarged practice heading wrapped on wide desktop while page content remained faintly visible through the docked navigation.
+2. Reveal ownership moved to logo wrappers, heading widths expanded, and the navigation surface gained a stronger white backdrop and blur. Pass 2 confirmed the heading and dock fixes but exposed gray blocks around raster logos because brightness filtering darkened embedded white pixels.
+3. The brightness transform was removed in favor of grayscale plus light contrast. Pass 3 shows clean transparent logo presentation, and the final combined desktop, focused, mobile, and docked comparisons show no remaining P0/P1/P2 issue.
+
+final result: passed
