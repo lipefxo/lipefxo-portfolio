@@ -120,6 +120,7 @@
 }
 
 .hero {
+  --hero-coin-size: clamp(280px, 25vw, 380px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -127,12 +128,126 @@
 
 .heroCoin {
   position: relative;
+  z-index: 0;
   isolation: isolate;
-  width: clamp(216px, 18.52vw, 280px);
+  width: var(--hero-coin-size);
   aspect-ratio: 1;
   flex: 0 0 auto;
+  margin-bottom: calc(var(--hero-coin-size) * -0.12);
   perspective: 900px;
   touch-action: pan-y;
+}
+
+.scrollCoin {
+  position: fixed;
+  z-index: 51;
+  top: 0;
+  left: 0;
+  display: block;
+  visibility: hidden;
+  pointer-events: none;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.scrollCoin[data-positioned="true"] {
+  visibility: visible;
+}
+
+.floatingNav {
+  position: fixed;
+  z-index: 50;
+  top: max(16px, env(safe-area-inset-top));
+  right: 0;
+  left: 0;
+  display: flex;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  margin-inline: auto;
+  pointer-events: none;
+}
+
+.floatingNavSurface {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border: 1px solid rgb(228 228 228 / 82%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 94%);
+  box-shadow:
+    0 12px 34px rgb(23 20 20 / 10%),
+    0 2px 8px rgb(23 20 20 / 5%);
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.97);
+  transform-origin: 50% 0;
+  will-change: opacity, transform;
+}
+
+.floatingNavCoinSlot {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  perspective: 900px;
+}
+
+.floatingNavPillList {
+  position: relative;
+  z-index: 1;
+  gap: 6px;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.floatingNavPill {
+  min-height: 36px;
+  padding: 10px 14px;
+  background: rgb(248 248 248 / 86%);
+  font-size: 13px;
+}
+
+.floatingNavCta {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--nxt-accent);
+  border-radius: 999px;
+  padding: 9px 14px;
+  background: var(--nxt-accent);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  text-decoration: none;
+  white-space: nowrap;
+  will-change: opacity;
+}
+
+.floatingNav[data-docked="true"] .floatingNavCta {
+  pointer-events: auto;
+}
+
+.floatingNavCta:hover {
+  border-color: var(--nxt-accent-hover);
+  background: var(--nxt-accent-hover);
+}
+
+.floatingNavCta:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--nxt-accent) 36%, transparent);
+  outline-offset: 3px;
 }
 
 .heroCoinVisual,
@@ -164,6 +279,16 @@
     rotateZ(calc(var(--coin-roll) * 1deg));
   transform-style: preserve-3d;
   will-change: transform;
+}
+
+.heroCoinVisualSettled,
+.heroCoinVisualDocked {
+  animation: none;
+}
+
+.heroCoinVisualDocked {
+  transform: none;
+  will-change: auto;
 }
 
 .heroCoinArtwork {
@@ -200,12 +325,13 @@
 }
 
 .heroCopy {
+  position: relative;
+  z-index: 1;
   display: flex;
   width: min(100%, 526px);
   flex-direction: column;
   align-items: center;
   gap: 32px;
-  margin-top: -24px;
 }
 
 .heroText {
@@ -247,14 +373,14 @@
 .secondaryButton,
 .footerButton {
   display: inline-flex;
-  min-height: 50px;
+  min-height: 40px;
   align-items: center;
   justify-content: center;
   gap: 8px;
   border-radius: 999px;
-  padding: 13px 24px;
+  padding: 9px 16px;
   font-family: inherit;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -293,9 +419,10 @@
 .primaryButton:focus-visible,
 .secondaryButton:focus-visible,
 .footerButton:focus-visible,
-.page input:focus-visible,
-.page select:focus-visible,
-.page textarea:focus-visible,
+.selectTrigger:focus-visible,
+.control:focus-visible,
+.textareaControl:focus-visible,
+.sliderInput:focus-visible,
 .footer a:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--nxt-accent) 36%, transparent);
   outline-offset: 3px;
@@ -335,7 +462,6 @@
   object-fit: contain;
 }
 
-.intro,
 .sectionHeading,
 .sectionHeadingWide {
   display: flex;
@@ -343,10 +469,6 @@
   align-items: center;
   gap: 16px;
   text-align: center;
-}
-
-.intro {
-  width: min(100%, 378px);
 }
 
 .section,
@@ -381,7 +503,6 @@
   text-wrap: balance;
 }
 
-.introBody,
 .sectionBodyCompact,
 .sectionBodyWide {
   margin: 0;
@@ -418,6 +539,11 @@
   gap: 20px;
 }
 
+.cardReveal {
+  min-width: 0;
+  height: 100%;
+}
+
 .practiceCard,
 .processCard,
 .calculatorPanel,
@@ -427,6 +553,17 @@
   border-radius: 14px;
   background: #ffffff;
   box-shadow: 0 1px 5px rgb(0 0 0 / 3%);
+}
+
+.practiceCard,
+.processCard,
+.placementCard {
+  position: relative;
+  height: 100%;
+  transition:
+    background-color 240ms var(--nxt-reveal-ease),
+    border-color 240ms var(--nxt-reveal-ease),
+    box-shadow 240ms var(--nxt-reveal-ease);
 }
 
 .practiceCard {
@@ -440,7 +577,7 @@
   gap: 20px;
   overflow: hidden;
   border-color: rgb(255 255 255 / 12%);
-  padding: 32px;
+  padding: 24px;
   background: #17191a;
   box-shadow: 0 12px 36px rgb(17 14 14 / 12%);
   color: #ffffff;
@@ -460,7 +597,9 @@
     ),
     linear-gradient(90deg, rgb(10 12 14 / 18%), transparent 62%);
   content: "";
+  opacity: 1;
   pointer-events: none;
+  transition: opacity 400ms ease;
 }
 
 .practiceArtwork {
@@ -471,6 +610,12 @@
 
 .practiceArtwork img {
   object-fit: cover;
+  transform: scale(1);
+  transition: transform 720ms var(--nxt-reveal-ease);
+}
+
+.practiceCard .cardHeader svg {
+  transition: transform 240ms var(--nxt-reveal-ease);
 }
 
 .cardHeader {
@@ -532,19 +677,39 @@
 .processGrid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 20px;
+  gap: 10px;
   list-style: none;
 }
 
 .processCard {
   display: flex;
   min-width: 0;
-  min-height: 320px;
+  min-height: 240px;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 32px;
+  gap: 20px;
   padding: 24px;
+}
+
+.processArtwork {
+  display: flex;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 6px 8px rgb(23 20 20 / 14%));
+  transform: scale(1);
+  transition:
+    filter 320ms var(--nxt-reveal-ease),
+    transform 320ms var(--nxt-reveal-ease);
+}
+
+.processArtwork img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .stepLabel,
@@ -555,6 +720,11 @@
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1;
+}
+
+.stepLabel,
+.processCopy h3 {
+  transition: color 240ms var(--nxt-reveal-ease);
 }
 
 .processCopy {
@@ -592,6 +762,8 @@
 }
 
 .calculatorPanel {
+  position: relative;
+  z-index: 1;
   gap: 32px;
 }
 
@@ -645,11 +817,85 @@
   gap: 7px;
 }
 
-.field select,
-.field input,
-.contactField select,
-.contactField input,
-.contactField textarea {
+.sliderHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sliderValue {
+  color: var(--nxt-accent);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.sliderInput {
+  --slider-progress: 0%;
+  display: block;
+  width: 100%;
+  height: 18px;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  accent-color: var(--nxt-accent);
+}
+
+.sliderInput::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--nxt-accent) var(--slider-progress),
+    var(--nxt-border) var(--slider-progress)
+  );
+}
+
+.sliderInput::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  background: var(--nxt-accent);
+  box-shadow: 0 1px 4px rgb(23 20 20 / 18%);
+}
+
+.sliderInput:focus {
+  outline: none;
+}
+
+.sliderInput::-moz-range-track {
+  height: 6px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--nxt-border);
+}
+
+.sliderInput::-moz-range-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--nxt-accent);
+}
+
+.sliderInput::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  background: var(--nxt-accent);
+  box-shadow: 0 1px 4px rgb(23 20 20 / 18%);
+}
+
+.control,
+.selectTrigger,
+.textareaControl,
+.inputAffix {
   width: 100%;
   min-width: 0;
   border: 1px solid var(--nxt-border);
@@ -663,33 +909,151 @@
   line-height: 1.2;
 }
 
-.field select,
-.field input {
+.control,
+.selectTrigger,
+.textareaControl,
+.affixControl {
+  appearance: none;
+}
+
+.control,
+.textareaControl,
+.affixControl {
+  cursor: text;
+}
+
+.selectTrigger,
+.selectOption {
+  margin: 0;
+}
+
+.field .control,
+.field .selectTrigger,
+.field .inputAffix {
   height: 46px;
   padding: 0 14px;
 }
 
+.select {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.select[data-open="true"] {
+  z-index: 8;
+}
+
+.field:has(.select[data-open="true"]),
+.contactField:has(.select[data-open="true"]) {
+  z-index: 8;
+}
+
+.selectTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--nxt-surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.selectTrigger span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selectTrigger[data-placeholder] {
+  color: #756f6f;
+}
+
+.selectTrigger[aria-expanded="true"] {
+  border-color: #cccccc;
+}
+
+.selectChevron {
+  display: flex;
+  flex: 0 0 auto;
+  color: #686363;
+  transition: transform 180ms var(--nxt-reveal-ease);
+}
+
+.select[data-open="true"] .selectChevron {
+  transform: rotate(180deg);
+}
+
+.selectMenu {
+  position: absolute;
+  z-index: 8;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid var(--nxt-border);
+  border-radius: 14px;
+  padding: 6px;
+  background: rgb(255 255 255 / 96%);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 10%), 0 2px 8px rgb(0 0 0 / 5%);
+  backdrop-filter: blur(12px);
+}
+
+.selectOption {
+  display: flex;
+  width: 100%;
+  min-height: 38px;
+  align-items: center;
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: transparent;
+  color: var(--nxt-text-soft);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-align: left;
+}
+
+.selectOption:hover,
+.selectOption:focus-visible,
+.selectOption[data-active="true"] {
+  background: var(--nxt-surface-strong);
+  outline: none;
+}
+
+.selectOption[aria-selected="true"] {
+  background: color-mix(in srgb, var(--nxt-accent) 8%, var(--nxt-surface));
+  color: var(--nxt-accent);
+}
+
 .inputAffix {
   display: flex;
-  height: 46px;
   min-width: 0;
   align-items: center;
   gap: 5px;
-  border: 1px solid var(--nxt-border);
-  border-radius: 14px;
-  padding: 0 14px;
-  background: var(--nxt-surface);
   color: #686363;
   font-size: 14px;
   font-weight: 600;
 }
 
-.inputAffix input {
+.affixControl {
+  width: 100%;
+  min-width: 0;
   height: 100%;
   border: 0;
   border-radius: 0;
   padding: 0;
   background: transparent;
+  color: var(--nxt-text-soft);
+  font: inherit;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   outline: none;
 }
 
@@ -698,7 +1062,7 @@
   outline-offset: 3px;
 }
 
-.inputAffix input:focus-visible {
+.affixControl:focus-visible {
   outline: none;
 }
 
@@ -846,6 +1210,7 @@
   background: #17191a;
   box-shadow: 0 2px 10px rgb(23 20 20 / 12%);
   object-fit: cover;
+  transition: transform 240ms var(--nxt-reveal-ease);
 }
 
 .personHeader div {
@@ -999,20 +1364,20 @@
   position: relative;
 }
 
-.contactField input,
-.contactField select {
+.contactField .control,
+.contactField .selectTrigger {
   min-height: 50px;
   padding: 15px 16px;
 }
 
-.contactField textarea {
+.textareaControl {
   min-height: 120px;
   resize: vertical;
   padding: 18px 16px;
 }
 
-.contactField input::placeholder,
-.contactField textarea::placeholder {
+.control::placeholder,
+.textareaControl::placeholder {
   color: #756f6f;
   opacity: 1;
 }
@@ -1041,7 +1406,6 @@
   background: transparent;
   color: #f8f8f8;
   cursor: pointer;
-  font-size: 16px;
 }
 
 .footerButton:hover {
@@ -1095,6 +1459,52 @@
   border: 0;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .selectTrigger:hover,
+  .control:hover,
+  .textareaControl:hover,
+  .inputAffix:hover {
+    border-color: #cccccc;
+  }
+
+  .practiceCard:hover {
+    border-color: rgb(255 255 255 / 28%);
+    box-shadow: 0 14px 30px rgb(17 14 14 / 14%);
+  }
+
+  .practiceCard:hover::before {
+    opacity: 0.82;
+  }
+
+  .practiceCard:hover .practiceArtwork img {
+    transform: scale(1.07);
+  }
+
+  .practiceCard:hover .cardHeader svg {
+    transform: translate(3px, -3px);
+  }
+
+  .processCard:hover,
+  .placementCard:hover {
+    border-color: rgb(96 31 36 / 18%);
+    box-shadow: 0 8px 20px rgb(17 14 14 / 6%);
+  }
+
+  .processCard:hover .stepLabel,
+  .processCard:hover .processCopy h3 {
+    color: var(--nxt-accent);
+  }
+
+  .processCard:hover .processArtwork {
+    filter: drop-shadow(0 8px 10px rgb(23 20 20 / 20%));
+    transform: scale(1.06);
+  }
+
+  .placementCard:hover .personAvatar {
+    transform: scale(1.06);
+  }
+}
+
 @media (max-width: 1100px) {
   .lightSection {
     gap: 144px;
@@ -1106,7 +1516,7 @@
   }
 
   .processCard {
-    min-height: 280px;
+    min-height: 220px;
   }
 
   .footer {
@@ -1163,8 +1573,33 @@
     gap: 80px;
   }
 
-  .heroCoin {
-    width: 216px;
+  .hero {
+    --hero-coin-size: 280px;
+  }
+
+  .floatingNav {
+    top: max(10px, env(safe-area-inset-top));
+    max-width: calc(100vw - 20px);
+    gap: 6px;
+    padding: 5px;
+  }
+
+  .floatingNavCoinSlot {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+
+  .floatingNavPill {
+    min-height: 34px;
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+
+  .floatingNavCta {
+    min-height: 34px;
+    padding: 8px 12px;
+    font-size: 12px;
   }
 
   .heroTitle {
@@ -1183,7 +1618,6 @@
   .primaryButton,
   .secondaryButton {
     width: 100%;
-    font-size: 16px;
   }
 
   .logoCloud {
@@ -1212,7 +1646,7 @@
   }
 
   .processCard {
-    min-height: 260px;
+    min-height: 0;
   }
 
   .calculatorPanel,
@@ -1296,7 +1730,16 @@
     font-size: 13px;
   }
 
-  .practiceCard,
+  .floatingNavPill {
+    min-height: 34px;
+    padding-inline: 12px;
+    font-size: 12px;
+  }
+
+  .practiceCard {
+    padding: 16px;
+  }
+
   .processCard,
   .placementCard,
   .calculatorPanel,
@@ -1309,6 +1752,12 @@
   }
 }
 
+@media (max-width: 360px) {
+  .floatingNavPillList {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   :global(html):has(.page) {
     scroll-behavior: auto;
@@ -1316,8 +1765,30 @@
 
   .primaryButton,
   .secondaryButton,
-  .footerButton {
+  .footerButton,
+  .practiceCard,
+  .processCard,
+  .placementCard,
+  .practiceArtwork img,
+  .practiceCard::before,
+  .practiceCard .cardHeader svg,
+  .stepLabel,
+  .processCopy h3,
+  .processArtwork,
+  .personAvatar,
+  .selectChevron {
     transition: none;
+  }
+
+  .practiceCard:hover .practiceArtwork img,
+  .practiceCard:hover .cardHeader svg,
+  .processCard:hover .processArtwork,
+  .placementCard:hover .personAvatar {
+    transform: none;
+  }
+
+  .practiceCard:hover::before {
+    opacity: 1;
   }
 
   .page[data-nxt-motion-ready="true"] [data-nxt-reveal] {
@@ -1329,6 +1800,11 @@
 
   .heroCoinVisual {
     animation: none;
+  }
+
+  .floatingNav,
+  .scrollCoin {
+    transition: none;
   }
 
   .heroCoinGlint {

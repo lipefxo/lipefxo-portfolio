@@ -23,6 +23,8 @@ const clientLogos = [
   { name: "Doctronic", src: "/nxt-level-prototype/doctronic.png", width: 158, height: 32 },
 ] as const;
 
+const serviceAreas = ["Hire", "Find", "Contact"] as const;
+
 const practices = [
   {
     title: "Engineering",
@@ -48,22 +50,27 @@ const searchSteps = [
   {
     title: "Onboarding",
     body: "Deep intake on the role, the team, and the wiring of your business. We learn your bar so we can hold it.",
+    artwork: "/nxt-level-prototype/process-onboarding.png",
   },
   {
     title: "Talent Mapping",
     body: "We build a market map of every qualified operator, including the ones who aren't looking. Compensation benchmarks included.",
+    artwork: "/nxt-level-prototype/process-talent-mapping.png",
   },
   {
     title: "Attract & Qualify",
     body: "Custom outreach, real conversations, and rigorous screens against your bar. Only candidates who clear it move forward.",
+    artwork: "/nxt-level-prototype/process-attract-qualify.png",
   },
   {
     title: "Interview Process",
     body: "We manage the loop end-to-end: scheduling, debriefs, calibration, and tight feedback to keep momentum.",
+    artwork: "/nxt-level-prototype/process-interview.png",
   },
   {
     title: "Offer",
     body: "Negotiate with full context: comp, equity, counter-offers, and start date. We close, then stay through the first 90 days.",
+    artwork: "/nxt-level-prototype/process-offer.png",
   },
 ] as const;
 
@@ -125,14 +132,16 @@ export function NxtLevelLanding() {
             style={revealDelay(0)}
           >
             <ul className={styles.pillList} aria-label="Nxt Level service areas">
-              <li className={styles.pill}>Hire</li>
-              <li className={styles.pill}>Find</li>
-              <li className={styles.pill}>Contact</li>
+              {serviceAreas.map((area) => (
+                <li className={styles.pill} key={area}>
+                  {area}
+                </li>
+              ))}
             </ul>
           </header>
 
           <section className={styles.hero} aria-labelledby="nxt-level-hero-title">
-            <HeroCoin revealDelay={70} />
+            <HeroCoin revealDelay={70} serviceAreas={serviceAreas} />
             <div className={styles.heroCopy}>
               <div className={styles.heroText}>
                 <h1
@@ -162,7 +171,7 @@ export function NxtLevelLanding() {
                 </a>
                 <a className={styles.primaryButton} href="#contact">
                   Book a Call
-                  <ArrowIcon />
+                  <ArrowIcon size={16} />
                 </a>
               </div>
             </div>
@@ -194,25 +203,6 @@ export function NxtLevelLanding() {
           </section>
         </div>
 
-        <section className={styles.intro} aria-labelledby="expertise-heading">
-          <h2
-            id="expertise-heading"
-            className={styles.sectionTitle}
-            data-nxt-reveal
-            style={revealDelay(0)}
-          >
-            Laser-Focused Expertise
-          </h2>
-          <p
-            className={styles.introBody}
-            data-nxt-reveal
-            style={revealDelay(70)}
-          >
-            We don&apos;t do everything. We do one thing exceptionally well — scale
-            technical and executive teams for high-growth, venture-backed companies.
-          </p>
-        </section>
-
         <section className={styles.section} aria-labelledby="practices-heading">
           <div className={styles.sectionHeading}>
             <h2
@@ -234,33 +224,35 @@ export function NxtLevelLanding() {
           </div>
           <div className={styles.practiceGrid}>
             {practices.map((practice, index) => (
-              <article
+              <div
                 key={practice.title}
-                className={styles.practiceCard}
+                className={styles.cardReveal}
                 data-nxt-reveal
                 style={revealDelay(index * 70)}
               >
-                <div className={styles.practiceArtwork} aria-hidden="true">
-                  <Image
-                    src={practice.artwork}
-                    alt=""
-                    fill
-                    sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 900px) 100vw, 420px"
-                    style={{ objectPosition: practice.artworkPosition }}
-                  />
-                </div>
-                <div className={styles.cardHeader}>
-                  <h3>{practice.title}</h3>
-                  <ArrowIcon />
-                </div>
-                <div className={styles.tagList}>
-                  {practice.tags.map((tag) => (
-                    <span className={styles.tag} key={tag}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </article>
+                <article className={styles.practiceCard}>
+                  <div className={styles.practiceArtwork} aria-hidden="true">
+                    <Image
+                      src={practice.artwork}
+                      alt=""
+                      fill
+                      sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 900px) 100vw, 420px"
+                      style={{ objectPosition: practice.artworkPosition }}
+                    />
+                  </div>
+                  <div className={styles.cardHeader}>
+                    <h3>{practice.title}</h3>
+                    <ArrowIcon />
+                  </div>
+                  <div className={styles.tagList}>
+                    {practice.tags.map((tag) => (
+                      <span className={styles.tag} key={tag}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </article>
+              </div>
             ))}
           </div>
         </section>
@@ -287,16 +279,27 @@ export function NxtLevelLanding() {
             {searchSteps.map((step, index) => (
               <li
                 key={step.title}
-                className={styles.processCard}
+                className={styles.cardReveal}
                 data-nxt-reveal
                 style={revealDelay(index * 55)}
               >
-                <span className={styles.stepLabel}>
-                  Step {String(index + 1).padStart(2, "0")}
-                </span>
-                <div className={styles.processCopy}>
-                  <h3>{step.title}</h3>
-                  <p>{step.body}</p>
+                <div className={styles.processCard}>
+                  <div className={styles.processArtwork} aria-hidden="true">
+                    <Image
+                      src={step.artwork}
+                      width={56}
+                      height={56}
+                      sizes="56px"
+                      alt=""
+                    />
+                  </div>
+                  <div className={styles.processCopy}>
+                    <span className={styles.stepLabel}>
+                      Step {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <h3>{step.title}</h3>
+                    <p>{step.body}</p>
+                  </div>
                 </div>
               </li>
             ))}
@@ -350,34 +353,36 @@ export function NxtLevelLanding() {
           </div>
           <div className={styles.placementGrid}>
             {placements.map((placement, index) => (
-              <article
+              <div
                 key={placement.name}
-                className={styles.placementCard}
+                className={styles.cardReveal}
                 data-nxt-reveal
                 style={revealDelay(index * 70)}
               >
-                <div className={styles.personHeader}>
-                  <Image
-                    className={styles.personAvatar}
-                    src={placement.avatar}
-                    width={52}
-                    height={52}
-                    alt=""
-                  />
-                  <div>
-                    <h3>{placement.name}</h3>
-                    <p>{placement.role}</p>
+                <article className={styles.placementCard}>
+                  <div className={styles.personHeader}>
+                    <Image
+                      className={styles.personAvatar}
+                      src={placement.avatar}
+                      width={52}
+                      height={52}
+                      alt=""
+                    />
+                    <div>
+                      <h3>{placement.name}</h3>
+                      <p>{placement.role}</p>
+                    </div>
                   </div>
-                </div>
-                <p className={styles.personBackground}>{placement.background}</p>
-                <div className={styles.tagList}>
-                  {placement.tags.map((tag) => (
-                    <span className={styles.tag} key={tag}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </article>
+                  <p className={styles.personBackground}>{placement.background}</p>
+                  <div className={styles.tagList}>
+                    {placement.tags.map((tag) => (
+                      <span className={styles.tag} key={tag}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </article>
+              </div>
             ))}
           </div>
           <dl className={styles.metricsGrid}>

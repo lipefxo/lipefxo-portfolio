@@ -3,6 +3,7 @@
 import { useState, type CSSProperties, type FormEvent } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
+import { Select, TextArea, TextInput } from "./FormControls";
 import styles from "./nxt-level-prototype.module.css";
 
 type ContactFormState = {
@@ -25,6 +26,13 @@ const initialForm: ContactFormState = {
 };
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const companyStageOptions = [
+  { value: "Seed", label: "Seed" },
+  { value: "Series A", label: "Series A" },
+  { value: "Series B", label: "Series B" },
+  { value: "Series C+", label: "Series C+" },
+] as const;
 
 function validateForm(form: ContactFormState): ContactErrors {
   const errors: ContactErrors = {};
@@ -73,11 +81,11 @@ export function ContactForm() {
     setSubmittedName(form.name.trim());
   }
 
-  function errorProps(field: ContactField) {
+  function fieldError(field: ContactField) {
     return errors[field]
       ? {
-          "aria-invalid": true as const,
-          "aria-describedby": `contact-${field}-error`,
+          invalid: true,
+          describedBy: `contact-${field}-error`,
         }
       : {};
   }
@@ -91,107 +99,110 @@ export function ContactForm() {
       style={{ "--nxt-reveal-delay": "100ms" } as CSSProperties}
     >
       <div className={styles.contactFieldPair}>
-        <label className={styles.contactField}>
-          <span className={styles.visuallyHidden}>Your name</span>
-          <input
+        <div className={styles.contactField}>
+          <label className={styles.visuallyHidden} htmlFor="contact-name">
+            Your name
+          </label>
+          <TextInput
             id="contact-name"
             name="name"
             autoComplete="name"
             placeholder="Your name"
             value={form.name}
-            onChange={(event) => updateField("name", event.target.value)}
-            {...errorProps("name")}
+            onChange={(value) => updateField("name", value)}
+            {...fieldError("name")}
           />
           {errors.name ? (
             <span id="contact-name-error" className={styles.contactError}>
               {errors.name}
             </span>
           ) : null}
-        </label>
-        <label className={styles.contactField}>
-          <span className={styles.visuallyHidden}>Work email</span>
-          <input
+        </div>
+        <div className={styles.contactField}>
+          <label className={styles.visuallyHidden} htmlFor="contact-email">
+            Work email
+          </label>
+          <TextInput
             id="contact-email"
             name="email"
-            type="email"
             inputMode="email"
             autoComplete="email"
             placeholder="Work e-mail"
             value={form.email}
-            onChange={(event) => updateField("email", event.target.value)}
-            {...errorProps("email")}
+            onChange={(value) => updateField("email", value)}
+            {...fieldError("email")}
           />
           {errors.email ? (
             <span id="contact-email-error" className={styles.contactError}>
               {errors.email}
             </span>
           ) : null}
-        </label>
+        </div>
       </div>
       <div className={styles.contactFieldPair}>
-        <label className={styles.contactField}>
-          <span className={styles.visuallyHidden}>Company</span>
-          <input
+        <div className={styles.contactField}>
+          <label className={styles.visuallyHidden} htmlFor="contact-company">
+            Company
+          </label>
+          <TextInput
             id="contact-company"
             name="company"
             autoComplete="organization"
             placeholder="Company"
             value={form.company}
-            onChange={(event) => updateField("company", event.target.value)}
-            {...errorProps("company")}
+            onChange={(value) => updateField("company", value)}
+            {...fieldError("company")}
           />
           {errors.company ? (
             <span id="contact-company-error" className={styles.contactError}>
               {errors.company}
             </span>
           ) : null}
-        </label>
-        <label className={styles.contactField}>
-          <span className={styles.visuallyHidden}>Company stage</span>
-          <select
+        </div>
+        <div className={styles.contactField}>
+          <label className={styles.visuallyHidden} htmlFor="contact-companyStage">
+            Company stage
+          </label>
+          <Select
             id="contact-companyStage"
             name="companyStage"
+            placeholder="Company stage"
             value={form.companyStage}
-            onChange={(event) => updateField("companyStage", event.target.value)}
-            {...errorProps("companyStage")}
-          >
-            <option value="" disabled>
-              Company stage
-            </option>
-            <option>Seed</option>
-            <option>Series A</option>
-            <option>Series B</option>
-            <option>Series C+</option>
-          </select>
+            options={companyStageOptions}
+            onChange={(value) => updateField("companyStage", value)}
+            {...fieldError("companyStage")}
+          />
           {errors.companyStage ? (
             <span id="contact-companyStage-error" className={styles.contactError}>
               {errors.companyStage}
             </span>
           ) : null}
-        </label>
+        </div>
       </div>
-      <label className={styles.contactField}>
-        <span className={styles.visuallyHidden}>What roles are you hiring for?</span>
-        <textarea
+      <div className={styles.contactField}>
+        <label className={styles.visuallyHidden} htmlFor="contact-hiringNeeds">
+          What roles are you hiring for?
+        </label>
+        <TextArea
           id="contact-hiringNeeds"
           name="hiringNeeds"
           placeholder="What roles are you hiring for?"
           value={form.hiringNeeds}
-          onChange={(event) => updateField("hiringNeeds", event.target.value)}
-          {...errorProps("hiringNeeds")}
+          onChange={(value) => updateField("hiringNeeds", value)}
+          {...fieldError("hiringNeeds")}
         />
         {errors.hiringNeeds ? (
           <span id="contact-hiringNeeds-error" className={styles.contactError}>
             {errors.hiringNeeds}
           </span>
         ) : null}
-      </label>
+      </div>
       <div className={styles.contactActions}>
         <button className={styles.footerButton} type="submit">
           Book a call
           <HugeiconsIcon
             icon={ArrowUpRight01Icon}
-            size={14}
+            size={16}
             strokeWidth={2}
             aria-hidden="true"
           />

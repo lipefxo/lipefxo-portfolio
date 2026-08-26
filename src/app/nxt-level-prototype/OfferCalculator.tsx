@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, type CSSProperties } from "react";
+import { Select, Slider } from "./FormControls";
 import styles from "./nxt-level-prototype.module.css";
 
 export type OfferInputs = {
@@ -31,6 +32,33 @@ const defaultInputs: OfferInputs = {
   vestingYears: "4",
   cashBonus: "15000",
 };
+
+const roleOptions = [
+  { value: "Staff Engineer", label: "Staff Engineer" },
+  { value: "Product Lead", label: "Product Lead" },
+  { value: "VP Engineering", label: "VP Engineering" },
+] as const;
+
+const companyStageOptions = [
+  { value: "Seed", label: "Seed" },
+  { value: "Series A", label: "Series A" },
+  { value: "Series B", label: "Series B" },
+  { value: "Series C+", label: "Series C+" },
+] as const;
+
+const locationOptions = [
+  { value: "Remote — US", label: "Remote — US" },
+  { value: "New York, NY", label: "New York, NY" },
+  { value: "San Francisco, CA", label: "San Francisco, CA" },
+  { value: "London, UK", label: "London, UK" },
+] as const;
+
+const vestingOptions = [
+  { value: "1", label: "1 year" },
+  { value: "2", label: "2 years" },
+  { value: "3", label: "3 years" },
+  { value: "4", label: "4 years" },
+] as const;
 
 function parseNumber(value: string) {
   if (value.trim() === "") return Number.NaN;
@@ -87,28 +115,24 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
-function AnimatedCurrency({ value }: { value: string }) {
-  const characters = Array.from(value);
+function formatSliderCurrency(value: number) {
+  if (value >= 1_000_000) {
+    const millions = value / 1_000_000;
+    const formatted = Number.isInteger(millions)
+      ? millions.toFixed(0)
+      : millions.toFixed(1);
+    return `$${formatted}M`;
+  }
 
-  return (
-    <span className="t-digit-group is-animating" aria-hidden="true">
-      {characters.map((character, index) => {
-        const distanceFromEnd = characters.length - index;
-        const stagger =
-          distanceFromEnd === 2 ? "1" : distanceFromEnd === 1 ? "2" : undefined;
+  if (value >= 1000) {
+    return `$${Math.round(value / 1000).toLocaleString("en-US")}k`;
+  }
 
-        return (
-          <span
-            key={`${character}-${index}`}
-            className="t-digit"
-            data-stagger={stagger}
-          >
-            {character}
-          </span>
-        );
-      })}
-    </span>
-  );
+  return formatCurrency(value);
+}
+
+function formatEquityPercent(value: number) {
+  return `${Number(value.toFixed(2))}%`;
 }
 
 export function OfferCalculator() {
@@ -137,110 +161,90 @@ export function OfferCalculator() {
           <p>Use annual USD values for this illustrative estimate.</p>
         </div>
         <div className={styles.calculatorFields}>
-          <label className={styles.field}>
-            <span className={styles.fieldLabel}>Role</span>
-            <select value={inputs.role} onChange={(event) => updateInput("role", event.target.value)}>
-              <option>Staff Engineer</option>
-              <option>Product Lead</option>
-              <option>VP Engineering</option>
-            </select>
-          </label>
-          <label className={styles.field}>
-            <span className={styles.fieldLabel}>Company stage</span>
-            <select
+          <div className={styles.field}>
+            <label className={styles.fieldLabel} htmlFor="offer-role">
+              Role
+            </label>
+            <Select
+              id="offer-role"
+              value={inputs.role}
+              options={roleOptions}
+              onChange={(value) => updateInput("role", value)}
+            />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.fieldLabel} htmlFor="offer-companyStage">
+              Company stage
+            </label>
+            <Select
+              id="offer-companyStage"
               value={inputs.companyStage}
-              onChange={(event) => updateInput("companyStage", event.target.value)}
-            >
-              <option>Seed</option>
-              <option>Series A</option>
-              <option>Series B</option>
-              <option>Series C+</option>
-            </select>
-          </label>
-          <label className={styles.field}>
-            <span className={styles.fieldLabel}>Location</span>
-            <select
+              options={companyStageOptions}
+              onChange={(value) => updateInput("companyStage", value)}
+            />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.fieldLabel} htmlFor="offer-location">
+              Location
+            </label>
+            <Select
+              id="offer-location"
               value={inputs.location}
-              onChange={(event) => updateInput("location", event.target.value)}
-            >
-              <option>Remote — US</option>
-              <option>New York, NY</option>
-              <option>San Francisco, CA</option>
-              <option>London, UK</option>
-            </select>
-          </label>
-          <div className={styles.fieldPair}>
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Base salary</span>
-              <span className={styles.inputAffix}>
-                <span aria-hidden="true">$</span>
-                <input
-                  inputMode="numeric"
-                  min="0"
-                  step="1000"
-                  type="number"
-                  value={inputs.baseSalary}
-                  onChange={(event) => updateInput("baseSalary", event.target.value)}
-                />
-              </span>
-            </label>
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Equity</span>
-              <span className={styles.inputAffix}>
-                <input
-                  inputMode="decimal"
-                  min="0"
-                  step="0.1"
-                  type="number"
-                  value={inputs.equityPercentage}
-                  onChange={(event) => updateInput("equityPercentage", event.target.value)}
-                />
-                <span aria-hidden="true">%</span>
-              </span>
-            </label>
+              options={locationOptions}
+              onChange={(value) => updateInput("location", value)}
+            />
           </div>
-          <div className={styles.fieldPair}>
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Post-money valuation</span>
-              <span className={styles.inputAffix}>
-                <span aria-hidden="true">$</span>
-                <input
-                  inputMode="numeric"
-                  min="0"
-                  step="1000000"
-                  type="number"
-                  value={inputs.postMoneyValuation}
-                  onChange={(event) => updateInput("postMoneyValuation", event.target.value)}
-                />
-              </span>
+          <Slider
+            id="offer-baseSalary"
+            label="Base salary"
+            min={80000}
+            max={400000}
+            step={5000}
+            value={inputs.baseSalary}
+            displayValue={formatSliderCurrency(Number(inputs.baseSalary))}
+            onChange={(value) => updateInput("baseSalary", value)}
+          />
+          <Slider
+            id="offer-equityPercentage"
+            label="Equity"
+            min={0.05}
+            max={5}
+            step={0.05}
+            value={inputs.equityPercentage}
+            displayValue={formatEquityPercent(Number(inputs.equityPercentage))}
+            onChange={(value) => updateInput("equityPercentage", value)}
+          />
+          <Slider
+            id="offer-postMoneyValuation"
+            label="Post-money valuation"
+            min={10000000}
+            max={500000000}
+            step={5000000}
+            value={inputs.postMoneyValuation}
+            displayValue={formatSliderCurrency(Number(inputs.postMoneyValuation))}
+            onChange={(value) => updateInput("postMoneyValuation", value)}
+          />
+          <div className={styles.field}>
+            <label className={styles.fieldLabel} htmlFor="offer-vestingYears">
+              Vesting
             </label>
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Vesting</span>
-              <select
-                value={inputs.vestingYears}
-                onChange={(event) => updateInput("vestingYears", event.target.value)}
-              >
-                <option value="1">1 year</option>
-                <option value="2">2 years</option>
-                <option value="3">3 years</option>
-                <option value="4">4 years</option>
-              </select>
-            </label>
+            <Select
+              id="offer-vestingYears"
+              value={inputs.vestingYears}
+              options={vestingOptions}
+              onChange={(value) => updateInput("vestingYears", value)}
+            />
           </div>
-          <label className={styles.field}>
-            <span className={styles.fieldLabel}>Signing / annual cash bonus</span>
-            <span className={styles.inputAffix}>
-              <span aria-hidden="true">$</span>
-              <input
-                inputMode="numeric"
-                min="0"
-                step="1000"
-                type="number"
-                value={inputs.cashBonus}
-                onChange={(event) => updateInput("cashBonus", event.target.value)}
-              />
-            </span>
-          </label>
+          <Slider
+            id="offer-cashBonus"
+            label="Signing / annual cash bonus"
+            min={0}
+            max={100000}
+            step={1000}
+            value={inputs.cashBonus}
+            displayValue={formatSliderCurrency(Number(inputs.cashBonus))}
+            onChange={(value) => updateInput("cashBonus", value)}
+          />
         </div>
       </div>
 
@@ -278,7 +282,7 @@ export function OfferCalculator() {
                 >
                   <dt>{result.label}</dt>
                   <dd aria-label={`${result.label}: ${formatCurrency(value)}`}>
-                    <AnimatedCurrency key={compactValue} value={compactValue} />
+                    {compactValue}
                   </dd>
                 </div>
               );
