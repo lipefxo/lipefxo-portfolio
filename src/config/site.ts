@@ -1008,6 +1008,14 @@ export const site: SiteConfig = {
       logo: "/higlobe-prototype/higlobecircle.svg",
     },
     {
+      name: "Nxt Level",
+      kind: "Prototype",
+      blurb:
+        "A responsive recruiting landing-page prototype for finding the builders, problem solvers, and AI-native leaders who move companies forward.",
+      href: "/nxt-level-prototype",
+      logo: "/nxt-level-prototype/hero-coin-option-3-transparent.png",
+    },
+    {
       name: "Solar System",
       kind: "Playground",
       blurb:
