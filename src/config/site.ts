@@ -1013,7 +1013,7 @@ export const site: SiteConfig = {
       blurb:
         "A responsive recruiting landing-page prototype for finding the builders, problem solvers, and AI-native leaders who move companies forward.",
       href: "/nxt-level-prototype",
-      logo: "/nxt-level-prototype/hero-coin-option-3-transparent.png",
+      logo: "/nxt-level-prototype/practice-product.jpg",
     },
     {
       name: "Solar System",
