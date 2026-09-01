@@ -41,6 +41,8 @@
   --card-shake-dur: 180ms;
   --card-shake-distance: 2px;
   --card-shake-ease: ease-in-out;
+  --timeline-state-dur: 220ms;
+  --timeline-state-ease: cubic-bezier(0.23, 1, 0.32, 1);
   --avatar-lift: -4px;
   --avatar-dur: 320ms;
   --avatar-scale: 1.05;
@@ -504,6 +506,151 @@ button:disabled,
     var(--card-shake-ease);
 }
 
+.t-company-mark {
+  border-radius: 5px;
+  box-shadow: 0 0 0 1px rgb(24 24 27 / 0.08);
+}
+
+@supports (corner-shape: squircle) {
+  .t-company-mark {
+    border-radius: 7px;
+    corner-shape: squircle;
+  }
+}
+
+.dark .t-company-mark {
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1);
+}
+
+.t-timeline-progress {
+  background: linear-gradient(
+    to bottom,
+    #18181b 0%,
+    #52525b 88%,
+    #a1a1aa 100%
+  );
+  box-shadow: 0 0 8px rgb(24 24 27 / 0.16);
+  transform: translateX(-50%) scaleY(0);
+  will-change: transform;
+}
+
+.dark .t-timeline-progress {
+  background: linear-gradient(
+    to bottom,
+    #fafafa 0%,
+    #d4d4d8 88%,
+    #71717a 100%
+  );
+  box-shadow: 0 0 10px rgb(250 250 250 / 0.16);
+}
+
+.t-timeline-orb {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #18181b;
+  opacity: 0;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 10px 2px rgb(24 24 27 / 0.28),
+    0 0 22px 7px rgb(24 24 27 / 0.1);
+  will-change: transform, opacity;
+  transition:
+    opacity 160ms var(--timeline-state-ease),
+    box-shadow var(--timeline-state-dur) var(--timeline-state-ease);
+}
+
+.t-timeline-orb::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border: 1px solid rgb(24 24 27 / 0.3);
+  border-radius: inherit;
+  opacity: 0;
+  transform: scale(0.7);
+  transition:
+    opacity var(--timeline-state-dur) var(--timeline-state-ease),
+    transform var(--timeline-state-dur) var(--timeline-state-ease);
+  pointer-events: none;
+}
+
+.t-timeline-orb::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1px;
+  height: 34px;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(24 24 27 / 0.3),
+    transparent
+  );
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.t-timeline-orb[data-snapped="true"] {
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 12px 3px rgb(24 24 27 / 0.36),
+    0 0 26px 9px rgb(24 24 27 / 0.14);
+}
+
+.t-timeline-orb[data-snapped="true"]::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.dark .t-timeline-orb {
+  background: #fafafa;
+  box-shadow:
+    0 0 0 2px #000,
+    0 0 12px 3px rgb(250 250 250 / 0.38),
+    0 0 26px 8px rgb(250 250 250 / 0.12);
+}
+
+.dark .t-timeline-orb::before {
+  border-color: rgb(250 250 250 / 0.42);
+}
+
+.dark .t-timeline-orb::after {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(250 250 250 / 0.42),
+    transparent
+  );
+}
+
+.dark .t-timeline-orb[data-snapped="true"] {
+  box-shadow:
+    0 0 0 2px #000,
+    0 0 14px 4px rgb(250 250 250 / 0.5),
+    0 0 30px 10px rgb(250 250 250 / 0.16);
+}
+
+.t-timeline-scroller:has([data-timeline-row][data-active])
+  [data-timeline-row]:not([data-active])
+  [data-timeline-content] {
+  opacity: 0.78;
+}
+
+[data-timeline-row][data-active] [data-timeline-content] {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+[data-timeline-content] {
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    opacity var(--timeline-state-dur) var(--timeline-state-ease),
+    transform var(--timeline-state-dur) var(--timeline-state-ease);
+}
+
 @keyframes t-project-card-shake {
   0%,
   100% {
@@ -595,6 +742,16 @@ button:disabled,
 
   .t-flag-wave {
     animation: none !important;
+  }
+
+  [data-timeline-content],
+  .t-timeline-orb,
+  .t-timeline-orb::before {
+    transition-duration: 0.01ms !important;
+  }
+
+  [data-timeline-row][data-active] [data-timeline-content] {
+    transform: none;
   }
 }
 
@@ -723,8 +880,9 @@ button:disabled,
     transition: none !important;
   }
 
-  .t-tt {
-    transition: none !important;
+  .t-timeline-orb,
+  .t-timeline-orb[data-snapped="true"] {
+    animation: none !important;
   }
 
   .t-avatar {

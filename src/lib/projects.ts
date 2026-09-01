@@ -1,4 +1,11 @@
-import { site, type GlowPalette, type WorkProject } from "@/config/site";
+import {
+  site,
+  type ExperienceGroup,
+  type ExperienceRole,
+  type ExperienceProjectReference,
+  type GlowPalette,
+  type WorkProject,
+} from "@/config/site";
 import type { Repo } from "@/lib/github";
 
 const scopeTechLabels = new Set(["Product Design", "UI Design", "UX Design"]);
@@ -30,6 +37,38 @@ export interface ProjectDetail {
   coverImage?: { src: string };
   /** When true, the card is shown as a non-clickable "Coming soon" locked card. */
   locked?: boolean;
+}
+
+/** Minimal, serializable shape used by the interactive homepage project grid. */
+export interface TimelineProjectCardData {
+  id: string;
+  type: "work" | "side";
+  title: string;
+  blurb: string;
+  label: string;
+  /** Year or range shown under the project title. */
+  year?: string;
+  href?: string;
+  externalUrl?: string;
+  locked?: boolean;
+  glow?: GlowPalette;
+  image?: {
+    src: string;
+    alt: string;
+    fit: "cover" | "contain";
+  };
+  /** Only included when a work item needs the modal fallback. */
+  modalProject?: ProjectDetail;
+}
+
+export interface ResolvedExperienceRole {
+  role: ExperienceRole;
+  projects: TimelineProjectCardData[];
+}
+
+export interface ResolvedExperienceGroup {
+  experience: ExperienceGroup;
+  roles: ResolvedExperienceRole[];
 }
 
 /** Map a public GitHub repo into the unified detail shape. */
@@ -69,6 +108,98 @@ export function workToDetail(work: WorkProject): ProjectDetail {
     coverImage: work.cover?.src ? { src: work.cover.src } : undefined,
     locked: work.locked,
   };
+}
+
+/** Resolve the ordered project references used by the homepage timeline. */
+export function resolveExperienceGroups(): ResolvedExperienceGroup[] {
+  const seenReferences = new Set<string>();
+
+  return site.experience.map((experience) => ({
+    experience,
+    roles: experience.roles.map((role) => ({
+      role,
+      projects: (role.projects ?? []).map((reference) => {
+        const key = referenceKey(reference);
+        if (seenReferences.has(key)) {
+          throw new Error(`Duplicate experience project reference: ${key}`);
+        }
+        seenReferences.add(key);
+        return referenceToTimelineProject(reference);
+      }),
+    })),
+  }));
+}
+
+function referenceToTimelineProject(
+  reference: ExperienceProjectReference,
+): TimelineProjectCardData {
+  if (reference.type === "work") {
+    const work = site.work.find((project) => project.slug === reference.slug);
+    if (!work) {
+      throw new Error(`Unknown work project reference: ${reference.slug}`);
+    }
+
+    return workToTimelineProject(work);
+  }
+
+  const project = site.sideProjects.find((item) => item.href === reference.href);
+  if (!project) {
+    throw new Error(`Unknown side project reference: ${reference.href}`);
+  }
+
+  return {
+    id: `side:${project.href}`,
+    type: "side",
+    title: project.name,
+    blurb: project.blurb,
+    label: project.kind,
+    year: formatTimelineYear(project.year),
+    href: project.href,
+    image: {
+      src: project.logo,
+      alt: project.name,
+      fit: project.logo.endsWith(".svg") ? "contain" : "cover",
+    },
+  };
+}
+
+export function workToTimelineProject(
+  work: WorkProject,
+): TimelineProjectCardData {
+  const detail = workToDetail(work);
+  const href = detail.slug ? `/work/${detail.slug}` : undefined;
+
+  return {
+    id: `work:${work.slug}`,
+    type: "work",
+    title: detail.title,
+    blurb: detail.blurb,
+    label: detail.year ?? "Case study",
+    year: formatTimelineYear(work.year ?? detail.year),
+    href,
+    externalUrl: detail.demoUrl,
+    locked: detail.locked,
+    glow: detail.glow,
+    image: work.cover?.src
+      ? {
+          src: work.cover.src,
+          alt: work.cover.alt ?? work.cover.label,
+          fit: "cover",
+        }
+      : undefined,
+    modalProject: !href && !detail.locked ? detail : undefined,
+  };
+}
+
+function formatTimelineYear(year?: string) {
+  if (!year) return undefined;
+  return year.replace(/\s*-\s*/g, " — ");
+}
+
+function referenceKey(reference: ExperienceProjectReference) {
+  return reference.type === "work"
+    ? `work:${reference.slug}`
+    : `side:${reference.href}`;
 }
 
 /** Look up a work project (with its case study) by slug. */

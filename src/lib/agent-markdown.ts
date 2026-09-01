@@ -102,12 +102,28 @@ function sideProjectMarkdown(project: SideProject) {
   ].join("\n");
 }
 
+function experienceProjectReferences() {
+  return site.experience.flatMap((experience) =>
+    experience.roles.flatMap((role) => role.projects ?? []),
+  );
+}
+
 /**
  * A complete, static Markdown representation of the portfolio. It only reads
  * the same hand-authored configuration that powers the visible portfolio.
  */
 export function getAgentMarkdown() {
-  const publicWork = site.work.filter((project) => !project.locked);
+  const references = experienceProjectReferences();
+  const publicWork = references.flatMap((reference) => {
+    if (reference.type !== "work") return [];
+    const project = site.work.find(({ slug }) => slug === reference.slug);
+    return project && !project.locked ? [project] : [];
+  });
+  const groupedSideProjects = references.flatMap((reference) => {
+    if (reference.type !== "side") return [];
+    const project = site.sideProjects.find(({ href }) => href === reference.href);
+    return project ? [project] : [];
+  });
 
   const lines = [
     `# ${site.name}`,
@@ -136,17 +152,17 @@ export function getAgentMarkdown() {
     "",
   ];
 
-  for (const role of site.experience) {
-    lines.push(
-      `### ${role.company} — ${role.role}`,
-      "",
-      role.period,
-      "",
-      role.summary,
-      "",
-      ...role.highlights.map((highlight) => `- ${highlight}`),
-      "",
-    );
+  for (const experience of site.experience) {
+    for (const role of experience.roles) {
+      lines.push(
+        `### ${experience.company} — ${role.title}`,
+        "",
+        role.period,
+        "",
+        role.summary,
+        "",
+      );
+    }
   }
 
   lines.push(
@@ -185,11 +201,11 @@ export function getAgentMarkdown() {
 
   lines.push("## Selected work", "", ...publicWork.flatMap((project) => [projectMarkdown(project), ""]));
 
-  if (site.sideProjects.length > 0) {
+  if (groupedSideProjects.length > 0) {
     lines.push(
       "## Side projects",
       "",
-      ...site.sideProjects.flatMap((project) => [sideProjectMarkdown(project), ""]),
+      ...groupedSideProjects.flatMap((project) => [sideProjectMarkdown(project), ""]),
     );
   }
 

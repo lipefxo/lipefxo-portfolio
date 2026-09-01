@@ -8,11 +8,13 @@ const POLL_MS = 10_000;
 interface Props {
   initial: LatestCommitData | null;
   fallback: string;
+  /** Server render timestamp so relative time matches on hydration. */
+  renderedAt: number;
 }
 
-export function LatestCommit({ initial, fallback }: Props) {
+export function LatestCommit({ initial, fallback, renderedAt }: Props) {
   const [commit, setCommit] = useState(initial);
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState(renderedAt);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,6 +35,7 @@ export function LatestCommit({ initial, fallback }: Props) {
     };
 
     refresh();
+    setNow(Date.now());
     const poll = window.setInterval(refresh, POLL_MS);
     const tick = window.setInterval(() => setNow(Date.now()), POLL_MS);
     document.addEventListener("visibilitychange", onVisible);
@@ -64,7 +67,7 @@ export function LatestCommit({ initial, fallback }: Props) {
     >
       <TerminalIcon />
       <span>
-        latest commit <span suppressHydrationWarning>{relative}</span>:{" "}
+        latest commit {relative}:{" "}
         <span className="text-[#5f8a62] dark:text-[#7d9e80]">+{added}</span>{" "}
         <span className="text-[#b56a62] dark:text-[#c4877e]">-{removed}</span>
       </span>

@@ -113,16 +113,18 @@ export interface CaseStudy {
   outcome?: { heading?: string; body: string[] };
 }
 
-/** A smaller, link-out playground shown as a circular logo under the case studies. */
+/** A link-out prototype or playground that can join a timeline project grid. */
 export interface SideProject {
   name: string;
   /** Quiet label used in agent mode and the logo tooltip, e.g. "Prototype". */
   kind: string;
   /** Short one-liner for agent mode. */
   blurb: string;
+  /** Year or range shown under the title on the homepage timeline. */
+  year?: string;
   /** In-app route to open, e.g. "/higlobe-prototype". */
   href: string;
-  /** Circular mark shown on the homepage. */
+  /** Project mark shown in its homepage card. */
   logo: string;
 }
 
@@ -132,6 +134,8 @@ export interface WorkProject {
   slug: string;
   /** Short one-liner shown on the card. */
   blurb: string;
+  /** Year or range shown under the title on the homepage timeline. Falls back to caseStudy.meta.year. */
+  year?: string;
   /** Longer description shown in the modal. */
   longDescription: string;
   /** Tech tags shown on the card and in the modal. */
@@ -149,15 +153,32 @@ export interface WorkProject {
   locked?: boolean;
 }
 
-export interface ExperienceItem {
-  company: string;
-  role: string;
-  /** e.g. "Mar 2023 — Present" */
+export type ExperienceProjectReference =
+  | { type: "work"; slug: string }
+  | { type: "side"; href: string };
+
+export interface ExperienceRole {
+  title: string;
+  /** e.g. "Jan 2026 — Present" */
   period: string;
-  /** One-line summary of the role. */
+  /** Marks the active role phase for the visual timeline. */
+  current?: boolean;
+  /** Short description of the role and its responsibilities. */
   summary: string;
-  /** A few concise highlight bullets. */
-  highlights: string[];
+  /** Projects shown under this role on the homepage timeline. */
+  projects?: ExperienceProjectReference[];
+}
+
+export interface ExperienceGroup {
+  /** Stable key used to associate and render the company group. */
+  id: string;
+  company: string;
+  /** Tiny company mark shown next to the company name. */
+  logo?: string;
+  /** Company website opened from the company name and logo. */
+  url?: string;
+  /** Most recent role first when a company contains multiple phases. */
+  roles: ExperienceRole[];
 }
 
 export interface ResumeProfile {
@@ -204,7 +225,7 @@ export interface SiteConfig {
   socials: SocialLinks;
   skills: string[];
   tools: string[];
-  experience: ExperienceItem[];
+  experience: ExperienceGroup[];
   /** Personal "currently into" cards for the about-me section. */
   currently: CurrentlyItem[];
   /** Public repos hidden from the open-source feed. */
@@ -284,47 +305,66 @@ export const site: SiteConfig = {
   ],
   experience: [
     {
+      id: "securebags",
       company: "SecureBags",
-      role: "Founding Product Designer + Design Engineer",
-      period: "Mar 2023 — Present",
-      summary:
-        "I joined SecureBags as its founding designer and established the design foundations, workflows, and cross-functional processes that supported the company’s rapid growth. The role has grown into design engineering: I now own the product roadmap and build product experiences directly in the production codebase, combining product discovery, React and TypeScript implementation, multi-agent development workflows, analytics, and internal operations tooling.",
-      highlights: [
-        "Joined with no existing design infrastructure; established design foundations, workflows, and cross-functional processes that scaled through the company’s rapid growth.",
-        "Owned complete UX and UI for a new SaaS platform covering onboarding, account management, dashboards, lending workflows, and integrations, from research through high-fidelity handoff; streamlined onboarding and key flows to reduce drop-off and improve retention.",
-        "Built a Figma-to-production pipeline using Cursor, React, Chakra UI, and MCP, and created a modular design system of reusable, dynamically structured components, cutting design-to-development delivery time by 40%.",
-        "Identified operational bottlenecks creating manual overhead for the support team; designed and shipped internal back-office tooling in Retool for financial review, customer onboarding, and operations.",
-        "Owned the product roadmap and prioritization, running discovery and product sessions with engineering and stakeholders; established the team’s development cycle, working processes, and documentation standards from scratch.",
-        "Built components and end-to-end flows directly in the production codebase rather than specifying them for handoff, shipping React and TypeScript and refining spacing, states, motion, and interaction details in code where they can actually be judged.",
-        "Set up and ran multi-agent development workflows using Claude Code, Codex, Conductor, and Cursor, running agents in parallel across isolated Git worktrees — enabling sustained concurrent delivery across back-end and front-end as a single contributor — and authored the documentation, reusable agent skills, and workflow conventions that made it a repeatable team practice.",
-        "Implemented PostHog across the product, instrumenting key funnels and building the dashboards behind them, giving the team analytics visibility it previously lacked and grounding roadmap decisions in behavioural data rather than assumption.",
-        "Designed and built the internal back-office into production for financial review, customer onboarding, and operations, giving support and operations direct ownership of workflows that previously required engineering intervention.",
+      logo: "/companies/securebags.png",
+      url: "https://www.securebags.com",
+      roles: [
+        {
+          title: "Design Engineer and Acting Product Manager",
+          period: "Jan 2026 — Present",
+          current: true,
+          summary:
+            "I own the product roadmap and take work from discovery to production, designing and building React and TypeScript experiences, running multi-agent delivery workflows, instrumenting analytics, and creating internal tools for financial review, onboarding, and operations.",
+          projects: [
+            { type: "work", slug: "bags" },
+            { type: "work", slug: "bags-two" },
+          ],
+        },
+        {
+          title: "Senior Product Designer",
+          period: "Mar 2023 — Dec 2025",
+          summary:
+            "As founding designer, I established the company’s design foundations and owned the end-to-end experience across onboarding, dashboards, lending, and integrations. I also built the design system and delivery workflows that accelerated implementation, and shipped internal operations tooling.",
+          projects: [{ type: "work", slug: "bags-three" }],
+        },
       ],
     },
     {
+      id: "suflex",
       company: "Suflex",
-      role: "Founding Product Designer",
-      period: "Aug 2020 — Jan 2023",
-      summary:
-        "I joined Suflex as its founding product designer, owning design operations and direction across two SaaS products while partnering with engineering and business leadership.",
-      highlights: [
-        "Joined as founding product designer; owned design operations, coached junior designers, and presented design direction to engineering and business leadership.",
-        "Led design for two SaaS products (B2B and B2C) from concept to MVP launch, owning discovery, research, journey mapping, prototyping, and developer handoff.",
-        "Established the Suflex Design System with a unified component library and design guidelines, reducing feature delivery time by 30% and ensuring cross-platform consistency.",
-        "Partnered with engineering and product management to align roadmaps, scope initiatives, and fold user feedback into iteration, contributing to product-market fit.",
-        "Drove post-launch usability and data-driven refinements that increased product adoption and retention.",
+      logo: "/companies/suflex.png",
+      url: "https://www.suflex.com.br",
+      roles: [
+        {
+          title: "Lead Product Designer",
+          period: "Aug 2020 — Jan 2023",
+          summary:
+            "As founding product designer, I led two B2B and B2C SaaS products from discovery through MVP and post-launch iteration. I established the design system, guided junior designers, and partnered with product and engineering on roadmaps, delivery, adoption, and retention.",
+          projects: [{ type: "work", slug: "suflex" }],
+        },
       ],
     },
     {
+      id: "grafite",
       company: "Grafite Design",
-      role: "Independent Product and Brand Designer",
-      period: "Jan 2015 — Jan 2025",
-      summary:
-        "I ran independent product and brand design work alongside the roles above, helping small businesses, startups, and NGOs build distinctive identities and complete digital products.",
-      highlights: [
-        "Created over 40 brand identity and strategy projects for small businesses, startups, and NGOs seeking distinctive market positioning.",
-        "Served clients across technology, food, legal, finance, medical, and home industries, adapting the design approach to sector-specific needs.",
-        "Delivered over 10 end-to-end product design projects for clients without in-house design capability, from style guide definition through complete UI/UX.",
+      logo: "/companies/grafite.svg",
+      url: "https://lipefxolio.com",
+      roles: [
+        {
+          title: "Independent Product and Brand Designer",
+          period: "Since 2015",
+          summary:
+            "I lead independent brand and product design engagements for startups, small businesses, and NGOs across diverse industries, creating distinctive identities and delivering end-to-end digital products for clients without in-house design teams.",
+          projects: [
+            { type: "work", slug: "panorama" },
+            { type: "work", slug: "notch-capture" },
+            { type: "work", slug: "alphadeal" },
+            { type: "side", href: "/higlobe-prototype" },
+            { type: "side", href: "/nxt-level-prototype" },
+            { type: "side", href: "/space" },
+          ],
+        },
       ],
     },
   ],
@@ -758,6 +798,36 @@ export const site: SiteConfig = {
       },
     },
     {
+      name: "Coming soon",
+      slug: "bags-two",
+      locked: true,
+      year: "2026",
+      blurb: "A short placeholder for another SecureBags case study still being written up.",
+      longDescription:
+        "This SecureBags project is a placeholder while the case study is still being written.",
+      tech: ["Figma", "React", "TypeScript"],
+    },
+    {
+      name: "Coming soon",
+      slug: "bags-three",
+      locked: true,
+      year: "2023 — 2025",
+      blurb: "A short placeholder for a third SecureBags project, ready for a title and cover later.",
+      longDescription:
+        "This SecureBags project is a placeholder while the case study is still being written.",
+      tech: ["PostHog", "Chakra UI", "Python"],
+    },
+    {
+      name: "Coming soon",
+      slug: "suflex",
+      locked: true,
+      year: "2020 — 2023",
+      blurb: "A short placeholder for a Suflex case study still being written up.",
+      longDescription:
+        "This Suflex project is a placeholder while the case study is still being written.",
+      tech: ["Figma", "Product Design", "Design Systems"],
+    },
+    {
       name: "AlphaDeal",
       slug: "alphadeal",
       locked: true,
@@ -1002,6 +1072,7 @@ export const site: SiteConfig = {
     {
       name: "Higlobe",
       kind: "Prototype",
+      year: "2026",
       blurb:
         "A clickable prototype of a cross-border payments dashboard — send, receive, a card, and the little details that make a money product feel real.",
       href: "/higlobe-prototype",
@@ -1010,6 +1081,7 @@ export const site: SiteConfig = {
     {
       name: "Nxt Level",
       kind: "Prototype",
+      year: "2026",
       blurb:
         "A responsive recruiting landing-page prototype for finding the builders, problem solvers, and AI-native leaders who move companies forward.",
       href: "/nxt-level-prototype",
@@ -1018,6 +1090,7 @@ export const site: SiteConfig = {
     {
       name: "Solar System",
       kind: "Playground",
+      year: "2026",
       blurb:
         "A living pixel-art map of the solar system you can wander — planets, famous spacecraft, and a sun that can go a little too far.",
       href: "/space",
