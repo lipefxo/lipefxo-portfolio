@@ -522,6 +522,23 @@ button:disabled,
   box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1);
 }
 
+.t-timeline-lines {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 28px,
+    #000 calc(100% - 28px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 28px,
+    #000 calc(100% - 28px),
+    transparent 100%
+  );
+}
+
 .t-timeline-progress {
   background: linear-gradient(
     to bottom,
@@ -530,7 +547,7 @@ button:disabled,
     #a1a1aa 100%
   );
   box-shadow: 0 0 8px rgb(24 24 27 / 0.16);
-  transform: translateX(-50%) scaleY(0);
+  transform: scaleY(0);
   will-change: transform;
 }
 
@@ -640,15 +657,11 @@ button:disabled,
 
 [data-timeline-row][data-active] [data-timeline-content] {
   opacity: 1;
-  transform: translateX(2px);
 }
 
 [data-timeline-content] {
   opacity: 1;
-  transform: translateX(0);
-  transition:
-    opacity var(--timeline-state-dur) var(--timeline-state-ease),
-    transform var(--timeline-state-dur) var(--timeline-state-ease);
+  transition: opacity var(--timeline-state-dur) var(--timeline-state-ease);
 }
 
 @keyframes t-project-card-shake {
@@ -748,10 +761,6 @@ button:disabled,
   .t-timeline-orb,
   .t-timeline-orb::before {
     transition-duration: 0.01ms !important;
-  }
-
-  [data-timeline-row][data-active] [data-timeline-content] {
-    transform: none;
   }
 }
 

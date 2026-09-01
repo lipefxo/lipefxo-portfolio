@@ -315,18 +315,22 @@ export const site: SiteConfig = {
           period: "Jan 2026 — Present",
           current: true,
           summary:
-            "I own the product roadmap and take work from discovery to production, designing and building React and TypeScript experiences, running multi-agent delivery workflows, instrumenting analytics, and creating internal tools for financial review, onboarding, and operations.",
+            "Owned the product roadmap and carried initiatives from discovery through production; designed and built React and TypeScript experiences, ran multi-agent delivery workflows, instrumented product analytics, and created internal tools for financial review, onboarding, and operations.",
           projects: [
-            { type: "work", slug: "bags" },
+            { type: "work", slug: "bags-five" },
             { type: "work", slug: "bags-two" },
+            { type: "work", slug: "bags" },
           ],
         },
         {
           title: "Senior Product Designer",
           period: "Mar 2023 — Dec 2025",
           summary:
-            "As founding designer, I established the company’s design foundations and owned the end-to-end experience across onboarding, dashboards, lending, and integrations. I also built the design system and delivery workflows that accelerated implementation, and shipped internal operations tooling.",
-          projects: [{ type: "work", slug: "bags-three" }],
+            "Established the company’s design foundations as its founding designer and owned the end-to-end experience across onboarding, dashboards, lending, and integrations. Built the design system and delivery workflows that accelerated implementation, and shipped internal operations tooling.",
+          projects: [
+            { type: "work", slug: "bags-three" },
+            { type: "work", slug: "bags-four" },
+          ],
         },
       ],
     },
@@ -340,7 +344,7 @@ export const site: SiteConfig = {
           title: "Lead Product Designer",
           period: "Aug 2020 — Jan 2023",
           summary:
-            "As founding product designer, I led two B2B and B2C SaaS products from discovery through MVP and post-launch iteration. I established the design system, guided junior designers, and partnered with product and engineering on roadmaps, delivery, adoption, and retention.",
+            "Led two B2B and B2C SaaS products from discovery through MVP and post-launch iteration as founding product designer. Established the design system, guided junior designers, and partnered with product and engineering on roadmaps, delivery, adoption, and retention.",
           projects: [{ type: "work", slug: "suflex" }],
         },
       ],
@@ -355,7 +359,7 @@ export const site: SiteConfig = {
           title: "Independent Product and Brand Designer",
           period: "Since 2015",
           summary:
-            "I lead independent brand and product design engagements for startups, small businesses, and NGOs across diverse industries, creating distinctive identities and delivering end-to-end digital products for clients without in-house design teams.",
+            "Led independent brand and product design engagements for startups, small businesses, and NGOs across diverse industries. Created distinctive identities and delivered end-to-end digital products for clients without in-house design teams.",
           projects: [
             { type: "work", slug: "panorama" },
             { type: "work", slug: "notch-capture" },
@@ -645,8 +649,9 @@ export const site: SiteConfig = {
       },
     },
     {
-      name: "Bags",
+      name: "Improving the access to capital process for small businesses",
       slug: "bags",
+      year: "2026",
       blurb: "A financial platform that helps business owners actually get their numbers, tidy up the books, and find funding to grow.",
       longDescription:
         "Most business owners are great at running a business and a lot less keen on the accounting that comes with it. So the books slip, the margins stay fuzzy, and funding feels like something that happens to other people. Bags is there to fix that. It keeps your books clean, turns your numbers into a few things you can actually act on, and helps you find funding when you're ready to grow. I worked on it across product design, the design system, and the React front-end, with one goal: making all of it make sense to someone who never wants to open a spreadsheet.",
@@ -798,7 +803,7 @@ export const site: SiteConfig = {
       },
     },
     {
-      name: "Coming soon",
+      name: "Designing an internal tool for accounting and bookkeeping",
       slug: "bags-two",
       locked: true,
       year: "2026",
@@ -806,6 +811,16 @@ export const site: SiteConfig = {
       longDescription:
         "This SecureBags project is a placeholder while the case study is still being written.",
       tech: ["Figma", "React", "TypeScript"],
+    },
+    {
+      name: "Creating an AI-driven CFO chat interface",
+      slug: "bags-five",
+      locked: true,
+      year: "2026",
+      blurb: "A short placeholder for another SecureBags case study still being written up.",
+      longDescription:
+        "This SecureBags project is a placeholder while the case study is still being written.",
+      tech: ["React", "TypeScript", "Claude AI"],
     },
     {
       name: "Coming soon",
@@ -816,6 +831,16 @@ export const site: SiteConfig = {
       longDescription:
         "This SecureBags project is a placeholder while the case study is still being written.",
       tech: ["PostHog", "Chakra UI", "Python"],
+    },
+    {
+      name: "Coming soon",
+      slug: "bags-four",
+      locked: true,
+      year: "2024",
+      blurb: "A short placeholder for another SecureBags case study still being written up.",
+      longDescription:
+        "This SecureBags project is a placeholder while the case study is still being written.",
+      tech: ["Figma", "UX Design", "Retool"],
     },
     {
       name: "Coming soon",

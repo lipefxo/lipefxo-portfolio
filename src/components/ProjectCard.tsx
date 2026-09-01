@@ -20,7 +20,7 @@ const rowClassName =
   "flex w-full items-start gap-2.5 rounded-lg text-left outline-offset-2 transition-opacity duration-200 ease-out group-hover/card:opacity-80 group-focus-within/card:opacity-80";
 
 const thumbClassName =
-  "relative h-11 w-9 shrink-0 overflow-hidden rounded-md border border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900";
+  "relative size-11 shrink-0 overflow-hidden rounded-md border border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900";
 
 const focusClassName =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:focus-visible:outline-zinc-100";
@@ -180,14 +180,16 @@ function CardBody({ project }: { project: TimelineProjectCardData }) {
         <CardImage project={project} />
       </span>
       <span className="min-w-0 pt-px">
-        <span className="block text-[13px] font-semibold leading-5 text-zinc-950 dark:text-zinc-50">
-          {project.title}
-        </span>
-        {project.year ? (
-          <span className="mt-0.5 block text-[11px] leading-4 text-zinc-400 tabular-nums dark:text-zinc-600">
-            {project.year}
+        <span className="flex flex-wrap items-baseline gap-x-1.5">
+          <span className="text-[13px] font-semibold leading-5 text-zinc-950 dark:text-zinc-50">
+            {project.title}
           </span>
-        ) : null}
+          {project.year ? (
+            <span className="text-[11px] leading-4 text-zinc-400 tabular-nums dark:text-zinc-600">
+              {project.year}
+            </span>
+          ) : null}
+        </span>
         <span className="mt-0.5 block line-clamp-2 text-[13px] leading-5 text-zinc-500 dark:text-zinc-400">
           {project.blurb}
         </span>
@@ -204,7 +206,7 @@ function CardImage({ project }: { project: TimelineProjectCardData }) {
       src={project.image.src}
       alt=""
       fill
-      sizes="36px"
+      sizes="44px"
       className={`transition-transform duration-300 ease-out group-hover/card:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover/card:scale-100 ${
         project.image.fit === "contain"
           ? "object-contain p-1"

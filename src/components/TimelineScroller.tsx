@@ -156,7 +156,7 @@ export function TimelineScroller({ children }: { children: ReactNode }) {
 
       const progressScale =
         trackHeight > 0 ? clamp(displayY / trackHeight, 0, 1) : 0;
-      progressEl.style.transform = `translateX(-50%) scaleY(${progressScale})`;
+      progressEl.style.transform = `scaleY(${progressScale})`;
       orbEl.style.transform = `translate(-50%, -50%) translateY(${displayY}px)`;
       orbEl.style.opacity = visible ? "1" : "0";
       orbEl.dataset.snapped =
@@ -227,11 +227,13 @@ export function TimelineScroller({ children }: { children: ReactNode }) {
         aria-hidden="true"
         className="pointer-events-none absolute inset-y-0 left-0 z-10"
       >
-        <div className="absolute inset-y-0 left-0 w-px -translate-x-1/2 bg-zinc-200 dark:bg-zinc-800" />
-        <div
-          ref={progressRef}
-          className="t-timeline-progress absolute inset-y-0 left-0 w-px origin-top"
-        />
+        <div className="t-timeline-lines absolute inset-y-0 left-0 w-px -translate-x-1/2">
+          <div className="absolute inset-y-0 left-0 w-px bg-zinc-200 dark:bg-zinc-800" />
+          <div
+            ref={progressRef}
+            className="t-timeline-progress absolute inset-y-0 left-0 w-px origin-top"
+          />
+        </div>
         <div
           ref={orbRef}
           className="t-timeline-orb absolute top-0 left-0 opacity-0"
