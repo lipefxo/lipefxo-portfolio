@@ -64,16 +64,29 @@ export default async function Home() {
 
         <div className="mt-16 space-y-16">
           <Projects work={workDetails} sideProjects={site.sideProjects} />
-          <GitHubContributions calendar={contributionCalendar} />
-          <footer
-            className="t-intro-item pt-8 text-xs text-zinc-400 dark:text-zinc-600"
-            style={{ "--intro-index": 8 } as CSSProperties}
-          >
-            <LatestCommit
-              initial={latestCommit}
-              fallback={`© ${site.name}`}
-            />
-          </footer>
+          <div>
+            <GitHubContributions calendar={contributionCalendar} />
+            <footer
+              className="t-intro-item mt-3 flex flex-wrap items-center gap-x-6 gap-y-1"
+              style={{ "--intro-index": 8 } as CSSProperties}
+            >
+              <LatestCommit
+                initial={latestCommit}
+                fallback={`© ${site.name}`}
+              />
+              {contributionCalendar && (
+                <h2
+                  id="contributions-heading"
+                  className="ml-auto text-right text-xs font-normal text-zinc-500 dark:text-zinc-500"
+                >
+                  <span className="text-[#5f8a62] dark:text-[#7d9e80]">
+                    {contributionCalendar.total.toLocaleString("en-US")}
+                  </span>{" "}
+                  contributions in the last year
+                </h2>
+              )}
+            </footer>
+          </div>
         </div>
       </IntroReveal>
       </div>

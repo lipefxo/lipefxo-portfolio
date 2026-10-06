@@ -54,21 +54,14 @@ export function LatestCommit({ initial, fallback }: Props) {
   const removed = formatCount(commit.deletions);
 
   return (
-    <a
-      href={commit.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`Latest commit ${relative}, ${commit.additions} lines added, ${commit.deletions} lines removed`}
-      title={commit.message}
-      className="inline-flex items-center gap-2 text-xs text-zinc-500 no-underline transition-colors hover:text-zinc-700 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-300 dark:focus-visible:outline-zinc-100"
-    >
+    <p className="inline-flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-500">
       <TerminalIcon />
       <span>
         latest commit <span suppressHydrationWarning>{relative}</span>:{" "}
         <span className="text-[#5f8a62] dark:text-[#7d9e80]">+{added}</span>{" "}
         <span className="text-[#b56a62] dark:text-[#c4877e]">-{removed}</span>
       </span>
-    </a>
+    </p>
   );
 }
 
