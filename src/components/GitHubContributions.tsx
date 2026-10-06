@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, type PointerEvent as ReactPointerEvent } from "react";
 import { site } from "@/config/site";
 import type { ContributionCalendar } from "@/lib/github-contributions";
 
@@ -15,7 +18,6 @@ const dayFormat = new Intl.DateTimeFormat("en", {
 });
 
 export function GitHubContributions({ calendar }: { calendar: ContributionCalendar | null }) {
-  const profileUrl = `https://github.com/${site.githubUser}`;
   const firstWeekday = calendar ? new Date(calendar.days[0].date).getUTCDay() : 0;
   const weeks = calendar ? Math.ceil((firstWeekday + calendar.days.length) / 7) : 0;
   const width = weeks * 14 - 4;
@@ -32,66 +34,139 @@ export function GitHubContributions({ calendar }: { calendar: ContributionCalend
   });
 
   return (
-    <section id="contributions" aria-labelledby="contributions-heading" className="max-w-[800px] space-y-4">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 id="contributions-heading" className="text-xs font-normal text-zinc-500 dark:text-zinc-400">
-          {calendar ? (
-            <>
-              <span className="font-medium text-zinc-700 dark:text-zinc-300">
-                {calendar.total.toLocaleString("en-US")} contributions
-              </span>{" "}
-              in the last year
-            </>
-          ) : "GitHub contributions"}
+    <section id="contributions" aria-labelledby="contributions-heading">
+      {calendar ? (
+        <ContributionGraph
+          calendar={calendar}
+          firstWeekday={firstWeekday}
+          width={width}
+          months={months}
+        />
+      ) : (
+        <h2 id="contributions-heading" className="text-xs font-normal text-zinc-500 dark:text-zinc-500">
+          GitHub contributions
         </h2>
-        <a
-          href={profileUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`View ${site.githubUser}'s contributions on GitHub`}
-          className="text-xs text-zinc-500 hover:text-zinc-900 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 dark:focus-visible:outline-zinc-100"
+      )}
+    </section>
+  );
+}
+
+function ContributionGraph({
+  calendar,
+  firstWeekday,
+  width,
+  months,
+}: {
+  calendar: ContributionCalendar;
+  firstWeekday: number;
+  width: number;
+  months: { label: string; week: number }[];
+}) {
+  const [hover, setHover] = useState<{ index: number; x: number; y: number } | null>(null);
+
+  function onPointerMove(event: ReactPointerEvent<SVGSVGElement>) {
+    const svg = event.currentTarget;
+    const index = dayIndexAt(svg, event.clientX, event.clientY, firstWeekday, calendar.days.length);
+    if (index === null) {
+      setHover(null);
+      return;
+    }
+    const origin = event.currentTarget.parentElement?.parentElement?.getBoundingClientRect();
+    const point = cellOrigin(svg, index, firstWeekday);
+    if (!origin || !point) return;
+    setHover({ index, x: point.x - origin.left, y: point.y - origin.top });
+  }
+
+  const day = hover ? calendar.days[hover.index] : null;
+
+  return (
+    <div className="relative">
+      <div
+        className="overflow-x-auto rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-500"
+        tabIndex={0}
+        role="region"
+        aria-label="Contribution calendar, scroll horizontally on smaller screens"
+        onScroll={() => setHover(null)}
+      >
+        <svg
+          viewBox={`0 0 ${width} 118`}
+          className="block w-full min-w-[560px] select-none"
+          role="img"
+          aria-labelledby="contribution-calendar-title contribution-calendar-description"
+          onPointerMove={onPointerMove}
+          onPointerLeave={() => setHover(null)}
         >
-          GitHub <span aria-hidden="true">↗</span>
-        </a>
-      </div>
-      {calendar && (
-        <div
-          className="overflow-x-auto rounded-sm pb-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-500"
-          tabIndex={0}
-          role="region"
-          aria-label="Contribution calendar, scroll horizontally on smaller screens"
-        >
-          <svg
-            viewBox={`0 0 ${width} 118`}
-            className="block w-full min-w-[560px]"
-            role="img"
-            aria-labelledby="contribution-calendar-title contribution-calendar-description"
-          >
-            <title id="contribution-calendar-title">{`GitHub contribution calendar for ${site.githubUser}`}</title>
-            <desc id="contribution-calendar-description">
-              {calendar.total.toLocaleString("en-US")} contributions from {dayFormat.format(new Date(calendar.days[0].date))} to {dayFormat.format(new Date(calendar.days.at(-1)!.date))}. Darker green in light mode and brighter green in dark mode indicate more contributions. Daily details are available on GitHub.
-            </desc>
-            <g className="fill-zinc-500 dark:fill-zinc-400" fontSize="10" aria-hidden="true">
-              {months.map(({ label, week }) => (
-                <text key={`${label}-${week}`} x={week * 14} y={10}>{label}</text>
-              ))}
-            </g>
-            {calendar.days.map((day, index) => (
+          <title id="contribution-calendar-title">{`GitHub contribution calendar for ${site.githubUser}`}</title>
+          <desc id="contribution-calendar-description">
+            {calendar.total.toLocaleString("en-US")} contributions from {dayFormat.format(new Date(calendar.days[0].date))} to {dayFormat.format(new Date(calendar.days.at(-1)!.date))}. Darker green in light mode and brighter green in dark mode indicate more contributions. Daily details are available on GitHub.
+          </desc>
+          <g className="fill-zinc-500 dark:fill-zinc-400" fontSize="10" aria-hidden="true">
+            {months.map(({ label, week }) => (
+              <text key={`${label}-${week}`} x={week * 14} y={10}>{label}</text>
+            ))}
+          </g>
+          {calendar.days.map((entry, index) => {
+            const active = hover?.index === index;
+            return (
               <rect
-                key={day.date}
+                key={entry.date}
                 x={Math.floor((firstWeekday + index) / 7) * 14}
                 y={24 + ((firstWeekday + index) % 7) * 14}
                 width={10}
                 height={10}
                 rx={2}
-                className={colors[day.level]}
-              >
-                <title>{`${day.count === 0 ? "No contributions" : `${day.count} contribution${day.count === 1 ? "" : "s"}`} on ${dayFormat.format(new Date(day.date))}`}</title>
-              </rect>
-            ))}
-          </svg>
+                className={`${colors[entry.level]} ${active ? "stroke-zinc-950 dark:stroke-zinc-100" : ""}`}
+                strokeWidth={active ? 1 : 0}
+              />
+            );
+          })}
+        </svg>
+      </div>
+      {day && hover && (
+        <div
+          role="tooltip"
+          className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-[calc(100%+8px)] whitespace-nowrap rounded-lg bg-[#222222] px-3 py-2 text-xs font-medium text-[#f0f0f0] shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_6px_0_rgba(0,0,0,0.05),0_4px_42px_0_rgba(0,0,0,0.06)]"
+          style={{ left: hover.x, top: hover.y }}
+        >
+          {day.count === 0
+            ? "No contributions"
+            : `${day.count.toLocaleString("en-US")} contribution${day.count === 1 ? "" : "s"}`}
+          <span className="font-normal text-[#a1a1a1]"> on {dayFormat.format(new Date(day.date))}</span>
         </div>
       )}
-    </section>
+    </div>
   );
+}
+
+function dayIndexAt(
+  svg: SVGSVGElement,
+  clientX: number,
+  clientY: number,
+  firstWeekday: number,
+  dayCount: number,
+) {
+  const local = svgPoint(svg, clientX, clientY);
+  if (!local || local.y < 24) return null;
+  const week = Math.floor(local.x / 14);
+  const row = Math.floor((local.y - 24) / 14);
+  if (week < 0 || row < 0 || row > 6) return null;
+  if (local.x - week * 14 > 10 || local.y - 24 - row * 14 > 10) return null;
+  const index = week * 7 + row - firstWeekday;
+  if (index < 0 || index >= dayCount) return null;
+  return index;
+}
+
+function cellOrigin(svg: SVGSVGElement, index: number, firstWeekday: number) {
+  const week = Math.floor((firstWeekday + index) / 7);
+  const row = (firstWeekday + index) % 7;
+  return svgPoint(svg, week * 14 + 5, 24 + row * 14, true);
+}
+
+function svgPoint(svg: SVGSVGElement, x: number, y: number, toScreen = false) {
+  const matrix = svg.getScreenCTM();
+  if (!matrix) return null;
+  const point = svg.createSVGPoint();
+  point.x = x;
+  point.y = y;
+  return toScreen ? point.matrixTransform(matrix) : point.matrixTransform(matrix.inverse());
 }
