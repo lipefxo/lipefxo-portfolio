@@ -12,11 +12,16 @@ import { AgentModeShell } from "@/components/AgentModeShell";
 import { LatestCommit } from "@/components/LatestCommit";
 import { getAgentMarkdown } from "@/lib/agent-markdown";
 import { getLatestCommit } from "@/lib/latest-commit";
+import { GitHubContributions } from "@/components/GitHubContributions";
+import { getContributionCalendar } from "@/lib/github-contributions";
 
 export default async function Home() {
   const workDetails = site.work.map(workToDetail);
   const agentMarkdown = getAgentMarkdown();
-  const latestCommit = await getLatestCommit();
+  const [latestCommit, contributionCalendar] = await Promise.all([
+    getLatestCommit(),
+    getContributionCalendar(site.githubUser),
+  ]);
 
   return (
     <AgentModeShell markdown={agentMarkdown}>
@@ -59,6 +64,7 @@ export default async function Home() {
 
         <div className="mt-16 space-y-16">
           <Projects work={workDetails} sideProjects={site.sideProjects} />
+          <GitHubContributions calendar={contributionCalendar} />
           <footer
             className="t-intro-item pt-8 text-xs text-zinc-400 dark:text-zinc-600"
             style={{ "--intro-index": 8 } as CSSProperties}

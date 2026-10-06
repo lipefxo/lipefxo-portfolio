@@ -39,6 +39,15 @@ GITHUB_TOKEN=ghp_xxx
 
 Private/work repos are **never** fetched — their content is static in `site.ts`.
 
+The homepage contribution calendar reads the public calendar for `site.githubUser`
+directly from GitHub, server-side, and caches it for one hour. It requires no token
+and only displays dates, counts, and activity levels. To include anonymized private
+and internal activity, enable **Contribution settings → Private contributions**
+on your GitHub profile. Repository names, code, and commit messages are not fetched
+by the calendar. Its data follows what signed-out visitors can see on GitHub.
+If GitHub is unavailable or changes its calendar markup, the section falls back
+to a profile link instead of displaying an inaccurate graph.
+
 ## Build & deploy
 
 ```bash
