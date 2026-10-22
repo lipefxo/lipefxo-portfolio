@@ -6,6 +6,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --chart-label: var(--color-zinc-500);
+  --chart-tooltip-background: var(--tt-bg);
+  --chart-tooltip-foreground: var(--tt-fg);
+  --chart-tooltip-muted: var(--color-zinc-400);
+  --chart-scale-01: var(--color-zinc-100);
+  --chart-scale-02: #dce6dd;
+  --chart-scale-03: #b5cbb7;
+  --chart-scale-04: #8eaf92;
+  --chart-scale-05: #5f8a62;
   --stagger-dur: 500ms;
   --stagger-distance: 12px;
   --stagger-stagger: 40ms;
@@ -199,6 +208,12 @@
 .dark {
   --background: #0a0a0a;
   --foreground: #ededed;
+  --chart-label: var(--color-zinc-400);
+  --chart-scale-01: var(--color-zinc-900);
+  --chart-scale-02: #253228;
+  --chart-scale-03: #3d5141;
+  --chart-scale-04: #5b765f;
+  --chart-scale-05: #7d9e80;
   --shimmer-base: #d4d4d8;
   --shimmer-highlight: #5eead4;
   --text-shimmer-highlight: #ffffff;
@@ -207,6 +222,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-chart-label: var(--chart-label);
+  --color-chart-tooltip-background: var(--chart-tooltip-background);
+  --color-chart-tooltip-foreground: var(--chart-tooltip-foreground);
+  --color-chart-tooltip-muted: var(--chart-tooltip-muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-brand: var(--font-caveat);
