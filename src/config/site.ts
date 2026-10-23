@@ -1000,6 +1000,14 @@ export const site: SiteConfig = {
   // to in-app experiences instead of a case-study page.
   sideProjects: [
     {
+      name: "BTG Investments",
+      kind: "Prototype",
+      blurb:
+        "A responsive investment experience that pairs editorial confidence with hands-on portfolio tools, interactive simulators, and market intelligence.",
+      href: "/btg-investments-prototype",
+      logo: "/btg-investments-prototype/investment-sculpture.webp",
+    },
+    {
       name: "Higlobe",
       kind: "Prototype",
       blurb:
