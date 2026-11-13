@@ -40,3 +40,38 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+  loteria-lab:
+    name: Loteria Lab
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/loteria-lab
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/loteria-lab/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npm test
+      - run: npm run benchmark:verify
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build
+      - name: Apply preview database migrations
+        run: node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0000_ancient_giant_girl.sql
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+        env:
+          LOTTERY_TEST_PORT: 55020
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: loteria-browser-failures
+          path: .context/browser/loteria-regression
+          include-hidden-files: true

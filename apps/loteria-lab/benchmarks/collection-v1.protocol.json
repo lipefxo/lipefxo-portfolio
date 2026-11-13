@@ -1,0 +1,63 @@
+{
+  "id": "collection-benchmark-v1",
+  "description": "Predefined exploratory rolling-origin comparison on the bundled Mega-Sena snapshot.",
+  "dataset": {
+    "path": "data/megasena.json",
+    "sha256": "4d07b80e4d36eb85ccb4880e0bd09f146a7490a7c513018947e6e5e2a066ec60",
+    "game": "megasena",
+    "draws": 3075,
+    "firstContest": 1,
+    "lastContest": 3075,
+    "fetchedAt": "2026-10-27T14:45:21.987489+00:00",
+    "source": {
+      "archiveUrl": "https://servicebus3.caixa.gov.br/portaldeloterias/api/resultados/download?modalidade=Mega-Sena",
+      "apiUrl": "https://servicebus3.caixa.gov.br/portaldeloterias/api/megasena",
+      "rulesUrl": "https://loterias.caixa.gov.br/Paginas/Mega-Sena.aspx",
+      "archiveSha256": "a7d1e32136b545757343ac956d48a1d2787f7be6b9f3890c13ea0092966bc2f4",
+      "drawsSha256": "93bdc42eec55b1a98e5fa9ba4b6e44aa737f1e1791ce53ca6d9c0b4a4854fe0f",
+      "archiveThroughContest": 3075,
+      "apiVerifiedContests": [
+        1,
+        500,
+        1000,
+        1500,
+        2000,
+        2500,
+        3000,
+        3075
+      ]
+    }
+  },
+  "implementation": {
+    "lib/lottery/collection-backtest.ts": "54cdb61f20adf24c1d44a046e6943d584167e70511f7d8e2a60b81b266580f12",
+    "lib/lottery/generator.ts": "5e588a264eabdeda601ae23cb444530832bf242b8bf8d19a84173f6e79e12224",
+    "lib/lottery/math.ts": "112d3372d816397b4088a47c8c333e46d8e77a3d7fb88832d88e4ad61207ab47",
+    "lib/lottery/portfolio.ts": "04a411bd5b58a2c7ea912c708f5b1ab07fe5953a80af931ee3542db85c533746",
+    "lib/lottery/games.ts": "b93c7785c739acaa08d3c57f119b8d0c2adfc1e5af2983a5c007fa7023208600"
+  },
+  "periodEndContests": [
+    1000,
+    2000,
+    3075
+  ],
+  "trainSize": 200,
+  "testSize": 100,
+  "seed": 20261113,
+  "seeds": 5,
+  "counts": [
+    2,
+    10
+  ],
+  "objectives": [
+    "sena",
+    "any-prize"
+  ],
+  "options": {
+    "strategy": "ensemble",
+    "size": 6,
+    "fixed": [],
+    "excluded": [],
+    "balanced": false
+  },
+  "metrics": "Collection-v1 results and paired contest-level normal intervals for maxHits; seeds averaged within contest."
+}
